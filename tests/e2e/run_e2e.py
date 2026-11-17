@@ -20,7 +20,7 @@ fails=[]
 def check(name,val,exp,tol):
     ok=abs(val-exp)<=tol; print(f"  {'OK ' if ok else 'FALLO'} {name}: {val} (esperado {exp} ± {tol})")
     if not ok: fails.append(name)
-async def page_with_camera(p,video):
+async def page_with_camera(p,video,query=''):
     args=['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream',f'--use-file-for-fake-video-capture={os.path.join(OUT,video)}']
     kw={'args':args}
     if os.environ.get('CHROME_PATH'): kw['executable_path']=os.environ['CHROME_PATH']
@@ -30,7 +30,7 @@ async def page_with_camera(p,video):
         if 'vision_bundle.mjs' in r.request.url: await r.fulfill(status=200,content_type='application/javascript',body=FAKE)
         else: await r.abort()
     await pg.route('https://cdn.jsdelivr.net/**',route)
-    await pg.goto(f'http://127.0.0.1:{PORT}/index.html'); await pg.wait_for_timeout(500)
+    await pg.goto(f'http://127.0.0.1:{PORT}/index.html{query}'); await pg.wait_for_timeout(500)
     return b,pg,errs
 def check_common(t,hexp,A,typ):
     check('DIP',num1(t,'DIP lejos'),64.0,0.2); od,os_=num(t,'Mono OD/OI'); check('mono OD',od,31.5,0.2); check('mono OI',os_,32.5,0.2)
@@ -140,7 +140,7 @@ async def main():
         if errs: fails.append('errores JS (montura)'); print('Errores JS:',errs)
         await b.close()
         # ---------- método tarjeta e iris ----------
-        b,pg,errs=await page_with_camera(p,'card.y4m')
+        b,pg,errs=await page_with_camera(p,'card.y4m','?e2e')
         print('Método tarjeta (en vivo):')
         await pg.click('#scrSkip')
         await pg.click('nav [data-view=settings]'); await pg.select_option('#modeSel','card')
@@ -162,6 +162,33 @@ async def main():
         await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
         t=await pg.input_value('#copyArea'); check('DIP (óptico)',num1(t,'DIP lejos'),64.0,0.2)
         await pg.click('nav [data-view=settings]'); await pg.select_option('#whoSel','selfie')
+        print('Personalización: galbe con plantilla y panto y vértice con foto de perfil:')
+        await pg.check('#persChk')
+        await pg.click('#newMeasureBtn'); await pg.click('#personSkip')
+        await pg.wait_for_selector('#wrapPanel:not(.hidden)'); await pg.wait_for_timeout(500)
+        od=lambda t: float(re.search(r'OD (-?\d+,\d)',t).group(1).replace(',','.'))
+        w0=od(await pg.inner_text('#wrapVals')); bb=await pg.locator('#wrapCv').bounding_box(); k=96/25.4
+        x=bb['x']+bb['width']/2+62*k; y=bb['y']+bb['height']*0.38+6*k
+        await pg.mouse.move(x,y); await pg.mouse.down(); await pg.mouse.move(x,y+15); await pg.mouse.move(x,y+30); await pg.mouse.up()
+        w1=od(await pg.inner_text('#wrapVals')); ok=w1>w0+3
+        print(f"  {'OK ' if ok else 'FALLO'} el galbe OD sigue al punto temporal ({w0} → {w1}°)")
+        if not ok: fails.append('plantilla del galbe')
+        await pg.click('#wrapOk')
+        await pg.wait_for_selector('#profPanel:not(.hidden)',timeout=40000); print('  OK  tras la foto frontal se pide la foto de perfil')
+        await pg.click('#profStart')
+        await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
+        res=await pg.inner_text('#results'); tabs=await pg.inner_text('#capTabs')
+        ok='Ángulo pantoscópico' in res and 'Distancia al vértice' in res and 'Galbe' in res and 'Foto de perfil' in tabs and await pg.is_disabled('#pVertex')
+        print(f"  {'OK ' if ok else 'FALLO'} resultados de personalización y pestaña de perfil")
+        if not ok: fails.append('resultados de personalización'); print(res, errs)
+        m=re.search(r'Galbe \(OD (-?\d+,\d)',res); check('galbe OD en resultados',float(m.group(1).replace(',','.')),w1,0.15)
+        await pg.select_option('#savePerson','__new'); await pg.fill('#pfName','Marta'); await pg.click('#pfSave'); await pg.wait_for_timeout(300)
+        await pg.click('#saveBtn'); await pg.wait_for_selector('#viewPerson:not(.hidden)')
+        await pg.click('#personMeasures tbody tr >> nth=0'); await pg.wait_for_selector('#viewRecord:not(.hidden)')
+        rb=await pg.inner_text('#recordBody'); ok='Ángulo pantoscópico' in rb and 'Galbe' in rb
+        print(f"  {'OK ' if ok else 'FALLO'} la medida guardada incluye la personalización")
+        if not ok: fails.append('personalización guardada')
+        await pg.click('nav [data-view=settings]'); await pg.uncheck('#persChk')
         print('Método iris (2 fotos subidas):')
         await pg.click('nav [data-view=settings]'); await pg.select_option('#modeSel','iris')
         await pg.set_input_files('#fileN',os.path.join(OUT,'iris_N.png')); await pg.wait_for_timeout(1500)

@@ -140,7 +140,9 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
 .rxgrid b{color:var(--ink)}
 /* plantilla y calibración */
 .tplWrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-#tplCv,#scrCv{display:block;width:100%;touch-action:none;outline:none}
+#tplCv,#scrCv,#wrapCv{display:block;width:100%;touch-action:none;outline:none}
+#wrapCv{cursor:move;background:#fff}
+.operator.mirror .stage video,.operator.mirror .stage canvas{transform:scaleX(-1)}
 #tplCv{cursor:ew-resize;background:#fff}
 .tplHead{display:flex;align-items:flex-start;gap:12px}
 .tplHead .sp{flex:1 1 auto}
@@ -152,12 +154,12 @@ ol.tplSteps .n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc)
 .tplOpts{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
 .tplOpts label.f{flex:1 1 170px}
 .tplVals{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;font-size:15px}
-#tplPanel .tplWrap{margin-top:14px}
+#tplPanel .tplWrap,#wrapPanel .tplWrap{margin-top:14px}
 /* en ordenador, la plantilla ocupa la pantalla y queda pegada al borde inferior (la montura se apoya en el teclado) */
-#tplPanel.full{position:fixed;inset:0;margin:0;z-index:70;border:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:var(--bg);box-shadow:none}
-#tplPanel.full .tplTop{flex:1 1 auto;overflow:auto;width:100%;max-width:1180px;margin:0 auto;padding:16px 22px 8px}
-#tplPanel.full .tplTop .actions{margin-top:10px;padding-top:10px}
-#tplPanel.full .tplWrap{flex:0 0 auto;margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+#tplPanel.full,#wrapPanel.full{position:fixed;inset:0;margin:0;z-index:70;border:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:var(--bg);box-shadow:none}
+#tplPanel.full .tplTop,#wrapPanel.full .tplTop{flex:1 1 auto;overflow:auto;width:100%;max-width:1180px;margin:0 auto;padding:16px 22px 8px}
+#tplPanel.full .tplTop .actions,#wrapPanel.full .tplTop .actions{margin-top:10px;padding-top:10px}
+#tplPanel.full .tplWrap,#wrapPanel.full .tplWrap{flex:0 0 auto;margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
 body.noscroll{overflow:hidden}
 /* ¿quién hace la foto? */
 .whoBox{margin-top:18px}
@@ -356,6 +358,34 @@ body.noscroll{overflow:hidden}
     <div class="tplWrap" id="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
   </div>
 
+  <!-- Paso: galbe (personalización). Plantilla en la que se apoya la montura y se marcan los extremos de cada lente -->
+  <div class="card hidden tplLike" id="wrapPanel">
+    <div class="tplTop">
+      <div class="tplHead">
+        <div><div class="tplKicker" id="wrapKicker"></div><h2>Mide el galbe de la montura</h2></div>
+        <span class="sp"></span>
+        <button id="wrapFs" type="button">Pantalla completa</button>
+      </div>
+      <ol class="tplSteps">
+        <li><span class="n">1</span><span id="wrapStep1"></span></li>
+        <li><span class="n">2</span><span>Lleva cada punto al <b>extremo de cada lente</b> en el borde del frente: <b>temporal</b> (junto a la bisagra) y <b>nasal</b> (junto al puente).</span></li>
+        <li><span class="n">3</span><span>Míralos de frente, con un ojo cerrado. El galbe es un ángulo: <b>no depende de la calibración</b> de la pantalla.</span></li>
+      </ol>
+      <div id="wrapMsg"></div>
+      <div class="actions"><button id="wrapBack" type="button">← Atrás</button><button class="link" id="wrapSkip" type="button">Omitir este paso</button><span class="sp"></span><span class="tplVals" id="wrapVals"></span><button class="pri big" id="wrapOk" type="button">Siguiente →</button></div>
+    </div>
+    <div class="tplWrap"><canvas id="wrapCv" tabindex="0"></canvas></div>
+  </div>
+
+  <!-- Paso: foto de perfil (personalización): preparación; la captura usa la capa de la foto -->
+  <div class="card hidden" id="profPanel">
+    <h2>Foto de perfil</h2>
+    <p class="lead">Para medir el ángulo pantoscópico y la distancia al vértice, con las gafas puestas.</p>
+    <ol class="tplSteps" id="profSteps"></ol>
+    <div id="profMsg"></div>
+    <div class="actions"><button id="profBack" type="button">← Atrás</button><button class="link" id="profSkip" type="button">Omitir este paso</button><span class="sp"></span><button class="pri big" id="profStart" type="button">Empezar la foto de perfil</button></div>
+  </div>
+
   <!-- Paso: foto. Capa a pantalla completa con dos disposiciones:
        · selfie: indicaciones pegadas a la cámara (para que los ojos no se desvíen) y vista previa pequeña;
        · óptico: vista previa grande y sin espejo, con una sola indicación muy visible y el nivel del dispositivo. -->
@@ -423,6 +453,14 @@ body.noscroll{overflow:hidden}
         </div>
       </div>
     </div>
+    <details id="persWrap" open><summary>Personalización: panto, vértice y galbe</summary>
+      <div class="row">
+        <label class="f">Altura exterior de la montura (mm)<input id="pfH" type="number" step="0.1"></label>
+        <label class="f">Galbe OD (°)<input id="wOd" type="number" step="0.1"></label>
+        <label class="f">Galbe OI (°)<input id="wOs" type="number" step="0.1"></label>
+      </div>
+      <div class="note" id="persNote" style="margin-top:6px"></div>
+    </details>
     <details id="rxWrap"><summary>Graduación de las gafas <span class="note" style="font-weight:400">· corrige el efecto prismático; imprescindible en el método iris</span></summary>
       <div class="rxgrid" style="margin-top:8px">
         <span></span><span>Esf</span><span>Cil</span><span>Eje</span><span>Curva base (D)</span><span>Espesor c. (mm)</span>
@@ -518,6 +556,15 @@ body.noscroll{overflow:hidden}
           <li><b>Método iris</b>: una foto <b>sin gafas</b> y otra <b>con gafas</b> a la misma distancia. Introduce después la graduación de cada lente y, si lo conoces, el blanco‑blanco.</li>
         </ol>
       </details>
+    </div>
+    <div class="card">
+      <h2>Medidas de personalización</h2>
+      <p class="note">Para lentes freeform personalizadas: <b>ángulo pantoscópico</b> y <b>distancia al vértice</b> con una foto de perfil, y <b>galbe</b> con una plantilla. Añaden dos pasos a cada medida, que se pueden omitir.</p>
+      <div class="row"><label class="chk"><input type="checkbox" id="persChk"> Medir panto, vértice y galbe</label></div>
+    </div>
+    <div class="card">
+      <h2>Idioma · Language</h2>
+      <label class="f"><select id="langSel"><option value="es">Español</option><option value="en">English</option></select></label>
     </div>
     <div class="card">
       <h2>Cámara</h2>
@@ -1035,6 +1082,10 @@ const BEVEL_LABEL = {
   'full-acetate': 'Bisel en V (punta de bisel)', 'full-metal': 'Bisel en V (mini-bisel si el aro es muy fino)',
   'nylor': 'Canto plano con ranura para el hilo', 'rimless': 'Canto plano pulido, taladrado',
 };
+const MOUNT_LABEL_EN = { 'full-acetate': 'Full-rim plastic (acetate)', 'full-metal': 'Full-rim metal', 'nylor': 'Semi-rimless / grooved (nylon)', 'rimless': 'Rimless (drilled)' };
+const BEVEL_LABEL_EN = { 'full-acetate': 'V-bevel', 'full-metal': 'V-bevel (mini-bevel if the rim is very thin)', 'nylor': 'Flat edge with groove for the nylon cord', 'rimless': 'Polished flat edge, drilled' };
+// Avisos del cálculo en los dos idiomas de la interfaz (R.flags en español, R.flagsEn en inglés)
+function flag(R, es, en) { R.flags.push(es); R.flagsEn.push(en); }
 function classifyFrame(rimOD, rimOS, detOD, detOS) {
   if (detOD && detOS && !detOD.plausible && !detOS.plausible)
     return { mounting: 'rimless', conf: 'baja', failed: true, metrics: { T: 14 }, reason: 'no se encuentra un aro continuo alrededor de las lentes' };
@@ -1320,7 +1371,7 @@ function measureCap(cap, geo, p, mounting) {
 function lensesFromParams(p) { return { od: lensData(p.rx.od, p.index), os: lensData(p.rx.os, p.index) }; }
 // Resuelve todas las capturas del modelo M con los parámetros p
 function solveAll(M, p) {
-  const R = { mode: M.mode, flags: [] };
+  const R = { mode: M.mode, flags: [], flagsEn: [] };
   const lens = lensesFromParams(p);
   R.lens = lens;
   const G = M.caps.find(c => c.id === 'G'), N = M.caps.find(c => c.id === 'N');
@@ -1340,12 +1391,12 @@ function solveAll(M, p) {
   if (M.mode === 'frame') {
     if (!G) return R;
     const sc = frameScaleZ(G, p.tpl, p);
-    if (!sc) { R.flags.push('Faltan las medidas de la montura en la plantilla (ancho exterior o A y DBL).'); return R; }
+    if (!sc) { flag(R, 'Faltan las medidas de la montura en la plantilla (ancho exterior o A y DBL).', 'The frame measurements from the template are missing (outer width, or A and DBL).'); return R; }
     const v = +p.vertex || 12;
     const geo = { ZL: sc.ZL, rf: { od: v + lens.od.t / 2 + CR, os: v + lens.os.t / 2 + CR }, lens };
     const r = measureCap(G, geo, p, mounting);
     Object.assign(R, r, { G: r, scale: sc, vertex: v, vertexMeasured: false });
-    if (sc.flag) R.flags.push(`Las dos referencias de escala discrepan un ${(sc.disc * 100).toFixed(1).replace('.', ',')} %: revisa los bordes exteriores (líneas azules), los lados nasal y temporal de los recuadros y las medidas de la plantilla.`);
+    if (sc.flag) flag(R, `Las dos referencias de escala discrepan un ${(sc.disc * 100).toFixed(1).replace('.', ',')} %: revisa los bordes exteriores (líneas azules), los lados nasal y temporal de los recuadros y las medidas de la plantilla.`, `The two scale references disagree by ${(sc.disc * 100).toFixed(1)} %: check the outer edges (blue lines), the nasal and temporal sides of the boxes and the template measurements.`);
     return R;
   }
   if (!N) return R;
@@ -1363,11 +1414,12 @@ function solveAll(M, p) {
     const sdA = Aobs * Math.hypot(0.2 / G.iris[e].r, 0.2 / N.iris[e].r, ks.sd);
     const r = { Aobs, ok: sol.ok, reason: sol.reason, F: L.h };
     if (sol.ok) { r.v = sol.h - E_L; r.sd = Math.abs(sdA / sol.dAdh); if (r.v < 4 || r.v > 30) { r.ok = false; r.reason = 'resultado no plausible'; } }
-    if (Math.abs(L.h) >= 2 && Math.abs(Aobs - 1) < 0.008) R.flags.push(`${e.toUpperCase()}: el iris casi no cambia de tamaño con una lente de ${L.h.toFixed(2)} D. ¿Llevabas las gafas en la foto 2 y no en la 1?`);
-    if (Math.abs(L.h) >= 2 && Math.sign(Aobs - 1.005) !== Math.sign(L.h)) R.flags.push(`${e.toUpperCase()}: el iris cambia en sentido contrario al esperado para ${L.h.toFixed(2)} D. Revisa el signo de la graduación.`);
+    const eEs = e === 'od' ? 'OD' : 'OI', eEn = e === 'od' ? 'OD' : 'OS';
+    if (Math.abs(L.h) >= 2 && Math.abs(Aobs - 1) < 0.008) flag(R, `${eEs}: el iris casi no cambia de tamaño con una lente de ${L.h.toFixed(2)} D. ¿Llevabas las gafas en la foto 2 y no en la 1?`, `${eEn}: the iris barely changes size with a ${L.h.toFixed(2)} D lens. Were the glasses on in photo 2 and off in photo 1?`);
+    if (Math.abs(L.h) >= 2 && Math.sign(Aobs - 1.005) !== Math.sign(L.h)) flag(R, `${eEs}: el iris cambia en sentido contrario al esperado para ${L.h.toFixed(2)} D. Revisa el signo de la graduación.`, `${eEn}: the iris changes size in the opposite direction to that expected for ${L.h.toFixed(2)} D. Check the sign of the prescription.`);
     eyes[e] = r;
   }
-  const fz = fuseVertex([eyes.od, eyes.os], +p.vertex || 12, 2.5);
+  const fz = fuseVertex([eyes.od, eyes.os], +p.vertex || 12, +p.vertexSd || 2.5);
   const v = fz.v, tbar = (lens.od.t + lens.os.t) / 2;
   const geo = { ZL: Z2 - E_L - v - tbar / 2, rf: { od: v + lens.od.t / 2 + CR, os: v + lens.os.t / 2 + CR }, lens };
   const rG = measureCap(G, geo, p, mounting);
@@ -1396,6 +1448,7 @@ function solveWithUnc(M, p, sf) {
   mod(m => m.caps.forEach(c => c.f *= 1 + sf));
   for (const ci in M.caps) {
     const cap = M.caps[ci], ss = cap.ss || 1;   // errores de localización expresados en píxeles de la cámara
+    if (!cap.iris) continue;                    // la foto de perfil no entra en este cálculo
     for (const e of ['od', 'os']) {
       mod(m => { m.caps[ci].iris[e].x += 0.4 * ss; m.caps[ci].iris[e].y += 0.4 * ss; });
       if (M.mode === 'iris') mod(m => { m.caps[ci].iris[e].r += 0.2 * ss; });
@@ -1405,7 +1458,9 @@ function solveWithUnc(M, p, sf) {
     if (cap.card) mod(m => { m.caps[ci].card.R = shiftLine(m.caps[ci].card.R, 0.7 * ss); });
     if (cap.bridge) mod(m => { m.caps[ci].bridge.x += 0.7 * ss; });
   }
-  mod(() => { }, { ...p, vertex: (+p.vertex || 12) + 2.5 });
+  mod(() => { }, { ...p, vertex: (+p.vertex || 12) + (+p.vertexSd || 2.5) });
+  if (+p.pantoSd) mod(() => { }, { ...p, panto: (+p.panto || 0) + +p.pantoSd });
+  if (+p.wrapSd) mod(() => { }, { ...p, wrap: (+p.wrap || 0) + +p.wrapSd });
   if (M.mode === 'card') mod(() => { }, { ...p, cardOffset: (+p.cardOffset || 0) + 1.5 });
   else if (M.mode === 'frame') {
     const t = p.tpl || {};
@@ -1459,6 +1514,48 @@ function guidePlacement(cam, vw, vh, cw, ch, m = 8) {
   return { left, top, cam: { x: px, y: py, edge: e } };
 }
 
+// ---------- Personalización: foto de perfil (panto y vértice) y plantilla del galbe ----------
+// Foto de perfil, con la cámara a nivel. Puntos en px: T y B, borde exterior superior e inferior del frente de la montura;
+// C, vértice corneal; P, cara posterior de la lente delante de la córnea.
+//  · panto = ángulo de T→B con la vertical de la imagen, > 0 si el borde inferior va hacia la cara (lado de C);
+//  · escala: el frente visto de canto mide su altura real H. Si H viene de la foto frontal es una proyección
+//    (H·cos panto) y se corrige (o.projected); si se midió con regla, no;
+//  · vértice = |C − P| · escala.
+// Incertidumbre: ±1 px (× ss) en cada punto, ±0,5 mm en H y el nivel de la cámara (o.rollSd, en grados) en el panto.
+function profileMeasure(q, Hmm, o = {}) {
+  const ss = o.ss || 1, rollSd = o.rollSd == null ? 1.5 : o.rollSd;
+  const f = (T, B, C, P, H) => {
+    const dx = B.x - T.x, dy = B.y - T.y, seg = Math.hypot(dx, dy);
+    const face = Math.sign(C.x - (T.x + B.x) / 2) || 1;
+    const panto = Math.atan2(dx * face, dy) / DEG;
+    const s = (o.projected ? H / Math.cos(panto * DEG) : H) / seg;
+    return { panto, bvd: Math.hypot(C.x - P.x, C.y - P.y) * s, s, seg, face };
+  };
+  const base = f(q.T, q.B, q.C, q.P, Hmm);
+  if (!(base.seg > 0) || !(Hmm > 0)) return null;
+  let sp = 0, sb = 0;
+  for (const k of ['T', 'B', 'C', 'P']) for (const [dx, dy] of [[ss, 0], [0, ss]]) {
+    const q2 = { ...q, [k]: { x: q[k].x + dx, y: q[k].y + dy } }, r = f(q2.T, q2.B, q2.C, q2.P, Hmm);
+    sp += (r.panto - base.panto) ** 2; sb += (r.bvd - base.bvd) ** 2;
+  }
+  const rH = f(q.T, q.B, q.C, q.P, Hmm + 0.5); sb += (rH.bvd - base.bvd) ** 2;
+  return { ...base, sdPanto: Math.sqrt(sp + rollSd ** 2), sdBvd: Math.sqrt(sb) };
+}
+// Plantilla del galbe: la montura se apoya por el borde inferior del frente sobre la pantalla, con las varillas hacia
+// quien mira (hacia abajo en la pantalla, +y), y se marcan los extremos de cada lente: temporal y nasal.
+// Plano del frente = recta por los centros de las dos lentes (como en ISO 13666); galbe de cada lente = ángulo entre
+// su recta nasal→temporal y ese plano, > 0 si el extremo temporal va hacia la cara (hacia las varillas).
+// Es una vista de planta: los ángulos no dependen de la escala, solo de que los píxeles sean cuadrados.
+function wrapFromPoints(q) {
+  const mL = { x: (q.tL.x + q.nL.x) / 2, y: (q.tL.y + q.nL.y) / 2 }, mR = { x: (q.tR.x + q.nR.x) / 2, y: (q.tR.y + q.nR.y) / 2 };
+  const ul = Math.hypot(mR.x - mL.x, mR.y - mL.y); if (!(ul > 0)) return null;
+  const u = { x: (mR.x - mL.x) / ul, y: (mR.y - mL.y) / ul };
+  let n = { x: -u.y, y: u.x }; if (n.y < 0) n = { x: -n.x, y: -n.y };
+  const ang = (t, m) => { const dx = t.x - m.x, dy = t.y - m.y, d = Math.hypot(dx, dy); return d > 0 ? Math.asin(Math.max(-1, Math.min(1, (dx * n.x + dy * n.y) / d))) / DEG : NaN; };
+  const od = ang(q.tR, q.nR), os = ang(q.tL, q.nL);
+  return { od, os, mean: (od + os) / 2 };
+}
+
 // ---------- Histórico: registros de medida, resumen, exportación (sin DOM) ----------
 const REC_KEYS = ['pdFar', 'monoOD', 'monoOS', 'hOD', 'hOS', 'pdNear', 'DBL', 'DNC', 'Z', 'vertex'];
 const r2 = v => v == null || !isFinite(v) ? null : Math.round(v * 100) / 100;
@@ -1482,7 +1579,8 @@ function buildRecord(R, u, p, meta = {}) {
     id: meta.id, personId: meta.personId ?? null, date: meta.date || new Date().toISOString(), method: R.mode,
     frameName: meta.frameName || '', notes: meta.notes || '',
     values, unc, frame, mounting: R.mounting || null, material: meta.material || null, pads: meta.pads ?? null,
-    vertexMeasured: !!R.vertexMeasured, flags: (R.flags || []).slice(),
+    vertexMeasured: !!R.vertexMeasured, flags: (R.flags || []).slice(), flagsEn: (R.flagsEn || []).slice(),
+    pers: meta.pers || null,   // personalización: {panto, pantoSd, bvd, bvdSd, wrapOd, wrapOs}
     params: {
       rx: { od: rx('od'), os: rx('os') }, index: +p.index || 1.5, vertex: r2(+p.vertex), wrap: +p.wrap || 0, panto: +p.panto || 0,
       groove: +p.groove || 0, nearDist: +p.nearDist || 400, tpl: Object.keys(tpl).length ? tpl : null, hvid: p.hvidUser ? { od: r2(+p.hvid.od), os: r2(+p.hvid.os) } : null,
@@ -1493,6 +1591,7 @@ function buildRecord(R, u, p, meta = {}) {
 // Tipo de montaje y material elegidos por el usuario → montaje que usa el cálculo (ranura/bisel, clasificación).
 // type: 'auto' | 'full' | 'nylor' | 'rimless'; mat: '' | 'acetate' | 'tr90' | 'metal' | 'titanium' | 'mixed'
 const MATERIAL_LABEL = { acetate: 'Pasta (acetato)', tr90: 'Inyectado (TR90 / nylon)', metal: 'Metal', titanium: 'Titanio', mixed: 'Mixta (pasta y metal)' };
+const MATERIAL_LABEL_EN = { acetate: 'Plastic (acetate)', tr90: 'Injected (TR90 / nylon)', metal: 'Metal', titanium: 'Titanium', mixed: 'Combination (plastic and metal)' };
 function mountingFrom(type, mat) {
   if (type === 'nylor' || type === 'rimless') return type;
   if (type === 'full') return mat === 'acetate' || mat === 'tr90' ? 'full-acetate' : mat === 'metal' || mat === 'titanium' ? 'full-metal' : 'auto';
@@ -1510,30 +1609,36 @@ function summarizeHistory(recs, keys = ['pdFar', 'monoOD', 'monoOS']) {
   }
   return out;
 }
-// CSV para hojas de cálculo en español: separador «;» y coma decimal
-function csvCell(v) {
+// CSV para hojas de cálculo: en español, separador «;» y coma decimal; en inglés, «,» y punto decimal
+function csvCell(v, lang = 'es') {
+  const sep = lang === 'en' ? ',' : ';';
   if (v == null || (typeof v === 'number' && !isFinite(v))) return '';
-  let s = typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : String(v);
-  if (/[";\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+  let s = typeof v === 'number' ? String(Math.round(v * 100) / 100) : String(v);
+  if (typeof v === 'number' && lang !== 'en') s = s.replace('.', ',');
+  if (s.includes(sep) || /["\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
   return s;
 }
 const METHOD_LABEL = { frame: 'montura', card: 'tarjeta', iris: 'iris' };
-function recordsToCSV(people, measures) {
-  const byId = new Map(people.map(q => [q.id, q]));
+const METHOD_LABEL_EN = { frame: 'frame', card: 'card', iris: 'iris' };
+function recordsToCSV(people, measures, lang = 'es') {
+  const en = lang === 'en', byId = new Map(people.map(q => [q.id, q]));
   const V = k => m => m.values ? m.values[k] : null, Fr = (e, k) => m => m.frame && m.frame[e] ? m.frame[e][k] : null, Rx = (e, k) => m => m.params && m.params.rx ? m.params.rx[e][k] : null;
+  const Pe = k => m => m.pers ? m.pers[k] : null, H = (es, eng) => en ? eng : es;
   const cols = [
-    ['Persona', m => (byId.get(m.personId) || {}).name || ''], ['Referencia', m => (byId.get(m.personId) || {}).ref || ''],
-    ['Fecha', m => m.date ? m.date.slice(0, 16).replace('T', ' ') : ''], ['Método', m => METHOD_LABEL[m.method] || m.method || ''],
-    ['Montura', m => m.frameName || ''],
-    ['DIP lejos', V('pdFar')], ['± DIP', m => m.unc ? m.unc.pdFar : null], ['Mono OD', V('monoOD')], ['Mono OI', V('monoOS')],
-    ['Altura OD', V('hOD')], ['Altura OI', V('hOS')], ['DIP cerca', V('pdNear')],
-    ['A OD', Fr('od', 'A')], ['A OI', Fr('os', 'A')], ['B OD', Fr('od', 'B')], ['B OI', Fr('os', 'B')], ['DBL', V('DBL')],
-    ['ED OD', Fr('od', 'ED')], ['ED OI', Fr('os', 'ED')], ['Montaje', m => m.mounting || ''], ['Material', m => MATERIAL_LABEL[m.material] || ''], ['Plaquetas', m => m.pads == null ? '' : m.pads ? 'sí' : 'no'],
-    ['Esf OD', Rx('od', 's')], ['Cil OD', Rx('od', 'c')], ['Eje OD', Rx('od', 'a')], ['Esf OI', Rx('os', 's')], ['Cil OI', Rx('os', 'c')], ['Eje OI', Rx('os', 'a')],
-    ['Vértice', V('vertex')], ['Notas', m => m.notes || ''],
+    [H('Persona', 'Person'), m => (byId.get(m.personId) || {}).name || ''], [H('Referencia', 'Reference'), m => (byId.get(m.personId) || {}).ref || ''],
+    [H('Fecha', 'Date'), m => m.date ? m.date.slice(0, 16).replace('T', ' ') : ''], [H('Método', 'Method'), m => (en ? METHOD_LABEL_EN : METHOD_LABEL)[m.method] || m.method || ''],
+    [H('Montura', 'Frame'), m => m.frameName || ''],
+    [H('DIP lejos', 'Distance PD'), V('pdFar')], [H('± DIP', '± PD'), m => m.unc ? m.unc.pdFar : null], [H('Mono OD', 'Mono OD'), V('monoOD')], [H('Mono OI', 'Mono OS'), V('monoOS')],
+    [H('Altura OD', 'Height OD'), V('hOD')], [H('Altura OI', 'Height OS'), V('hOS')], [H('DIP cerca', 'Near PD'), V('pdNear')],
+    [H('A OD', 'A OD'), Fr('od', 'A')], [H('A OI', 'A OS'), Fr('os', 'A')], [H('B OD', 'B OD'), Fr('od', 'B')], [H('B OI', 'B OS'), Fr('os', 'B')], ['DBL', V('DBL')],
+    [H('ED OD', 'ED OD'), Fr('od', 'ED')], [H('ED OI', 'ED OS'), Fr('os', 'ED')], [H('Montaje', 'Mounting'), m => m.mounting || ''], ['Material', m => (en ? MATERIAL_LABEL_EN : MATERIAL_LABEL)[m.material] || ''], [H('Plaquetas', 'Nose pads'), m => m.pads == null ? '' : m.pads ? H('sí', 'yes') : 'no'],
+    [H('Esf OD', 'Sph OD'), Rx('od', 's')], [H('Cil OD', 'Cyl OD'), Rx('od', 'c')], [H('Eje OD', 'Axis OD'), Rx('od', 'a')], [H('Esf OI', 'Sph OS'), Rx('os', 's')], [H('Cil OI', 'Cyl OS'), Rx('os', 'c')], [H('Eje OI', 'Axis OS'), Rx('os', 'a')],
+    [H('Vértice', 'Vertex'), V('vertex')], [H('Pantoscópico', 'Pantoscopic tilt'), Pe('panto')], [H('Galbe OD', 'Wrap OD'), Pe('wrapOd')], [H('Galbe OI', 'Wrap OS'), Pe('wrapOs')],
+    [H('Notas', 'Notes'), m => m.notes || ''],
   ];
   const rows = measures.slice().sort((a, b) => ((byId.get(a.personId) || {}).name || '').localeCompare((byId.get(b.personId) || {}).name || '', 'es') || (a.date < b.date ? -1 : 1));
-  return [cols.map(c => csvCell(c[0])).join(';'), ...rows.map(m => cols.map(c => csvCell(c[1](m))).join(';'))].join('\r\n');
+  const sep = en ? ',' : ';';
+  return [cols.map(c => csvCell(c[0], lang)).join(sep), ...rows.map(m => cols.map(c => csvCell(c[1](m), lang)).join(sep))].join('\r\n');
 }
 // Valida una copia de seguridad importada: {app: 'dipfx', people: [...], measures: [...]}
 function normalizeImport(o) {
@@ -1547,6 +1652,11 @@ function normalizeImport(o) {
 // ======================================================================
 // App
 // ======================================================================
+// Idioma de la interfaz: Lg('texto en español', 'English text')
+let LANG = 'es';
+const Lg = (es, en) => LANG === 'en' ? en : es;
+const FAST = /[?&]e2e\b/.test(location.search);   // pruebas e2e: acorta las esperas de la guía por voz
+if (FAST) window.__dipfx = { get lastRes() { return lastRes; }, get M() { return M; }, get wiz() { return wiz; } };
 const $ = id => document.getElementById(id);
 const MP_VER = '1.2.3';
 const MP_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
@@ -1579,6 +1689,7 @@ const S = {
   tpl: null,   // medidas de la montura en la plantilla {W, Aod, Aos, DBL} (mm)
   who: 'selfie',   // quién hace la foto: 'selfie' (la propia persona) u 'operator' (el óptico, con la cámara trasera)
   devRoll: null, camManual: false,
+  pers: false,     // medidas de personalización (foto de perfil y plantilla del galbe)
 };
 const BURST_N = 8;     // fotogramas por ráfaga
 const STACK_UP = 2;    // remuestreo del promedio en la zona de las gafas
@@ -1597,12 +1708,12 @@ const fovKey = () => 'dipapp.fov.' + (S.camLabel || 'default');
 // ---------- Voz y sonidos ----------
 const speech = {
   last: '', t: 0,
-  say(txt, force) {
-    if (!S.voice || !('speechSynthesis' in window)) return;
+  say(txt, force, always) {
+    if ((!S.voice && !always) || !('speechSynthesis' in window)) return;
     const now = performance.now();
     if (!force && ((txt === this.last && now - this.t < 7000) || now - this.t < 2600)) return;
     this.last = txt; this.t = now;
-    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = 'es-ES'; u.rate = 1.05; speechSynthesis.speak(u); } catch { }
+    try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt); u.lang = LANG === 'en' ? 'en-US' : 'es-ES'; u.rate = 1.05; speechSynthesis.speak(u); } catch { }
   }
 };
 let audioCtx = null;
@@ -2048,7 +2159,7 @@ function setupTplEvents() {
     tplSave();
     // tipo, material y plaquetas: pasan a la revisión como elección manual
     $('mountSel').value = mountingFrom($('tMount').value, $('tMat').value); $('matSel').value = $('tMat').value; $('padSel').value = $('tPads').value;
-    startCamera('G');
+    afterFrame();
   });
 }
 
@@ -2093,6 +2204,224 @@ function setWho(w) {
   $('whoSel').value = S.who;
 }
 
+// ---------- Plantilla del galbe (personalización) ----------
+// La montura se apoya por el borde inferior del frente sobre la pantalla, con las varillas hacia quien mira (hacia
+// abajo en la pantalla). Se ve desde arriba y se marcan los extremos temporal y nasal de cada lente (wrapFromPoints).
+const WR_KEYS = ['tL', 'nL', 'nR', 'tR'];
+const wr = { pts: null, sel: 'tR', drag: null };
+const WR_LAB = { tL: ['Temporal OI', 'Temporal OS'], nL: ['Nasal OI', 'Nasal OS'], nR: ['Nasal OD', 'Nasal OD'], tR: ['Temporal OD', 'Temporal OD'] };
+function openWrap() {
+  showStep('wrap'); $('wrapMsg').innerHTML = '';
+  const full = tplDesktop();
+  $('wrapPanel').classList.toggle('full', full); document.body.classList.toggle('noscroll', full);
+  $('wrapFs').classList.toggle('hidden', !full || !document.documentElement.requestFullscreen);
+  if (full) fsEnter();
+  $('wrapKicker').textContent = `${Lg('Paso', 'Step')} ${wizSteps().indexOf('wrap') + 1} ${Lg('de', 'of')} ${wizSteps().length} · ${Lg('Galbe', 'Wrap')}`;
+  $('wrapStep1').innerHTML = tplDesktop()
+    ? Lg('Apoya el <b>borde inferior del frente</b> contra la pantalla, sobre la plantilla, con las varillas hacia ti descansando en el teclado. Verás la montura desde arriba; la lente derecha queda a tu derecha.', 'Rest the <b>bottom edge of the front</b> against the screen, on the template, with the temples towards you resting on the keyboard. You will see the frame from above; the right lens is on your right.')
+    : Lg('Pon la tablet <b>plana sobre la mesa</b> y apoya la montura sobre ella por el <b>borde inferior del frente</b>, con las varillas hacia ti. La lente derecha queda a tu derecha.', 'Lay the tablet <b>flat on the table</b> and stand the frame on it on the <b>bottom edge of the front</b>, with the temples towards you. The right lens is on your right.');
+  wrapLayout();
+  if (!wr.pts) {
+    const k = scrCal().pxPerMm, cv = $('wrapCv'), cw = cv.width / (window.devicePixelRatio || 1), ch = cv.height / (window.devicePixelRatio || 1), cx = cw / 2, cy = ch * 0.38;
+    wr.pts = { tL: { x: cx - 62 * k, y: cy + 6 * k }, nL: { x: cx - 9 * k, y: cy }, nR: { x: cx + 9 * k, y: cy }, tR: { x: cx + 62 * k, y: cy + 6 * k } };
+  }
+  wrapDraw();
+}
+function wrapLayout() {
+  const cv = $('wrapCv'), cw = cv.parentElement.clientWidth, dpr = window.devicePixelRatio || 1;
+  const ch = Math.round(Math.min(Math.max(300, window.innerHeight * 0.55), window.innerHeight * (tplDesktop() ? 0.6 : 0.65)));
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); cv.style.height = ch + 'px';
+}
+function wrapDraw() {
+  const cv = $('wrapCv'), dpr = window.devicePixelRatio || 1, cw = cv.width / dpr, ch = cv.height / dpr, P = wr.pts, k = scrCal().pxPerMm;
+  const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const bg = x.createLinearGradient(0, 0, 0, ch); bg.addColorStop(0, '#ffffff'); bg.addColorStop(1, '#f3f6fb'); x.fillStyle = bg; x.fillRect(0, 0, cw, ch);
+  // silueta de la montura vista desde arriba (sigue los puntos): frente, puente y varillas hacia abajo
+  const mid = (a, b, bulge) => { const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1; return { x: mx + dy / d * bulge, y: my - dx / d * bulge }; };
+  x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = 'rgba(29,40,58,0.16)'; x.lineWidth = Math.max(8, 4 * k);
+  x.beginPath(); x.moveTo(P.tL.x, P.tL.y);
+  let c = mid(P.tL, P.nL, -3 * k); x.quadraticCurveTo(c.x, c.y, P.nL.x, P.nL.y);
+  c = mid(P.nL, P.nR, -4 * k); x.quadraticCurveTo(c.x, c.y, P.nR.x, P.nR.y);
+  c = mid(P.nR, P.tR, -3 * k); x.quadraticCurveTo(c.x, c.y, P.tR.x, P.tR.y); x.stroke();
+  x.lineWidth = Math.max(5, 2.5 * k); x.beginPath();
+  for (const t of [P.tL, P.tR]) { x.moveTo(t.x, t.y); x.lineTo(t.x + (t === P.tL ? -1 : 1) * 4 * k, ch - 4); }
+  x.stroke();
+  x.fillStyle = 'rgba(29,40,58,0.45)'; x.font = '12px system-ui'; x.fillText(Lg('varillas · hacia ti', 'temples · towards you'), (P.tL.x + P.tR.x) / 2 - 50, ch - 14);
+  // plano del frente (por los centros de las lentes) y rectas de cada lente
+  const w = wrapFromPoints(P), mL = { x: (P.tL.x + P.nL.x) / 2, y: (P.tL.y + P.nL.y) / 2 }, mR = { x: (P.tR.x + P.nR.x) / 2, y: (P.tR.y + P.nR.y) / 2 };
+  const ux = mR.x - mL.x, uy = mR.y - mL.y, ul = Math.hypot(ux, uy) || 1;
+  x.setLineDash([6, 5]); x.strokeStyle = '#0b63c9'; x.lineWidth = 1.2;
+  x.beginPath(); x.moveTo(mL.x - ux / ul * 60, mL.y - uy / ul * 60); x.lineTo(mR.x + ux / ul * 60, mR.y + uy / ul * 60); x.stroke(); x.setLineDash([]);
+  x.strokeStyle = '#c46a00'; x.lineWidth = 2;
+  for (const [a, b] of [[P.tL, P.nL], [P.nR, P.tR]]) { x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); }
+  for (const key of WR_KEYS) {
+    const q = P[key], on = key === wr.sel;
+    x.fillStyle = '#c46a00'; x.beginPath(); x.arc(q.x, q.y, on ? 10 : 8, 0, 2 * Math.PI); x.fill();
+    x.fillStyle = '#fff'; x.beginPath(); x.arc(q.x, q.y, 3, 0, 2 * Math.PI); x.fill();
+    x.fillStyle = '#c46a00'; x.font = `${on ? 700 : 600} 12px system-ui`;
+    const lab = Lg(...WR_LAB[key]), tw = x.measureText(lab).width;
+    x.fillText(lab, key[1] === 'L' ? q.x - tw / 2 : q.x - tw / 2, q.y - 16);
+  }
+  if (w) {
+    chip(x, `${fmt(w.os, 1)}°`, mL.x, mL.y + 30, '#c46a00', true); chip(x, `${fmt(w.od, 1)}°`, mR.x, mR.y + 30, '#c46a00', true);
+    $('wrapVals').textContent = `${Lg('Galbe', 'Wrap')} OD ${fmt(w.od, 1)}° · ${Lg('OI', 'OS')} ${fmt(w.os, 1)}° · ${Lg('media', 'mean')} ${fmt(w.mean, 1)}°`;
+  }
+}
+function setupWrapEvents() {
+  const cv = $('wrapCv'), pos = ev => { const r = cv.getBoundingClientRect(); return { x: ev.clientX - r.left, y: ev.clientY - r.top }; };
+  cv.addEventListener('pointerdown', ev => {
+    const q = pos(ev); let best = null, bd = 1e9;
+    for (const key of WR_KEYS) { const d = Math.hypot(wr.pts[key].x - q.x, wr.pts[key].y - q.y); if (d < bd) { bd = d; best = key; } }
+    cv.focus();
+    if (best && bd <= 28) { wr.sel = best; wr.drag = { key: best, dx: wr.pts[best].x - q.x, dy: wr.pts[best].y - q.y }; cv.setPointerCapture(ev.pointerId); }
+    wrapDraw();
+  });
+  cv.addEventListener('pointermove', ev => { if (!wr.drag) return; const q = pos(ev); wr.pts[wr.drag.key] = { x: q.x + wr.drag.dx, y: q.y + wr.drag.dy }; wrapDraw(); });
+  const end = () => { wr.drag = null; }; cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('keydown', ev => {
+    const d = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[ev.key]; if (!d || !wr.sel) return;
+    ev.preventDefault(); const st = ev.shiftKey ? 5 : 1; wr.pts[wr.sel] = { x: wr.pts[wr.sel].x + d[0] * st, y: wr.pts[wr.sel].y + d[1] * st }; wrapDraw();
+  });
+  $('wrapFs').addEventListener('click', () => { if (document.fullscreenElement) fsExit(); else fsEnter(); });
+  $('wrapBack').addEventListener('click', () => { if (S.mode === 'frame') openTpl(); else { showStep('person'); renderStepPerson(); } });
+  $('wrapSkip').addEventListener('click', () => { wiz.wrap = null; startCamera(); });
+  $('wrapOk').addEventListener('click', () => {
+    const w = wrapFromPoints(wr.pts);
+    if (!w || !isFinite(w.mean) || Math.abs(w.od) > 30 || Math.abs(w.os) > 30) { $('wrapMsg').innerHTML = `<div class="errbox">${Lg('Revisa los puntos: el galbe sale fuera de lo razonable (±30°).', 'Check the points: the wrap angle is out of range (±30°).')}</div>`; return; }
+    wiz.wrap = { od: r2(w.od), os: r2(w.os), mean: r2(w.mean) };
+    startCamera();
+  });
+}
+
+// ---------- Foto de perfil (personalización): panto y distancia al vértice ----------
+// En tablet o móvil la hace otra persona con la cámara trasera, guiada por el nivel del dispositivo (no se puede en
+// selfie). En ordenador, la cámara debe estar recta y la persona, de lado: una voz la guía y dispara la foto.
+function openProfile() {
+  showStep('profile'); $('profMsg').innerHTML = '';
+  const tab = S.isMobile, items = tab ? [
+    Lg('Esta foto la hace <b>otra persona</b> con la cámara trasera de la tablet: no se puede hacer en modo selfie.', 'This photo is taken by <b>another person</b> using the tablet’s rear camera: it cannot be taken as a selfie.'),
+    Lg('Colócate a un lado de la persona, a unos 50 cm, con la tablet a la altura de sus ojos. La app te guía hasta que la tablet esté <b>vertical y a nivel</b>.', 'Stand to one side of the person, about 50 cm away, with the tablet at eye level. The app guides you until the tablet is <b>upright and level</b>.'),
+    Lg('Pide que mire al frente, a un punto lejano, con la cabeza en su postura natural. Encuadra el perfil con el ojo en la cruz y pulsa «Hacer la foto».', 'Ask the person to look straight ahead at a distant point, with the head in its natural posture. Frame the profile with the eye on the cross and tap “Take photo”.'),
+  ] : [
+    Lg('<b>Pon la cámara recta</b>: el portátil sobre una mesa horizontal y la pantalla vertical (90°).', '<b>Make the camera straight</b>: laptop on a level table and screen upright (90°).'),
+    Lg('Siéntate <b>de lado</b>, a unos 50–60 cm, con el <b>lado derecho de la cara</b> hacia la cámara y los ojos a su altura.', 'Sit <b>sideways</b>, about 50–60 cm away, with the <b>right side of your face</b> towards the camera and your eyes at its height.'),
+    Lg('Mira al frente, a un punto lejano, con la cabeza en su postura natural. <b>Una voz te guiará</b> y hará la foto: no hace falta mirar la pantalla.', 'Look straight ahead at a distant point, with your head in its natural posture. <b>A voice will guide you</b> and take the photo: you do not need to look at the screen.'),
+  ];
+  $('profSteps').innerHTML = items.map((t, i) => `<li><span class="n">${i + 1}</span><span>${t}</span></li>`).join('');
+  $('profStart').textContent = tab ? Lg('Abrir la cámara trasera', 'Open the rear camera') : Lg('Empezar: la voz te guiará', 'Start: the voice will guide you');
+}
+const wait = ms => new Promise(r => setTimeout(r, FAST ? ms * 0.12 : ms));
+async function startProfile() {
+  const tab = S.isMobile;
+  setupOrientation(); fsEnter();
+  const lp = $('livePanel');
+  lp.classList.add('operator'); lp.classList.remove('selfie'); lp.classList.remove('hidden');
+  live.kind = 'profile'; live.pendingShot = false; resetLive(); live.kind = 'profile';
+  $('stepTitle').textContent = Lg('Foto de perfil', 'Profile photo');
+  $('manualBtn').textContent = Lg('Hacer la foto', 'Take photo');
+  live.gKey = null; showGuide('face', Lg('Activando la cámara…', 'Starting the camera…'), false);
+  try {
+    await openCamera(tab ? 'environment' : 'user');
+    lp.classList.toggle('mirror', S.facing === 'user');
+    if (!S.lmV) S.lmV = await makeLandmarker('VIDEO');
+    live.running = true;
+    requestAnimationFrame(profLoop);
+    if (!tab) profVoice();
+  } catch (e) { console.error(e); live.gKey = null; showGuide('face', Lg(`No se pudo iniciar la cámara: ${e.message || e}.`, `Could not start the camera: ${e.message || e}.`), false); }
+}
+function profChecks() {
+  const L2 = [], dn = devNoun();
+  if (S.tilt != null) L2.push({ id: 'dev', ok: Math.abs(S.tilt) < 3, msg: Lg(`Pon ${dn} vertical: inclina la parte de arriba ${S.tilt > 0 ? 'hacia ti' : 'hacia delante'}.`, `Hold the ${dn === 'la tablet' ? 'tablet' : 'phone'} upright: tilt the top ${S.tilt > 0 ? 'towards you' : 'away from you'}.`), icon: S.tilt > 0 ? 'tiltToward' : 'tiltAway', val: `${S.tilt.toFixed(1)}°` });
+  if (S.devRoll != null) L2.push({ id: 'lvl', ok: Math.abs(S.devRoll) < 1.5, msg: Lg(`Endereza ${dn}: gíra${dn === 'la tablet' ? 'la' : 'lo'} ${S.devRoll > 0 ? 'en el sentido de las agujas del reloj' : 'en sentido contrario a las agujas del reloj'}.`, `Level the device: rotate it ${S.devRoll > 0 ? 'clockwise' : 'anticlockwise'}.`), icon: S.devRoll > 0 ? 'cw' : 'ccw', val: `${S.devRoll.toFixed(1)}°` });
+  return L2;
+}
+function profLoop() {
+  if (!live.running || live.kind !== 'profile') return;
+  const Lc = profChecks(); renderChecks(Lc); updateLevel(); drawProfileGuide();
+  if (S.isMobile) {
+    const bad = Lc.find(c => !c.ok);
+    if (bad) showGuide(bad.icon, bad.msg, false);
+    else {
+      showGuide('check', live.pendingShot ? Lg('A nivel: haciendo la foto…', 'Level: taking the photo…') : Lg('A nivel. Pide que mire al frente, a lo lejos, y pulsa «Hacer la foto».', 'Level. Ask the person to look straight ahead into the distance and tap “Take photo”.'), true);
+      if (live.pendingShot) profShot();
+    }
+  }
+  requestAnimationFrame(profLoop);
+}
+// Guía del encuadre: cruz para el ojo y vertical de referencia
+function drawProfileGuide() {
+  const c = $('ov'), x = c.getContext('2d'), W = c.width, H = c.height, lw = Math.max(2, W / 600);
+  x.clearRect(0, 0, W, H); x.lineWidth = lw; x.strokeStyle = 'rgba(255,255,255,.8)'; x.setLineDash([14, 10]);
+  x.beginPath(); x.moveTo(W / 2, 0); x.lineTo(W / 2, H); x.moveTo(0, H / 2); x.lineTo(W, H / 2); x.stroke(); x.setLineDash([]);
+  x.strokeStyle = '#22d36b'; x.beginPath(); x.arc(W / 2, H / 2, H * 0.05, 0, 2 * Math.PI); x.stroke();
+}
+// Ordenador: la persona está de lado y no ve la pantalla; la voz la guía y dispara
+async function profVoice() {
+  const say = t => { speech.say(t, true, true); live.gKey = null; showGuide('face', t, false); };
+  await wait(500); if (!live.running) return;
+  say(Lg('Siéntate de lado, con el lado derecho de la cara hacia la cámara, y los ojos a su altura.', 'Sit sideways, with the right side of your face towards the camera and your eyes at its height.'));
+  await wait(5500);
+  for (let i = 0; i < 2; i++) {
+    if (!live.running) return;
+    if (!frontalFaceVisible()) break;
+    say(Lg('Gira un poco más: la cámara todavía te ve de frente.', 'Turn a little more: the camera still sees you from the front.')); await wait(4000);
+  }
+  if (!live.running) return;
+  say(Lg('Mira al frente, a un punto lejano, con la cabeza en su postura natural.', 'Look straight ahead at a distant point, with your head in its natural posture.')); await wait(3500);
+  for (const [es, en] of [['No te muevas. Tres.', 'Hold still. Three.'], ['Dos.', 'Two.'], ['Uno.', 'One.']]) {
+    if (!live.running) return;
+    say(Lg(es, en)); beep(660); await wait(1000);
+  }
+  if (live.running) profShot();
+}
+function frontalFaceVisible() {
+  try {
+    const v = $('video'), r = S.lmV && S.lmV.detectForVideo(v, performance.now());
+    if (!r || !r.faceLandmarks || !r.faceLandmarks.length) return false;
+    const a = analyzeFace(r, S.W, S.H, focalFromDfov(S.fov.dfov, S.fov.ref, S.W, S.H)); if (!a) return false; applyConv(a);
+    return Math.abs(a.yaw) < 35;
+  } catch { return false; }
+}
+async function profShot() {
+  if (live.capturing) return;
+  live.capturing = true; live.pendingShot = false;
+  beep(1320, 0.18); live.gKey = null; showGuide('still', Lg('Capturando… que no se mueva', 'Capturing… hold still'), true);
+  const video = $('video'), W = S.W, H = S.H; let best = null;
+  for (let i = 0; i < 6; i++) {
+    await nextFrame(video);
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.drawImage(video, 0, 0, W, H);
+    const x0 = Math.round(W / 4), y0 = Math.round(H / 4), g = makeGray(ctx.getImageData(x0, y0, Math.round(W / 2), Math.round(H / 2)), x0, y0);
+    const sh = lapVar(g, x0, y0, x0 + Math.round(W / 2) - 1, y0 + Math.round(H / 2) - 1);
+    if (!best || sh > best.sh) best = { cv, sh };
+  }
+  stopCamera(); live.kind = null; $('livePanel').classList.add('hidden'); $('manualBtn').textContent = Lg('Capturar ya', 'Capture now');
+  speech.say(Lg('Foto de perfil hecha.', 'Profile photo taken.'), true, true);
+  const f = focalFromDfov(S.fov.dfov, S.fov.ref, W, H), k = f / 500, cx = (W - 1) / 2, cy = (H - 1) / 2, tl = Math.sin(8 * DEG);
+  const T = { x: cx + 14 * k, y: cy - 22 * k }, B = { x: T.x - 44 * k * tl, y: T.y + 44 * k * Math.cos(8 * DEG) }, Pp = { x: (T.x + B.x) / 2 - 2 * k, y: cy };
+  const cap = { id: 'P', cv: best.cv, W, H, f, ss: 1, pose: null, notes: [], alerts: [Lg('Marca los cuatro puntos: borde superior y borde inferior del frente de la montura (por fuera), vértice de la córnea y cara posterior de la lente delante de la córnea.', 'Place the four points: top and bottom outer edges of the frame front, the corneal apex, and the back surface of the lens in front of the cornea.')],
+    prof: { T, B, C: { x: Pp.x - 12 * k, y: cy }, P: Pp } };
+  M.caps = M.caps.filter(c => c.id !== 'P'); M.caps.push(cap); wiz.profDone = true;
+  live.capturing = false;
+  fsExit();
+  showMeasure('P');
+}
+// Altura exterior del frente en la foto frontal (mm en el plano de la lente; es una proyección: H·cos panto)
+function frontalOuterHeight(G, s) {
+  if (!G || !G.outerV || !(s > 0)) return null;
+  const h = ['od', 'os'].map(e => (G.outerV[e].bot - G.outerV[e].top) * s).filter(v => v > 15 && v < 80);
+  return h.length ? h.reduce((a, b) => a + b, 0) / h.length : null;
+}
+function outerVDetect(cap, img, mmpx) {
+  const cs = Math.cos(cap.tau), sn = Math.sin(cap.tau), up = { x: sn, y: -cs }, dn = { x: -sn, y: cs };
+  cap.outerV = {};
+  for (const e of ['od', 'os']) {
+    const b = cap.box[e], u = (b.n + b.t) / 2;
+    const rt = detectOuterEdge(img, toImgUV(cap, u, b.top), up, mmpx, { maxMm: 10 }), rb = detectOuterEdge(img, toImgUV(cap, u, b.bot), dn, mmpx, { maxMm: 10 });
+    cap.outerV[e] = { top: b.top - (rt && rt.conf > 3 ? rt.s : 2.5 / mmpx), bot: b.bot + (rb && rb.conf > 3 ? rb.s : 2.5 / mmpx) };
+  }
+}
+
 // ---------- Cámara ----------
 function stepText() {
   if (S.mode === 'frame') return 'Foto con las gafas puestas';
@@ -2106,14 +2435,31 @@ async function startCamera(step) {
   setupOrientation();          // permiso de los sensores (iOS) dentro del gesto del usuario
   fsEnter();                   // pantalla completa: las indicaciones quedan pegadas al borde real de la pantalla
   const op = S.who === 'operator';
-  $('livePanel').classList.toggle('operator', op); $('livePanel').classList.toggle('selfie', !op);
+  $('livePanel').classList.toggle('operator', op); $('livePanel').classList.toggle('selfie', !op); $('livePanel').classList.remove('mirror');
+  live.kind = 'front';
   showStep('photo');
-  live.gKey = null; showGuide('face', 'Activando la cámara…', false);
+  live.gKey = null; showGuide('face', Lg('Activando la cámara…', 'Starting the camera…'), false);
   try {
+    await openCamera(op ? 'environment' : 'user');
+    $('between').classList.add('hidden');
+    $('stepTitle').textContent = stepText();
+    if (!S.lmV) { live.gKey = null; showGuide('face', Lg('Cargando el detector facial…', 'Loading the face detector…'), false); S.lmV = await makeLandmarker('VIDEO'); }
+    $('loadMsg').textContent = '';
+    resetLive();
+    if (!op) placeGuide();
+    live.running = true;
+    if (!op) speech.say(S.step === 'N' ? Lg('Primera foto, sin gafas.', 'First photo, without glasses.') : S.mode === 'iris' ? Lg('Segunda foto, con gafas.', 'Second photo, with glasses.') : S.mode === 'frame' ? Lg('Ponte las gafas y sigue las indicaciones junto a la cámara.', 'Put your glasses on and follow the instructions next to the camera.') : Lg('Ponte las gafas y apoya la tarjeta sobre la montura.', 'Put your glasses on and rest the card on top of the frame.'), true);
+    requestAnimationFrame(loop);
+  } catch (e) {
+    console.error(e);
+    live.gKey = null; showGuide('face', Lg(`No se pudo iniciar la cámara: ${e.message || e}. Abre la página desde https:// o localhost, permite el acceso a la cámara o elige otra en Ajustes → Cámara.`, `Could not start the camera: ${e.message || e}. Open the page over https:// or localhost, allow camera access, or choose another camera in Settings → Camera.`), false);
+  }
+}
+// Abre la cámara (frontal 'user' o trasera 'environment', salvo que se haya elegido una en Ajustes) en el vídeo de la capa de la foto
+async function openCamera(facing) {
     stopCamera();
     const v = { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } };
-    // óptico: cámara trasera; selfie: frontal (salvo que se haya elegido una cámara en Ajustes)
-    if (S.deviceId && S.camManual) v.deviceId = { exact: S.deviceId }; else v.facingMode = { ideal: op ? 'environment' : 'user' };
+    if (S.deviceId && S.camManual) v.deviceId = { exact: S.deviceId }; else v.facingMode = { ideal: facing };
     S.stream = await navigator.mediaDevices.getUserMedia({ video: v, audio: false });
     S.track = S.stream.getVideoTracks()[0];
     const caps = S.track.getCapabilities ? S.track.getCapabilities() : {};
@@ -2126,7 +2472,8 @@ async function startCamera(step) {
     S.maxW = caps.width ? caps.width.max : 0;
     S.maxRes = caps.width && caps.height ? `${caps.width.max}×${caps.height.max}` : '';
     S.deviceId = S.track.getSettings().deviceId || S.deviceId;
-    S.camLabel = S.track.label || 'Cámara';
+    S.camLabel = S.track.label || Lg('Cámara', 'Camera');
+    S.facing = S.track.getSettings().facingMode || facing;
     const video = $('video');
     video.srcObject = S.stream; await video.play();
     await new Promise(r => { if (video.videoWidth) r(); else video.onloadedmetadata = () => r(); });
@@ -2134,19 +2481,6 @@ async function startCamera(step) {
     $('stage').style.aspectRatio = `${S.W} / ${S.H}`;
     $('ov').width = S.W; $('ov').height = S.H;
     await listCameras(); identifyCamera();
-    $('between').classList.add('hidden');
-    $('stepTitle').textContent = stepText();
-    if (!S.lmV) { live.gKey = null; showGuide('face', 'Cargando el detector facial…', false); S.lmV = await makeLandmarker('VIDEO'); }
-    $('loadMsg').textContent = '';
-    resetLive();
-    if (!op) placeGuide();
-    live.running = true;
-    if (!op) speech.say(S.step === 'N' ? 'Primera foto, sin gafas.' : S.mode === 'iris' ? 'Segunda foto, con gafas.' : S.mode === 'frame' ? 'Ponte las gafas y sigue las indicaciones junto a la cámara.' : 'Ponte las gafas y apoya la tarjeta sobre la montura.', true);
-    requestAnimationFrame(loop);
-  } catch (e) {
-    console.error(e);
-    live.gKey = null; showGuide('face', `No se pudo iniciar la cámara: ${e.message || e}. Abre la página desde https:// o localhost, permite el acceso a la cámara o elige otra en Ajustes → Cámara.`, false);
-  }
 }
 function resetLive() { Object.assign(live, { paused: false, lastT: -1, sm: null, hist: [], cardHist: [], cardOk: false, okSince: 0, phase: 'pos', lookSince: 0, gazeSince: 0, gKey: null, gazeUnconfirmed: false, capturing: false }); $('countdown').textContent = ''; leaveLook(); }
 function stopCamera() {
@@ -2488,9 +2822,9 @@ async function onCaptured(cv, pose, kind, burst) {
   stopCamera();
   const cap = await analyzeCapture(cv, pose, 'G', extra);
   if (!cap) return;
-  if (S.mode !== 'iris') M.caps = [cap]; else { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); }
+  if (S.mode !== 'iris') M.caps = M.caps.filter(c => c.id === 'P').concat([cap]); else { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); }
   fillTplMeas();
-  showMeasure('G');
+  if (S.pers && !wiz.profDone) openProfile(); else showMeasure('G');
 }
 // Si cambia la foto sin gafas, la escala de la montura en la foto con gafas debe recalcularse
 async function reanalyzeG() {
@@ -2513,7 +2847,7 @@ async function analyzeCapture(cv, pose, kind, extra = {}) {
   const rf = { od: refineIris(img, a.od.c, a.od.d / 2), os: refineIris(img, a.os.c, a.os.d / 2) };
   const iris = {};
   for (const e of ['od', 'os']) iris[e] = rf[e] ? { x: rf[e].x, y: rf[e].y, r: rf[e].r } : { x: a[e].c.x, y: a[e].c.y, r: a[e].d / 2 };
-  const cap = { id: kind, cv, W, H, f, ss: extra.ss || 1, burst: extra.burst || null, iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
+  const cap = { id: kind, cv, W, H, f, ss: extra.ss || 1, burst: extra.burst || null, uploaded: !extra.burst, iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
   const bn = burstNote(cap); if (bn) cap.notes.push(bn);
   if (cap.burst && cap.burst.info.gazeUnconfirmed) cap.notes.push('No se pudo confirmar que la mirada estaba en la cámara: comprueba que los ojos miran al objetivo o repite la foto.');
   if (!rf.od || !rf.os) cap.notes.push('El ajuste fino de algún iris no fue fiable: revisa su centro y su borde con la lupa.');
@@ -2538,6 +2872,7 @@ async function analyzeCapture(cv, pose, kind, extra = {}) {
     else mmpx = HVID / (iris.od.r + iris.os.r);
   }
   frameDetect(cap, img, mmpx);
+  outerVDetect(cap, img, mmpx);
   if (S.mode === 'frame') outerDetect(cap, img, mmpx);
   $('loadMsg').textContent = '';
   return cap;
@@ -2619,9 +2954,44 @@ function params() {
     hvid: { od: hvOd === '' ? (hvOs === '' ? 11.7 : hvOs) : hvOd, os: hvOs === '' ? (hvOd === '' ? 11.7 : hvOd) : hvOs },
     hvidUser: hvOd !== '' || hvOs !== '',
     mounting: $('mountSel').value,
-    tpl: { W: n('mW'), Aod: n('mAod'), Aos: n('mAos'), DBL: n('mDBL') },
+    tpl: { W: n('mW'), Aod: n('mAod'), Aos: n('mAos'), DBL: n('mDBL') }, vertexSd: 2.5, pantoSd: 0, wrapSd: 0,
     outerOff: readNum('pOuterOff'),
   };
+}
+// Personalización: galbe de la plantilla y panto y vértice de la foto de perfil. Sustituyen a los parámetros a mano.
+function applyPersonalization(p) {
+  const out = {}, notes = [];
+  const wOd = readNum('wOd'), wOs = readNum('wOs');
+  const wo = wOd !== '' ? wOd : wiz.wrap ? wiz.wrap.od : null, ws = wOs !== '' ? wOs : wiz.wrap ? wiz.wrap.os : null;
+  if (wo != null && ws != null && isFinite(wo) && isFinite(ws)) {
+    out.wrapOd = r2(wo); out.wrapOs = r2(ws); p.wrap = (wo + ws) / 2; p.wrapSd = 1;
+    $('wOd').placeholder = fmt(wo); $('wOs').placeholder = fmt(ws);
+  }
+  const P = M.caps.find(c => c.id === 'P'), G = M.caps.find(c => c.id === 'G');
+  if (P) {
+    const Hu = readNum('pfH');
+    let H = Hu, projected = false;
+    if (Hu === '') {   // altura exterior de la foto frontal, con la escala del plano de la lente
+      const R0 = G ? solveAll(M, p) : null, s = R0 && R0.G ? R0.G.s : null;
+      H = frontalOuterHeight(G, s); projected = true;
+      $('pfH').placeholder = H ? `${fmt(H)} (${Lg('auto', 'auto')})` : Lg('mídela', 'measure it');
+    }
+    const r = H > 0 ? profileMeasure(P.prof, H, { ss: P.ss, projected, rollSd: S.isMobile ? 1.5 : 2.5 }) : null;
+    if (r && isFinite(r.panto) && isFinite(r.bvd) && r.bvd > 3 && r.bvd < 30 && Math.abs(r.panto) < 30) {
+      Object.assign(out, { panto: r2(r.panto), pantoSd: r2(r.sdPanto), bvd: r2(r.bvd), bvdSd: r2(r.sdBvd), H: r2(H), Hauto: projected });
+      p.panto = r.panto; p.pantoSd = r.sdPanto; p.vertex = r.bvd; p.vertexSd = Math.max(0.5, r.sdBvd);
+    } else notes.push(Lg('No se pudo calcular el perfil: revisa los cuatro puntos y la altura exterior de la montura.', 'The profile could not be computed: check the four points and the outer height of the frame.'));
+  }
+  const has = out.panto != null || out.wrapOd != null;
+  for (const id of ['pPanto', 'pVertex', 'pWrap']) $(id).disabled = false;
+  if (out.panto != null) { $('pPanto').value = fmt(out.panto).replace(',', '.'); $('pVertex').value = fmt(out.bvd).replace(',', '.'); $('pPanto').disabled = $('pVertex').disabled = true; }
+  if (out.wrapOd != null) { $('pWrap').value = fmt(p.wrap).replace(',', '.'); $('pWrap').disabled = true; }
+  $('persWrap').classList.toggle('hidden', !S.pers && !has && !P);
+  $('persNote').innerHTML = notes.concat([
+    P ? Lg('Panto y vértice salen de la foto de perfil. La escala usa la altura exterior de la montura: la de la foto frontal (auto) o la que escribas, medida con regla.', 'Pantoscopic tilt and vertex come from the profile photo. The scale uses the outer height of the frame: from the front photo (auto) or the value you type, measured with a ruler.') : Lg('Sin foto de perfil: se usan el panto y el vértice de «Parámetros avanzados».', 'No profile photo: the pantoscopic tilt and vertex from “Advanced parameters” are used.'),
+    out.wrapOd != null ? Lg('El galbe sale de la plantilla (puedes corregirlo aquí).', 'The wrap angle comes from the template (you can correct it here).') : Lg('Sin plantilla de galbe: se usa el de «Parámetros avanzados».', 'No wrap template: the value from “Advanced parameters” is used.'),
+  ]).join('<br>');
+  return has ? out : null;
 }
 // Rellena las medidas de la plantilla en el panel de medición
 function fillTplMeas() {
@@ -2643,7 +3013,8 @@ function showMeasure(which) {
   $('lgOuter').classList.toggle('hidden', !frame);
   $('calNote').textContent = frame ? 'Si mides con una cinta la distancia del objetivo de la cámara al frente de la montura (con las gafas puestas y en la posición de esta foto), la app calcula el FOV real de tu cámara y lo guarda.' : 'Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.';
   $('vertexLbl').firstChild.textContent = iris ? 'Vértice previo si no se puede medir (mm)' : 'Vértice córnea → cara posterior (mm)';
-  $('capTabs').innerHTML = M.caps.slice().sort((a, b) => a.id < b.id ? 1 : -1).map(c => `<button type="button" data-cap="${c.id}">${c.id === 'N' ? 'Foto sin gafas' : (M.mode === 'card' ? 'Foto con gafas y tarjeta' : 'Foto con gafas')}</button>`).join('');
+  const ord = { G: 0, N: 1, P: 2 }, tabName = c => c.id === 'N' ? Lg('Foto sin gafas', 'Without glasses') : c.id === 'P' ? Lg('Foto de perfil', 'Profile photo') : M.mode === 'card' ? Lg('Foto con gafas y tarjeta', 'With glasses and card') : Lg('Foto con gafas', 'With glasses');
+  $('capTabs').innerHTML = M.caps.slice().sort((a, b) => ord[a.id] - ord[b.id]).map(c => `<button type="button" data-cap="${c.id}">${tabName(c)}</button>`).join('');
   $('retakeGBtn').textContent = frame ? 'Repetir la foto' : 'Repetir foto con gafas';
   if (iris && !M.caps.find(c => c.id === 'G')) $('capTabs').innerHTML += '<span class="note" style="align-self:center">Falta la foto con gafas</span>';
   sel = 'ic:od';
@@ -2655,10 +3026,10 @@ function setTabs() {
   for (const b of $('capTabs').querySelectorAll('button')) b.classList.toggle('on', b.dataset.cap === view);
   const cap = curCap();
   // los avisos que piden actuar (empiezan por «No …» o «El …») se muestran abiertos; el resto, plegados
-  const alerts = cap ? cap.notes.filter(n => /^(No |El )/.test(n)) : [];
-  $('autoMsg').innerHTML = cap ? cap.notes.map(n => `<div class="${alerts.includes(n) ? 'warnbox' : 'note'}" style="margin-top:6px">${n}</div>`).join('') : '';
+  const alerts = cap ? (cap.alerts || []) : [], notes = cap ? cap.notes || [] : [];
+  $('autoMsg').innerHTML = alerts.map(n => `<div class="warnbox" style="margin-top:6px">${n}</div>`).join('') + notes.map(n => `<div class="note" style="margin-top:6px">${n}</div>`).join('');
   $('autoMsg').parentElement.open = alerts.length > 0;
-  $('autoSum').textContent = alerts.length ? `Revisa ${alerts.length === 1 ? 'este aviso' : `estos ${alerts.length} avisos`}` : 'Notas de la detección automática';
+  $('autoSum').textContent = alerts.length ? (alerts.length === 1 ? Lg('Revisa este aviso', 'Check this warning') : Lg(`Revisa estos ${alerts.length} avisos`, `Check these ${alerts.length} warnings`)) : Lg('Notas de la detección automática', 'Notes from the automatic detection');
   const hasAlt = !!(cap && cap.burst && cap.burst.stack);
   $('imgSelWrap').classList.toggle('hidden', !hasAlt);
   if (hasAlt) $('imgSel').value = cap.ss > 1 ? 'stack' : 'best';
@@ -2674,6 +3045,11 @@ function layoutCanvas() {
 // Zona visible en el editor: por defecto, ampliada alrededor de las gafas (y de la tarjeta, si la hay)
 function viewRect(cap) {
   if (cap.full) return { x0: 0, y0: 0, w: cap.W, h: cap.H };
+  if (cap.prof) {   // foto de perfil: alrededor de los cuatro puntos
+    const ps = Object.values(cap.prof), xs = ps.map(q => q.x), ys = ps.map(q => q.y), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const w = Math.min(cap.W, Math.max(Math.max(...ys) - Math.min(...ys), Math.max(...xs) - Math.min(...xs)) * 2.4), h = Math.min(cap.H, w * 0.75);
+    return { x0: Math.max(0, Math.min(cap.W - w, cx - w / 2)), y0: Math.max(0, Math.min(cap.H - h, cy - h / 2)), w, h };
+  }
   const a = cap.iris.od, b = cap.iris.os, ipd = Math.max(20, Math.abs(b.x - a.x)), cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
   const up = cap.card ? 1.45 : 0.8, w = Math.min(cap.W, 2.9 * ipd), h = Math.min(cap.H, (up + 0.9) * ipd);
   return { x0: Math.max(0, Math.min(cap.W - w, cx - w / 2)), y0: Math.max(0, Math.min(cap.H - h, cy - up * ipd)), w, h };
@@ -2681,6 +3057,7 @@ function viewRect(cap) {
 const toImgUV = (cap, u, v) => { const c = { x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 }, t = cap.tau, cs = Math.cos(t), sn = Math.sin(t); return { x: c.x + u * cs - v * sn, y: c.y + u * sn + v * cs }; };
 function handles(cap) {
   const h = [];
+  if (cap.prof) { for (const k of ['T', 'B', 'C', 'P']) h.push({ k: 'pf:' + k, x: cap.prof[k].x, y: cap.prof[k].y }); return h; }
   for (const e of ['od', 'os']) { const ir = cap.iris[e]; h.push({ k: 'ic:' + e, x: ir.x, y: ir.y }, { k: 'ir:' + e, x: ir.x + ir.r, y: ir.y }); }
   if (cap.bridge) h.push({ k: 'br', x: cap.bridge.x, y: cap.bridge.y });
   if (cap.card) {
@@ -2700,6 +3077,7 @@ function moveHandle(cap, k, dx, dy) {
   if (a === 'ic') { cap.iris[e].x += dx; cap.iris[e].y += dy; return; }
   if (a === 'ir') { cap.iris[e].r = Math.max(3, cap.iris[e].r + dx); return; }
   if (a === 'ox') { cap.outer[e] += dx * Math.cos(cap.tau) + dy * Math.sin(cap.tau); return; }
+  if (a === 'pf') { cap.prof[e] = { x: cap.prof[e].x + dx, y: cap.prof[e].y + dy }; return; }
   if (a === 'bx') {
     const cs = Math.cos(cap.tau), sn = Math.sin(cap.tau), du = dx * cs + dy * sn, dv = -dx * sn + dy * cs;
     if (side === 'n' || side === 't') cap.box[e][side] += du; else cap.box[e][side] += dv;
@@ -2719,6 +3097,7 @@ function drawScene(ctx, cap, ox, oy, k, cw, ch, isLoupe) {
   ctx.imageSmoothingEnabled = !isLoupe;
   ctx.drawImage(cap.cv, ox, oy, cw / k, ch / k, 0, 0, cw, ch);
   const T = p => [(p.x - ox) * k, (p.y - oy) * k];
+  if (cap.prof) { drawProfileMarks(ctx, cap, T, k, isLoupe); return; }
   const dpr = cap.dpr || 1, lw = isLoupe ? 1.5 : Math.max(1.5, 1.6 * dpr), r0 = isLoupe ? 9 : 7 * dpr;
   ctx.lineWidth = lw;
   const [cx, cy] = T({ x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 });
@@ -2774,6 +3153,22 @@ function drawScene(ctx, cap, ox, oy, k, cw, ch, isLoupe) {
     for (const [e, lab] of [['od', 'OD'], ['os', 'OI']]) { const [x, y] = T(cap.iris[e]); ctx.fillText(lab, x - 9 * dpr, y + cap.iris[e].r * k + 16 * dpr); }
   }
 }
+// Marcas de la foto de perfil: frente de la montura (T–B), vertical de referencia, córnea (C) y lente (P)
+function drawProfileMarks(ctx, cap, T, k, isLoupe) {
+  const q = cap.prof, dpr = cap.dpr || 1, lw = isLoupe ? 1.5 : Math.max(1.5, 1.6 * dpr), r0 = isLoupe ? 9 : 7 * dpr;
+  const [tx, ty] = T(q.T), [bx, by] = T(q.B), [cx, cy] = T(q.C), [px, py] = T(q.P);
+  ctx.lineWidth = lw;
+  ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx, by + 20 * dpr); ctx.stroke(); ctx.setLineDash([]);
+  ctx.strokeStyle = '#00e5ff'; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(bx, by); ctx.stroke();
+  ctx.strokeStyle = '#ffae00'; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+  const lab = { T: Lg('arriba', 'top'), B: Lg('abajo', 'bottom'), C: Lg('córnea', 'cornea'), P: Lg('lente', 'lens') };
+  for (const key of ['T', 'B', 'C', 'P']) {
+    const [hx, hy] = T(q[key]), on = sel === 'pf:' + key;
+    ctx.fillStyle = key === 'C' ? '#22d36b' : key === 'P' ? '#ffae00' : '#00e5ff';
+    ctx.beginPath(); ctx.arc(hx, hy, on ? r0 * 0.75 : r0 * 0.55, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke(); ctx.lineWidth = lw;
+    if (!isLoupe) { ctx.font = `${12 * dpr}px system-ui`; ctx.fillStyle = '#fff'; ctx.fillText(lab[key], hx + 9 * dpr, hy - 7 * dpr); }
+  }
+}
 function redraw() {
   const cap = curCap(); if (!cap) return;
   const c = $('pc'), ctx = c.getContext('2d');
@@ -2824,7 +3219,9 @@ const sgn = (v, d = 1) => v == null || !isFinite(v) ? '—' : (v > 0 ? '+' : '')
 function recompute() {
   if (!M.caps.length) return;
   const p = params();
+  const pers = applyPersonalization(p);
   const { base: R, u } = solveWithUnc(M, p, SF[S.fov.kind] || 0.15);
+  R.pers = pers;
   lastRes = { R, u, p };
   const G = M.caps.find(c => c.id === 'G'), N = M.caps.find(c => c.id === 'N');
   const noRx = [p.rx.od.s, p.rx.od.c, p.rx.os.s, p.rx.os.c].every(v => !v);
@@ -2837,6 +3234,9 @@ function recompute() {
   if (G) h += tile('hOD', 'Altura OD') + tile('hOS', 'Altura OI');
   h += `<div class="tile"><div class="k">DIP de cerca a ${fmt(p.nearDist / 10, 0)} cm</div><div class="v">${fmt(R.pdNear)} <span class="u">mm</span></div></div>`;
   if (R.DBL != null) h += tile('DBL', 'Puente DBL');
+  const pz = R.pers, ptile = (label, v, sd, unit) => `<div class="tile"><div class="k">${label}</div><div class="v">${fmt(v)} <span class="u">${sd != null ? `± ${fmt(sd)} ` : ''}${unit}</span></div></div>`;
+  if (pz && pz.panto != null) h += ptile(Lg('Ángulo pantoscópico', 'Pantoscopic tilt'), pz.panto, pz.pantoSd, '°') + ptile(Lg('Distancia al vértice', 'Back vertex distance'), pz.bvd, pz.bvdSd, 'mm');
+  if (pz && pz.wrapOd != null) h += ptile(Lg('Galbe', 'Wrap angle') + ` (OD ${fmt(pz.wrapOd)} · ${Lg('OI', 'OS')} ${fmt(pz.wrapOs)})`, (pz.wrapOd + pz.wrapOs) / 2, 1, '°');
   h += `</div>`;
   if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-top:8px">¿Las gafas tienen graduación? Introdúcela en «Graduación de las gafas» para corregir el efecto prismático.</div>`;
   const F = R.frame || (R.G && R.G.frame);
@@ -2929,6 +3329,7 @@ function buildCopy(R, u, p) {
   }
   if (M.mode === 'frame' && p.tpl) t.push(`Plantilla: ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)}/${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}${R.scale && R.scale.disc != null ? ` · diferencia entre referencias ${sgn(R.scale.disc * 100, 1)} %` : ''}`);
   if (G && G.burst) t.push(`Imagen: ${G.ss > 1 ? `promedio de ${G.burst.info.n}/${G.burst.info.of} fotogramas ×${G.ss}` : 'mejor fotograma'}`);
+  if (R.pers) { const z = R.pers; t.push(Lg(`Personalización: panto ${z.panto != null ? `${fmt(z.panto)}° ± ${fmt(z.pantoSd)}` : '—'} · vértice ${z.bvd != null ? `${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm` : '—'} · galbe ${z.wrapOd != null ? `OD ${fmt(z.wrapOd)}° / OI ${fmt(z.wrapOs)}°` : '—'}`, `Personalisation: pantoscopic tilt ${z.panto != null ? `${fmt(z.panto)}° ± ${fmt(z.pantoSd)}` : '—'} · vertex ${z.bvd != null ? `${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm` : '—'} · wrap ${z.wrapOd != null ? `OD ${fmt(z.wrapOd)}° / OS ${fmt(z.wrapOs)}°` : '—'}`)); }
   if (M.mode === 'iris' && R.eyes) t.push(`Vértice: ${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm (OD ${R.eyes.od.ok ? fmt(R.eyes.od.v) : '—'}, OI ${R.eyes.os.ok ? fmt(R.eyes.os.v) : '—'}) · blanco-blanco ${p.hvid.od}/${p.hvid.os} mm`);
   t.push(`Rx OD ${p.rx.od.s} ${p.rx.od.c} x ${p.rx.od.a} · OI ${p.rx.os.s} ${p.rx.os.c} x ${p.rx.os.a} · n ${p.index}`);
   t.push(`Cámara: ${S.camLabel || 'fotos importadas'} · FOV ${fmt(S.fov.dfov)}° (${S.fov.src})`);
@@ -2942,7 +3343,7 @@ const METHOD_DESC = {
   card: 'Una foto con las gafas puestas y una tarjeta estándar (85,60 mm) apoyada sobre la montura. La referencia más limpia en la imagen.',
   iris: 'Una foto sin gafas y otra con gafas. La escala sale del tamaño del iris (blanco‑blanco): menos preciso, salvo que se conozca el de la persona.',
 };
-const STEP_LABEL = { person: 'Persona', frame: 'Montura', photo: 'Foto', review: 'Revisar y guardar' };
+const STEP_LABEL = { person: ['Persona', 'Person'], frame: ['Montura', 'Frame'], wrap: ['Galbe', 'Wrap'], photo: ['Foto', 'Photo'], profile: ['Perfil', 'Profile'], review: ['Revisar y guardar', 'Review and save'] };
 const VIEWS = ['people', 'person', 'record', 'wizard', 'settings'];
 const wiz = { person: null, step: null, savedId: null };
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -2957,19 +3358,29 @@ function go(v) {
   if (S.view !== v) window.scrollTo({ top: 0, behavior: 'instant' });
   S.view = v;
 }
-function wizSteps() { return S.mode === 'frame' ? ['person', 'frame', 'photo', 'review'] : ['person', 'photo', 'review']; }
+function wizSteps() {
+  const st = ['person'];
+  if (S.mode === 'frame') st.push('frame');
+  if (S.pers) st.push('wrap');
+  st.push('photo');
+  if (S.pers) st.push('profile');
+  st.push('review');
+  return st;
+}
 function showStep(st) {
   go('wizard');
   if (st !== 'frame') tplLeave();
-  const fsWanted = (st === 'frame' && tplDesktop()) || st === 'photo';
+  if (st !== 'wrap') $('wrapPanel').classList.remove('full');
+  if (st !== 'profile') $('livePanel').classList.toggle('hidden', st !== 'photo');
+  const fsWanted = ((st === 'frame' || st === 'wrap') && tplDesktop()) || st === 'photo';
   if (!fsWanted) fsExit();
-  document.body.classList.toggle('noscroll', st === 'photo' || (st === 'frame' && tplDesktop()));
+  document.body.classList.toggle('noscroll', st === 'photo' || ((st === 'frame' || st === 'wrap') && tplDesktop()));
   const changed = wiz.step !== st;
   wiz.step = st;
-  const map = { person: 'stepPerson', frame: 'tplPanel', photo: 'livePanel', review: 'measurePanel' };
+  const map = { person: 'stepPerson', frame: 'tplPanel', wrap: 'wrapPanel', photo: 'livePanel', profile: 'profPanel', review: 'measurePanel' };
   for (const k in map) $(map[k]).classList.toggle('hidden', k !== st);
   const steps = wizSteps(), cur = steps.indexOf(st);
-  $('stepper').innerHTML = steps.map((k, i) => `<li class="${i < cur ? 'done' : i === cur ? 'on' : ''}"><span class="n">${i < cur ? '✓' : i + 1}</span>${STEP_LABEL[k]}</li>`).join('');
+  $('stepper').innerHTML = steps.map((k, i) => `<li class="${i < cur ? 'done' : i === cur ? 'on' : ''}"><span class="n">${i < cur ? '✓' : i + 1}</span>${Lg(...STEP_LABEL[k])}</li>`).join('');
   renderWho();
   if (changed) window.scrollTo({ top: 0, behavior: 'instant' });
 }
@@ -2979,18 +3390,21 @@ function renderWho() {
 }
 function resetMeasureInputs() {
   for (const id of ['rxOdS', 'rxOdC', 'rxOdA', 'rxOsS', 'rxOsC', 'rxOsA']) $(id).value = '0';
-  for (const id of ['rxOdB', 'rxOdT', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs', 'saveFrameName', 'saveNotes', 'calZ']) $(id).value = '';
+  for (const id of ['rxOdB', 'rxOdT', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs', 'saveFrameName', 'saveNotes', 'calZ', 'pfH', 'wOd', 'wOs']) $(id).value = '';
+  $('pWrap').value = '0'; $('pPanto').value = '0'; $('pVertex').value = '12';
   $('mountSel').value = 'auto'; $('padSel').value = 'auto'; $('matSel').value = ''; $('saveMsg').innerHTML = ''; $('saveBtn').textContent = 'Guardar medida';
 }
 async function startMeasure(personId) {
   beep(440, 0.02);
   if (live.running) stopCamera();
-  M = { mode: S.mode, caps: [] }; lastRes = null; wiz.person = personId || null; wiz.savedId = null; wiz.step = null;
+  M = { mode: S.mode, caps: [] }; lastRes = null; wiz.person = personId || null; wiz.savedId = null; wiz.step = null; wiz.wrap = null; wiz.profDone = false;
   resetMeasureInputs();
   await loadPeople();
   if (personId) nextAfterPerson(); else { showStep('person'); renderStepPerson(); $('stepPersonSearch').value = ''; }
 }
-function nextAfterPerson() { if (S.mode === 'frame') openTpl(); else startCamera(); }
+function nextAfterPerson() { if (S.mode === 'frame') openTpl(); else afterFrame(); }
+// Tras la plantilla de la montura (o tras la persona, en los métodos tarjeta e iris)
+function afterFrame() { if (S.pers) openWrap(); else startCamera(); }
 
 // ---------- Datos: IndexedDB (solo en este navegador) ----------
 const DB = {
@@ -3110,7 +3524,7 @@ async function saveMeasure() {
   if ($('saveImg').checked) try { image = await snapshotBlob(); } catch (e) { console.warn(e); }
   const rec = buildRecord(R, u, p, {
     id: wiz.savedId || uid(), personId: pid, frameName: $('saveFrameName').value.trim(), notes: $('saveNotes').value.trim(), pads, material: $('matSel').value,
-    camera: { label: S.camLabel || 'fotos subidas', dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value,
+    camera: { label: S.camLabel || Lg('fotos subidas', 'uploaded photos'), dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value, pers: R.pers || null,
   });
   try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">No se pudo guardar: ${esc(e.message || e)}</div>`; return; }
   const was = wiz.savedId; wiz.savedId = rec.id; wiz.person = pid;
@@ -3140,7 +3554,11 @@ async function renderRecord(id) {
   }
   const rx = m.params.rx, rxs = e => !rx[e].s && !rx[e].c ? '<span class="note">sin graduación introducida</span>' : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
   h += `<h3>Graduación y parámetros</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>OI</td><td>${rxs('os')}</td></tr><tr><td>Vértice</td><td>${fmt(m.values.vertex)} mm${m.vertexMeasured ? ' (medido)' : ''}</td></tr>${m.params.tpl ? `<tr><td>Plantilla</td><td>ancho ${fmt(m.params.tpl.W)}${m.params.tpl.DBL ? ` · A ${fmt(m.params.tpl.Aod)}/${fmt(m.params.tpl.Aos)} · DBL ${fmt(m.params.tpl.DBL)}` : ''}</td></tr>` : ''}${m.camera ? `<tr><td>Cámara</td><td style="font-weight:400">${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
-  for (const f of m.flags || []) h += `<div class="warnbox">${f}</div>`;
+  if (m.pers) {
+    const z = m.pers;
+    h += `<h3>${Lg('Personalización', 'Personalisation')}</h3><table class="kv">${z.panto != null ? `<tr><td>${Lg('Ángulo pantoscópico', 'Pantoscopic tilt')}</td><td>${fmt(z.panto)}° ± ${fmt(z.pantoSd)}</td></tr><tr><td>${Lg('Distancia al vértice', 'Back vertex distance')}</td><td>${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm</td></tr>` : ''}${z.wrapOd != null ? `<tr><td>${Lg('Galbe', 'Wrap angle')}</td><td>OD ${fmt(z.wrapOd)}° · ${Lg('OI', 'OS')} ${fmt(z.wrapOs)}°</td></tr>` : ''}</table>`;
+  }
+  for (const f of (LANG === 'en' && m.flagsEn ? m.flagsEn : m.flags) || []) h += `<div class="warnbox">${f}</div>`;
   h += `</div></div>`;
   $('recordBody').innerHTML = h;
 }
@@ -3171,13 +3589,14 @@ async function importJson(file) {
   await renderPeople();
 }
 // Preferencias (método, exigencia, voz)
-function savePrefs() { store.set('dipapp.prefs', { mode: S.mode, tol: S.tolKey, voice: S.voice, who: S.who }); }
+function savePrefs() { store.set('dipapp.prefs', { mode: S.mode, tol: S.tolKey, voice: S.voice, who: S.who, pers: S.pers, lang: LANG }); }
 function loadPrefs() {
   const p = store.get('dipapp.prefs'); if (!p) return;
   if (METHOD_NAME[p.mode]) { S.mode = p.mode; M.mode = p.mode; $('modeSel').value = p.mode; }
   if (TOLS[p.tol]) { S.tolKey = p.tol; $('tolSel').value = p.tol; }
   if (typeof p.voice === 'boolean') { S.voice = p.voice; $('voiceChk').checked = p.voice; }
   if (p.who) setWho(p.who);
+  if (typeof p.pers === 'boolean') { S.pers = p.pers; $('persChk').checked = p.pers; }
 }
 function setupAppEvents() {
   document.addEventListener('click', ev => {
@@ -3187,6 +3606,11 @@ function setupAppEvents() {
     const pk = ev.target.closest('[data-pick]'); if (pk) { wiz.person = pk.dataset.pick; nextAfterPerson(); }
   });
   $('peopleSearch').addEventListener('input', renderPeople);
+  $('persChk').addEventListener('change', e => { S.pers = e.target.checked; savePrefs(); });
+  $('profStart').addEventListener('click', startProfile);
+  $('profSkip').addEventListener('click', () => { wiz.profDone = true; showMeasure('G'); });
+  $('profBack').addEventListener('click', () => startCamera('G'));
+  for (const id of ['pfH', 'wOd', 'wOs']) $(id).addEventListener('input', recompute);
   $('whoSeg').addEventListener('click', e => { const b = e.target.closest('button[data-who]'); if (b) { setWho(b.dataset.who); savePrefs(); } });
   $('whoSel').addEventListener('change', e => { setWho(e.target.value); savePrefs(); });
   $('camPosBtn').addEventListener('click', () => openCamModal(null));
@@ -3253,8 +3677,15 @@ $('voiceChk').addEventListener('change', e => { S.voice = e.target.checked; save
 $('camSel').addEventListener('change', e => { S.deviceId = e.target.value; S.camManual = true; if (live.running) startCamera(S.step); });
 $('newMeasureBtn').addEventListener('click', () => startMeasure(null));
 $('contBtn').addEventListener('click', () => { S.step = 'G'; $('between').classList.add('hidden'); $('stepTitle').textContent = stepText(); resetLive(); speech.say('Segunda foto, con gafas.', true); });
-$('stopBtn').addEventListener('click', () => { stopCamera(); showStep(S.mode === 'frame' ? 'frame' : 'person'); if (S.mode === 'frame') openTpl(); else renderStepPerson(); });
-$('manualBtn').addEventListener('click', () => { if (live.a && !live.paused) captureBurst(); });
+$('stopBtn').addEventListener('click', () => {
+  if (live.kind === 'profile') { stopCamera(); live.kind = null; $('livePanel').classList.add('hidden'); $('manualBtn').textContent = Lg('Capturar ya', 'Capture now'); fsExit(); openProfile(); return; }
+  stopCamera();
+  if (S.pers) openWrap(); else if (S.mode === 'frame') openTpl(); else { showStep('person'); renderStepPerson(); }
+});
+$('manualBtn').addEventListener('click', () => {
+  if (live.kind === 'profile') { const ok = !profChecks().some(c => !c.ok); if (ok) profShot(); else live.pendingShot = true; return; }
+  if (live.a && !live.paused) captureBurst();
+});
 $('retakeNBtn').addEventListener('click', () => startCamera('N'));
 $('retakeGBtn').addEventListener('click', () => startCamera('G'));
 $('zoomBtn').addEventListener('click', () => { const cap = curCap(); if (!cap) return; cap.full = !cap.full; layoutCanvas(); redraw(); });
@@ -3308,6 +3739,11 @@ async function fileToCanvas(file) {
 }
 async function processFiles() {
   stopCamera(); readFovUI();
+  // fotos subidas: una medida nueva, salvo que se esté completando otra de fotos subidas (iris: sin gafas y con gafas)
+  if (!M.caps.length || M.caps.some(c => !c.uploaded) || M.mode !== S.mode) {
+    M = { mode: S.mode, caps: [] }; lastRes = null; resetMeasureInputs();
+    Object.assign(wiz, { person: null, savedId: null, wrap: null, profDone: true });
+  }
   M.mode = S.mode;
   if (S.mode === 'iris') {
     if (pending.N) { S.step = 'N'; const cap = await analyzeCapture(pending.N, null, 'N'); pending.N = null; if (cap) { M.caps = M.caps.filter(c => c.id !== 'N'); M.caps.push(cap); } }
@@ -3328,6 +3764,7 @@ setupMeasureEvents();
 setupScrEvents();
 setupTplEvents();
 setupAppEvents();
+setupWrapEvents();
 setWho('selfie');
 loadPrefs();
 renderCamStatus();
