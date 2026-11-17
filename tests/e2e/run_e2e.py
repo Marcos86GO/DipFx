@@ -61,6 +61,18 @@ async def measure_frame(pg, first):
     else:
         w=float(await pg.input_value('#tW')); check('la plantilla recuerda la última montura (mm)',w,131.0,0.05)
     await pg.click('#tplOk')
+    if first:
+        # selfie: las indicaciones aparecen pegadas al borde donde está la cámara (arriba en el centro) y con vista previa en espejo
+        await pg.wait_for_selector('#livePanel.selfie:not(.hidden)'); await pg.wait_for_timeout(300)
+        g=await pg.locator('#guideCard').bounding_box(); vw=pg.viewport_size['width']
+        ok=g['y']<=70 and abs(g['x']+g['width']/2-vw/2)<2
+        print(f"  {'OK ' if ok else 'FALLO'} indicaciones junto a la cámara (arriba {g['y']:.0f} px, centro {g['x']+g['width']/2:.0f} de {vw})")
+        if not ok: fails.append('indicaciones junto a la cámara')
+        await pg.wait_for_selector('#guideCard.look',timeout=20000)
+        txt=await pg.inner_text('#msg'); vis=await pg.is_visible('#stage')
+        ok='Mira a la cámara' in txt and not vis and await pg.is_visible('#camArrow')
+        print(f"  {'OK ' if ok else 'FALLO'} fase final «{txt}» (vista previa oculta: {not vis})")
+        if not ok: fails.append('fase mirar a la cámara')
     await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
     return await pg.input_value('#copyArea')
 async def main():
@@ -128,10 +140,23 @@ async def main():
         await pg.click('#scrSkip')
         await pg.click('nav [data-view=settings]'); await pg.select_option('#modeSel','card')
         await pg.click('#newMeasureBtn'); await pg.click('#personSkip')
+        # sin calibración no se sabe dónde está la cámara: se pregunta antes de la foto selfie
+        await pg.wait_for_selector('#camModal:not(.hidden)',timeout=5000); print('  OK  se pregunta dónde está la cámara')
+        await pg.click('#camPickModal button >> nth=1'); await pg.click('#camOk')
         await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
         t=await pg.input_value('#copyArea')
         check_common(t,22.5,53.0,'Aro completo metálico')
         await pg.screenshot(path=os.path.join(OUT,'e2e_tarjeta.png'),full_page=True)
+        print('Método tarjeta, foto hecha por el óptico:')
+        await pg.click('nav [data-view=settings]'); await pg.select_option('#whoSel','operator')
+        await pg.click('#newMeasureBtn'); await pg.click('#personSkip')
+        await pg.wait_for_selector('#livePanel.operator:not(.hidden)'); await pg.wait_for_timeout(300)
+        tr=await pg.eval_on_selector('#video','e=>getComputedStyle(e).transform'); ok=tr in ('none','matrix(1, 0, 0, 1, 0, 0)')
+        print(f"  {'OK ' if ok else 'FALLO'} vista previa sin espejo para el óptico ({tr})")
+        if not ok: fails.append('vista del óptico')
+        await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
+        t=await pg.input_value('#copyArea'); check('DIP (óptico)',num1(t,'DIP lejos'),64.0,0.2)
+        await pg.click('nav [data-view=settings]'); await pg.select_option('#whoSel','selfie')
         print('Método iris (2 fotos subidas):')
         await pg.click('nav [data-view=settings]'); await pg.select_option('#modeSel','iris')
         await pg.set_input_files('#fileN',os.path.join(OUT,'iris_N.png')); await pg.wait_for_timeout(1500)

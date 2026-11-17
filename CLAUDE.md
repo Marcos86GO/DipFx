@@ -7,7 +7,9 @@ Contexto para Claude Code. Léelo entero antes de tocar el código. El historial
 App web de una sola página (`index.html`, sin build) que, con la webcam del portátil o del móvil:
 
 1. **Identifica el dispositivo y la cámara.** Usa el nombre de la cámara, su resolución y su ID USB, y busca el FOV en una pequeña base de datos. El navegador **no** puede leer el modelo del portátil en escritorio; en Mac se deduce de forma aproximada por la resolución de pantalla.
-2. **Guía la postura en vivo** con texto y voz, y **solo dispara cuando todo cuadra**: distancia, centrado, ojos a la altura de la cámara, giro, cabeceo, ladeo, mirada al objetivo, ojos abiertos, quietud y (en el método tarjeta) tarjeta visible. Hace una **ráfaga de 8 fotogramas**, los registra con precisión subpíxel contra el más nítido y mejor alineado, y los **promedia remuestreados ×2** en la zona de las gafas. Si hay demasiado movimiento, usa el mejor fotograma. En la medición se puede elegir entre el promedio y el mejor fotograma.
+2. **Guía la postura en vivo** con iconos, texto y voz, y **solo dispara cuando todo cuadra**: (en tablet o móvil) dispositivo vertical y sin girar respecto al suelo, distancia, centrado, ojos a la altura de la cámara, giro, cabeceo, ladeo, ojos abiertos, quietud y (en el método tarjeta) tarjeta visible. Después pide **mirar a la cámara**, espera a que la mirada llegue y se asiente (≥ 0,9 s desde el aviso y ≥ 0,7 s con la mirada correcta; a los 6 s dispara igualmente y lo avisa) y entonces dispara, sin cuenta atrás en pantalla.
+   - **¿Quién hace la foto?** (`S.who`): `selfie` (la propia persona) u `operator` (el óptico, con la cámara trasera). En selfie, las indicaciones y una vista previa pequeña en espejo se colocan **pegadas al borde de la pantalla donde está la cámara** (`camPos`, `guidePlacement`), y en la fase final se oculta la vista previa y una flecha señala la cámara. En modo óptico, vista previa grande sin espejo, una sola indicación muy visible para el óptico («Sube la tablet», «Pide que gire la cabeza…») y un nivel tipo horizonte artificial.
+   - La **posición de la cámara** se pide al calibrar la pantalla (o antes de la primera foto selfie) y se guarda por orientación del dispositivo (`screen.orientation.type`), en `localStorage` `dipapp.campos`. Hace una **ráfaga de 8 fotogramas**, los registra con precisión subpíxel contra el más nítido y mejor alineado, y los **promedia remuestreados ×2** en la zona de las gafas. Si hay demasiado movimiento, usa el mejor fotograma. En la medición se puede elegir entre el promedio y el mejor fotograma.
 3. **Mide**:
    - DIP de lejos binocular y monoculares, con corrección de la convergencia hacia la cámara.
    - DIP de cerca.
@@ -42,12 +44,12 @@ Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un e
 
 ```bash
 npm run fixtures     # genera imágenes sintéticas en tests/fixtures/out/ (python3, numpy, Pillow; ffmpeg opcional)
-npm test             # 36 pruebas unitarias con node:test sobre la sección CORE
+npm test             # 38 pruebas unitarias con node:test sobre la sección CORE
 npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial simulado (playwright; CHROME_PATH opcional)
 ```
 
 - `tests/lib/extract-core.cjs` extrae la sección entre `// ==CORE START==` y `// ==CORE END==` de `index.html` y exporta todo `function` y `const` de nivel superior. **No rompas esos marcadores** y mantén el CORE **sin DOM**.
-- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla a pantalla completa pegada al borde inferior, arrastre de líneas y de la línea de centros, tipo, material y plaquetas, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el histórico (crear persona, dos medidas, resumen, detalle con foto, persistencia tras recargar, CSV), el método tarjeta en vivo y el método iris con fotos subidas guardado en una persona nueva.
+- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla a pantalla completa pegada al borde inferior, arrastre de líneas y de la línea de centros, tipo, material y plaquetas, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el histórico (crear persona, dos medidas, resumen, detalle con foto, persistencia tras recargar, CSV), indicaciones junto a la cámara en selfie y fase final «Mira a la cámara», pregunta de la posición de la cámara si no se conoce, modo óptico sin espejo, el método tarjeta en vivo y el método iris con fotos subidas guardado en una persona nueva.
 - Las pruebas e2e sustituyen MediaPipe por `tests/fixtures/out/fake_vision.mjs`, que devuelve puntos coherentes con cada imagen sintética. El detector distingue la imagen por el píxel marcador (1,1): 10 = sin gafas, 240 = con gafas, 128 = tarjeta.
 - Las escenas sintéticas se proyectan con el mismo modelo físico. Por eso validan la coherencia interna y los algoritmos de visión, **no** la exactitud con caras reales. **Nunca se ha probado con una cámara y una cara reales.**
 
@@ -57,6 +59,7 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Geometría: `focalFromDfov`, `rcFromLens` (centro de rotación + Prentice), `cardWidthPx`, `measureCap`, `solveAll`, `solveWithUnc`.
   - Método montura: `tplFromLines`, `tplDNC`, `detectOuterEdge`, `frameScaleZ`.
   - Ráfaga: `nccAt`, `registerShift` (búsqueda entera por NCC + Lucas–Kanade), `similarity2`, `stackRGBA`.
+  - Dispositivo: `deviceAttitude` (inclinación y giro respecto al suelo a partir de beta/gamma), `guidePlacement` (indicaciones junto a la cámara).
   - Histórico: `buildRecord` (registro que se guarda, con `material` y `pads`), `summarizeHistory`, `recordsToCSV` (`;` y coma decimal), `normalizeImport`, `mountingFrom` (tipo + material → montaje del cálculo), `MATERIAL_LABEL`.
   - Óptica: `lensData`, `apparentMag` (lente gruesa), `solveVertexH`, `fuseVertex`.
   - Visión: `detectCard`, `refineEdge`, `refineIris` (ajuste de circunferencia de Kåsa sobre bordes laterales), `detectLensContour` (programación dinámica polar), `rimAnalysis`, `classifyFrame`, `padAnalysis`, `featureScale`.
@@ -66,7 +69,7 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Calibración de la pantalla (`scrCal`, `openScr`; clave `dipapp.screen`) y plantilla de la montura (`openTpl`, `tplDraw`, `tplSilhouette`, `tplLeave`; clave `dipapp.tpl` con líneas, altura de la línea de centros `yMm` desde el borde inferior, tipo, material y plaquetas). Al confirmar, el tipo y el material pasan a `mountSel` (vía `mountingFrom`), `matSel` y `padSel` como elección manual.
   - Detección del dispositivo y base de datos de FOV (`CAM_DB`).
   - Carga de MediaPipe y `analyzeFace`.
-  - Bucle en vivo: `evaluate` → `guidance` → cuenta atrás → `captureBurst` → `stackBurst`.
+  - Bucle en vivo: `evaluate` (comprobaciones con mensaje e icono según selfie u óptico) → `guidance` (fases `pos` → `look`) → `captureBurst` → `stackBurst`. Indicaciones: `showGuide`, `icon`, `placeGuide`, `enterLook`, `updateLevel`. Capa de la foto a pantalla completa (`#livePanel.selfie` / `.operator`); `fsEnter`/`fsExit`.
   - `analyzeCapture` → `frameDetect` → (método montura) `outerDetect`.
   - Interfaz de medición: `handles`, `moveHandle`, `drawScene`, `recompute` (cifras clave en `#results`; geometría y afinado en `#techDetails`). El editor muestra por defecto la zona de las gafas (`viewRect`, `cap.vr`); `cap.full` muestra la foto completa.
 - Modelo de medición: `M = { mode, caps: [N?, G] }`. Cada `cap` contiene:
@@ -85,6 +88,8 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
 - **Plantilla**: la montura se apoya con el frente contra la pantalla y las varillas hacia el usuario, así que la **lente derecha (OD) queda a la derecha** de la pantalla. Las medidas de la plantilla son proyecciones frontales, igual que la foto. Calibración de la pantalla en px CSS por mm; se invalida si cambian `screen.width/height` o `devicePixelRatio` (zoom del navegador).
 - **OD = ojo derecho del sujeto = izquierda de la imagen sin espejo.** La vista en vivo se muestra en espejo (CSS); las fotos de medición, sin espejo.
 - **Recuadro de la lente** en coordenadas (u, v) relativas al punto principal y giradas `−tau`, donde `tau` es la inclinación de la montura (recta entre centroides de las lentes). Lados: `n` nasal, `t` temporal, `top` superior, `bot` inferior. En OD el lado nasal tiene la u mayor; en OI, la menor.
+- **Actitud del dispositivo** (`deviceAttitude`): vertical del mundo en ejes del dispositivo `u = (−cos β sen γ, sen β, cos β cos γ)`. `tilt > 0`: la pantalla mira hacia arriba (se corrige inclinando la parte de arriba hacia quien la mira). `roll > 0`: el dispositivo está girado en sentido antihorario visto de frente (se corrige en sentido horario); se mide respecto al eje más próximo, así que vale en vertical y en horizontal. Tolerancias: 3° de inclinación y 1,5° de giro.
+- **Direcciones en las indicaciones**: en selfie, la imagen se ve en espejo y «tu derecha» está a la derecha de la pantalla. En modo óptico, la imagen va sin espejo, así que la derecha de la persona queda a la izquierda de la pantalla. Los iconos de giro y desplazamiento siguen esa vista.
 - **Signos de postura**: `yaw > 0` significa cabeza girada hacia **su** izquierda y `pitch > 0`, barbilla arriba. Se verifican en tiempo de ejecución contra indicadores 2D (`updateConvention`), porque el orden de la matriz de MediaPipe no está documentado. Se detecta por la posición de la traslación.
 - Constantes ópticas:
   - Córnea → centro de rotación `CR = 13,5 mm`.
@@ -116,12 +121,15 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Con galbe, los bordes exteriores quedan por detrás del plano de la lente: si no se introduce el galbe, ±1,5 mm de profundidad en el ±.
   - Si se marcan las dos referencias (ancho exterior y cajas), se avisa cuando discrepan más de 2,5 σ.
 - **Ráfaga**: el registro es una semejanza (dos zonas, una por ojo). Si la cabeza gira o la cara cambia de expresión entre fotogramas, se descartan (NCC < 0,9, escala > 2 %, giro > 1°). El remuestreo ×2 mejora el ruido y la nitidez de los bordes solo si hay desplazamientos subpíxel entre fotogramas; no crea detalle que la óptica no resuelva.
+- **Sensores de orientación y modo óptico**: sin probar en una tablet real. Hay que validar el signo del giro y de la inclinación (`deviceAttitude`) en iPad y Android, y que la cámara trasera se elige bien. El FOV de las cámaras traseras de tablets no está en `CAM_DB` (se usa el genérico estimado).
+- **Mirada**: la espera de la fase final depende del umbral de mirada (`gazeOk`), que no está validado con caras reales; si no se confirma en 6 s, se dispara igualmente y se avisa en la revisión.
 - **Pupila**: se usa el centro del iris (circunferencia ajustada), no el centro pupilar ni el reflejo corneal.
 - **Histórico**: vive en el navegador de un dispositivo. No se sincroniza; si se borran los datos del sitio, se pierde. Solo la copia de seguridad JSON lo protege. Las fotos de caras son datos personales: se guardan solo si se marca la casilla y nunca salen del dispositivo salvo en la copia con fotos.
 
 ## Prioridades siguientes
 
 1. **Validación con cámara real** (lo más urgente):
+   - En tablet: signos de `deviceAttitude`, cámara trasera en modo óptico, colocación de las indicaciones junto a la cámara en vertical y en horizontal.
    - Signos y umbrales de postura, umbral de mirada (`version < 0.07`, `lookUp/lookDown < 0.45`).
    - Detección de la tarjeta con dedos y pelo.
    - Contorno de lente con reflejos, cejas y pestañas.

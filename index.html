@@ -101,17 +101,12 @@ ol.steps li{margin:4px 0}
 /* captura */
 .stage{position:relative;background:#111;border-radius:12px;overflow:hidden;width:100%}
 .stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
-#stepTitle{display:inline-block;background:var(--acc2);color:var(--acc);border-radius:20px;padding:4px 12px;font-weight:700;margin-bottom:10px;font-size:14px}
-#msg{font-size:21px;font-weight:650;margin:2px 0 12px;min-height:30px;line-height:1.3}
-#msg.ok{color:var(--ok)} #msg.bad{color:var(--bad)}
 #countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;font-weight:800;color:rgba(255,255,255,.9);text-shadow:0 2px 12px rgba(0,0,0,.6);pointer-events:none}
 ul.checks{list-style:none;padding:0;margin:0;font-size:14px}
 ul.checks li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
 ul.checks li .st{font-weight:700}
 ul.checks li.ok .st{color:var(--ok)} ul.checks li.bad .st{color:var(--bad)} ul.checks li.na .st{color:var(--mut)}
 ul.checks li .val{color:var(--mut);font-variant-numeric:tabular-nums}
-#lookHere{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#0b63c9;color:#fff;padding:6px 16px;border-radius:0 0 10px 10px;font-weight:700;z-index:95;box-shadow:0 2px 8px rgba(0,0,0,.25)}
-#lookHere.pulse{animation:pulse .6s infinite alternate}
 @keyframes pulse{from{background:#0b63c9}to{background:#12844a}}
 canvas#poseViz{display:block;margin:10px auto 0;background:#f0f3f7;border-radius:50%}
 /* revisión */
@@ -164,6 +159,73 @@ ol.tplSteps .n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc)
 #tplPanel.full .tplTop .actions{margin-top:10px;padding-top:10px}
 #tplPanel.full .tplWrap{flex:0 0 auto;margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
 body.noscroll{overflow:hidden}
+/* ¿quién hace la foto? */
+.whoBox{margin-top:18px}
+.whoBox .k{font-size:13px;color:var(--mut);margin-bottom:6px;font-weight:600}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:12px 14px;border-radius:12px}
+.seg button span{font-size:13px;color:var(--mut);font-weight:400}
+.seg button.on{border-color:var(--acc);background:var(--acc2);box-shadow:inset 0 0 0 1px var(--acc)}
+.seg button.on b{color:var(--acc)}
+@media(max-width:640px){.seg{grid-template-columns:1fr}}
+/* selector de la posición de la cámara */
+.camPick{position:relative;width:min(340px,100%);aspect-ratio:16/10;margin:6px auto 4px;background:#eef2f7;border:3px solid #17202e;border-radius:12px}
+.camPick::after{content:"pantalla";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mut);font-size:13px}
+.camPick button{position:absolute;width:26px;height:26px;padding:0;border-radius:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid #9aa4b2;z-index:1}
+.camPick button.on{background:var(--acc);border-color:var(--acc);box-shadow:0 0 0 4px rgba(11,99,201,.2)}
+.camPick button.on::after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+/* paso de la foto */
+#livePanel{position:fixed;inset:0;z-index:70;overflow:hidden}
+#livePanel.selfie{background:#eef1f5}
+#livePanel.operator{background:#0c0f14;color:#fff}
+.guideCard{position:absolute;z-index:2}
+.gRow{display:flex;align-items:center;gap:12px}
+.gIcon{flex:0 0 auto;width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--acc2);color:var(--acc)}
+.gIcon svg{width:36px;height:36px}
+.gIcon.ok{background:#e6f5ec;color:var(--ok)}
+#msg{font-size:20px;font-weight:650;line-height:1.25;margin:0;min-height:0}
+#msg.ok{color:var(--ok)} #msg.bad{color:var(--ink)}
+.gFoot{display:flex;align-items:center;gap:10px;margin-top:8px}
+.dots{display:flex;gap:5px;flex-wrap:wrap;flex:1 1 auto}
+.dots i{width:9px;height:9px;border-radius:50%;background:#cfd6e0;display:block}
+.dots i.ok{background:var(--ok)} .dots i.bad{background:#e0a03a}
+.levelBox{position:relative;width:46px;height:46px;border-radius:50%;background:#101722;overflow:hidden;flex:0 0 auto;border:2px solid #fff;box-shadow:0 0 0 1px var(--line)}
+.lvlRef{position:absolute;left:4px;right:4px;top:50%;height:2px;margin-top:-1px;background:rgba(255,255,255,.55)}
+.lvlHz{position:absolute;left:-30%;right:-30%;top:50%;height:200%;background:#2f7d4f;transform-origin:50% 0}
+.levelBox.bad .lvlHz{background:#b4572d}
+.selfie .guideCard{width:min(380px,calc(100vw - 16px));background:#fff;border-radius:18px;padding:14px;box-shadow:0 10px 30px rgba(20,30,50,.18)}
+.selfie .stage{margin-top:10px;border-radius:10px}
+.selfie .guideCard.look .stage{display:none}
+.selfie .guideCard.look .gIcon{background:var(--acc);color:#fff;animation:pulse2 .8s infinite alternate}
+@keyframes pulse2{from{transform:scale(1)}to{transform:scale(1.08)}}
+.operator .guideCard{inset:0 0 64px 0;display:flex;align-items:center;justify-content:center}
+.operator .stage{height:100%;width:auto;max-width:100%;border-radius:0}
+.operator .stage video,.operator .stage canvas{transform:none}
+.operator .gRow{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:3;background:rgba(10,14,20,.78);border-radius:18px;padding:12px 20px 12px 12px;max-width:calc(100% - 24px);box-shadow:0 6px 20px rgba(0,0,0,.35)}
+.operator #msg{color:#fff;font-size:24px}
+.operator #msg.ok{color:#7be3a3}
+.operator .gIcon{width:64px;height:64px;background:#0b63c9;color:#fff}
+.operator .gIcon svg{width:44px;height:44px}
+.operator .gIcon.ok{background:#12844a;color:#fff}
+.operator .gFoot{position:absolute;right:14px;top:50%;transform:translateY(-50%);z-index:3;background:rgba(10,14,20,.7);border-radius:16px;padding:12px;margin:0;flex-direction:column;gap:12px}
+.operator .dots{flex-direction:column;flex:0 0 auto}
+.operator .levelBox{width:96px;height:96px;order:-1}
+.camArrow{position:absolute;z-index:3;pointer-events:none;display:flex;flex-direction:column;align-items:center;color:var(--acc);font-weight:800;font-size:15px}
+.camArrow::before{content:"";width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-bottom:30px solid var(--acc);animation:bob .6s infinite alternate}
+@keyframes bob{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+.capBar{position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;gap:10px;padding:0 14px;z-index:4}
+.capBar.atTop{top:0;bottom:auto}
+.capBar .sp{flex:1 1 auto}
+.capTitle{font-weight:700;font-size:14px;color:var(--mut)}
+.operator .capTitle{color:#c8d0dc}
+.operator .capBar button{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25)}
+#checksWrap{margin:0;padding:6px 10px;position:relative}
+#checksWrap .checksBox{position:absolute;bottom:44px;left:0;width:330px;max-height:60vh;overflow:auto;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.capBar.atTop #checksWrap .checksBox{bottom:auto;top:44px}
+.operator #checksWrap{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25)}
+#livePanel #between{position:absolute;z-index:5;left:50%;top:50%;transform:translate(-50%,-50%);width:min(420px,90vw);margin:0;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+#livePanel #camWarn{position:absolute;z-index:3;left:12px;right:12px;bottom:70px;max-width:560px;margin:0 auto}
+#livePanel #camWarn:empty{display:none}
 .tplNums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
 @media(max-width:640px){.tplNums{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* ventanas modales */
@@ -184,7 +246,6 @@ body.noscroll{overflow:hidden}
 </style>
 </head>
 <body>
-<div id="lookHere" class="hidden">▲ Mira aquí, al objetivo de la cámara ▲</div>
 <header class="top">
   <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b82f5"/><stop offset="1" stop-color="#0a4a9e"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lgA)"/><g fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"><rect x="6.5" y="17" width="22" height="17" rx="6.5"/><rect x="35.5" y="17" width="22" height="17" rx="6.5"/><path d="M28.5 23.5q3.5-3.6 7 0"/></g><circle cx="17.5" cy="25.5" r="2.8" fill="#fff"/><circle cx="46.5" cy="25.5" r="2.8" fill="#fff"/><g stroke="#a9d4ff" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M17.5 44.5H46.5"/><path d="M17.5 40v9M46.5 40v9"/></g></svg></span><b>Dip<span style="color:var(--acc)">Fx</span></b><span class="sub">Medidas de centrado con la cámara</span></div>
   <nav>
@@ -243,6 +304,13 @@ body.noscroll{overflow:hidden}
     <p class="lead">Elige una persona guardada o crea una nueva. Todas sus medidas quedarán en su ficha.</p>
     <div class="row" style="margin-top:0"><input id="stepPersonSearch" type="search" placeholder="Buscar por nombre o referencia" style="flex:1 1 260px"><button class="pri" id="personNewBtn" type="button">+ Nueva persona</button></div>
     <div class="plist" id="stepPersonList"></div>
+    <div class="whoBox">
+      <div class="k">¿Quién hace la foto?</div>
+      <div class="seg" id="whoSeg">
+        <button type="button" data-who="selfie"><b>La propia persona</b><span>Selfie: se mira a sí misma en la pantalla</span></button>
+        <button type="button" data-who="operator"><b>Otra persona (óptico)</b><span>Con una tablet o un móvil, usando la cámara trasera</span></button>
+      </div>
+    </div>
     <div class="actions"><button class="link" id="personSkip" type="button">Medir sin asignar ahora (se elige al guardar)</button><span class="sp"></span><span class="note" id="methodNote"></span></div>
   </div>
 
@@ -288,33 +356,33 @@ body.noscroll{overflow:hidden}
     <div class="tplWrap" id="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
   </div>
 
-  <!-- Paso: foto -->
-  <div class="card hidden" id="livePanel">
-    <div id="stepTitle"></div>
-    <div class="tips"><span>Pantalla vertical</span><span>Cámara a la altura de los ojos</span><span>35–45 cm</span><span>Luz frontal suave</span><span>Mira al objetivo, no a la pantalla</span></div>
-    <div class="grid2">
-      <div>
-        <div class="stage" id="stage">
-          <video id="video" playsinline muted autoplay></video>
-          <canvas id="ov"></canvas>
-          <div id="countdown"></div>
-        </div>
-        <div class="note" style="margin-top:6px">Vista en espejo. La línea horizontal discontinua marca la altura de la cámara: tus pupilas deben quedar sobre ella. La foto se hace sola cuando todo está bien.</div>
+  <!-- Paso: foto. Capa a pantalla completa con dos disposiciones:
+       · selfie: indicaciones pegadas a la cámara (para que los ojos no se desvíen) y vista previa pequeña;
+       · óptico: vista previa grande y sin espejo, con una sola indicación muy visible y el nivel del dispositivo. -->
+  <div class="hidden" id="livePanel">
+    <div class="guideCard" id="guideCard">
+      <div class="gRow"><div class="gIcon" id="guideIcon"></div><div id="msg">Activando la cámara…</div></div>
+      <div class="stage" id="stage">
+        <video id="video" playsinline muted autoplay></video>
+        <canvas id="ov"></canvas>
+        <div id="countdown"></div>
       </div>
-      <div>
-        <div id="msg">Cargando detector facial…</div>
-        <div id="between" class="okbox hidden">
-          <b>Foto 1 (sin gafas) lista ✓</b><br>Ponte ahora las gafas y pulsa «Continuar». Colócate a la misma distancia: la app te dirá si acercarte o alejarte.
-          <div class="row"><button class="pri" id="contBtn" type="button">Continuar con gafas</button></div>
-        </div>
-        <details open><summary>Comprobaciones</summary><ul class="checks" id="checks"></ul>
-          <canvas id="poseViz" width="130" height="130"></canvas>
-          <div class="note" style="text-align:center">Punto = orientación de la cabeza · elipse = tolerancia</div>
-        </details>
-        <div class="actions"><button id="stopBtn" type="button">← Atrás</button><span class="sp"></span><button id="manualBtn" type="button">Capturar ya</button></div>
-        <div id="camWarn"></div>
-      </div>
+      <div class="gFoot"><div class="dots" id="checkDots"></div><div class="levelBox hidden" id="levelBox" title="Nivel del dispositivo"><div class="lvlRef"></div><div class="lvlHz" id="lvlHz"></div></div></div>
     </div>
+    <div class="camArrow hidden" id="camArrow"><span>Mira aquí</span></div>
+    <div id="between" class="okbox hidden">
+      <b>Foto 1 (sin gafas) lista ✓</b><br>Ahora con las gafas puestas. Pulsa «Continuar» y colócate a la misma distancia: la app indicará si acercarse o alejarse.
+      <div class="row"><button class="pri" id="contBtn" type="button">Continuar con gafas</button></div>
+    </div>
+    <div class="capBar" id="capBar">
+      <button id="stopBtn" type="button">← Atrás</button>
+      <span class="capTitle" id="stepTitle"></span>
+      <details id="checksWrap"><summary>Comprobaciones</summary><div class="checksBox"><ul class="checks" id="checks"></ul><canvas id="poseViz" width="120" height="120"></canvas></div></details>
+      <span class="sp"></span>
+      <button id="capFs" type="button">Pantalla completa</button>
+      <button id="manualBtn" type="button">Capturar ya</button>
+    </div>
+    <div id="camWarn"></div>
   </div>
 
   <!-- Paso: revisar y guardar -->
@@ -439,6 +507,8 @@ body.noscroll{overflow:hidden}
           <option value="estricto">Estricta</option><option value="normal" selected>Normal</option><option value="flexible">Flexible</option>
         </select></label>
       </div>
+      <div class="row"><label class="f">¿Quién hace la foto?<select id="whoSel"><option value="selfie">La propia persona (selfie)</option><option value="operator">Otra persona (óptico), con la cámara trasera</option></select></label></div>
+      <div class="row" style="align-items:center"><span class="note">Posición de la cámara: <span id="camPosStatus">—</span></span><span style="flex:1 1 auto"></span><button id="camPosBtn" type="button">Indicar</button></div>
       <div class="row"><label class="chk"><input type="checkbox" id="voiceChk" checked> Guía por voz (la persona mira a la cámara y no puede leer la pantalla)</label></div>
       <details><summary>Cómo hacer una buena captura</summary>
         <ol>
@@ -500,7 +570,18 @@ body.noscroll{overflow:hidden}
   </div>
   <div class="note" id="scrVal" style="margin-top:6px"></div>
   <div class="note" style="margin-top:4px">Mira cada extremo de la barra de frente, con un ojo cerrado, para evitar el paralaje. También puedes arrastrar la barra o usar las flechas ← → (0,25 px; con Mayús, 2 px).</div>
+  <h3 style="margin-top:20px">¿Dónde está la cámara?</h3>
+  <p class="note" style="margin:0 0 8px">Toca el punto del borde de la pantalla más cercano a la cámara. Así las indicaciones aparecen junto a ella y los ojos no se desvían durante la foto.</p>
+  <div class="camPick" id="camPickScr"></div>
   <div class="actions"><button id="scrSkip" type="button">Ahora no</button><span class="sp"></span><button class="pri big" id="scrSave" type="button">Guardar calibración</button></div>
+</div></div>
+
+<!-- ===== MODAL: posición de la cámara ===== -->
+<div class="modal hidden" id="camModal"><div class="modalBox sm">
+  <h2>¿Dónde está la cámara?</h2>
+  <p class="note">Toca el punto del borde de la pantalla más cercano a la cámara, tal como tienes ahora el dispositivo. Las indicaciones para la foto se mostrarán junto a ella.</p>
+  <div class="camPick" id="camPickModal"></div>
+  <div class="actions"><button id="camCancel" type="button">Cancelar</button><span class="sp"></span><button class="pri" id="camOk" type="button">Continuar</button></div>
 </div></div>
 
 <!-- ===== MODAL: persona ===== -->
@@ -1356,6 +1437,31 @@ function solveWithUnc(M, p, sf) {
   }
   return { base, u };
 }
+// ---------- Dispositivo: actitud respecto al suelo y posición de la cámara ----------
+// A partir de beta y gamma de 'deviceorientation' (orden Z-X'-Y''), la vertical del mundo en ejes del dispositivo
+// (x a la derecha, y hacia arriba en su orientación natural, z saliendo de la pantalla) es
+//   u = (−cos β · sen γ, sen β, cos β · cos γ).
+// tilt: ángulo de la pantalla respecto a la vertical (> 0: la pantalla mira hacia arriba, la parte de arriba se aleja de quien la mira).
+// roll: giro en el plano de la pantalla respecto al eje más próximo (> 0: el dispositivo está girado en sentido antihorario visto
+// de frente, y se corrige girándolo en sentido horario). Vale en vertical y en horizontal.
+function deviceAttitude(beta, gamma) {
+  const b = beta * DEG, g = (gamma || 0) * DEG;
+  const ux = -Math.cos(b) * Math.sin(g), uy = Math.sin(b), uz = Math.cos(b) * Math.cos(g);
+  const tilt = Math.asin(Math.max(-1, Math.min(1, uz))) / DEG;
+  const th = Math.atan2(ux, uy) / DEG, roll = th - 90 * Math.round(th / 90);
+  return { tilt, roll: Math.hypot(ux, uy) < 0.2 ? null : roll };   // casi en horizontal, el giro no está definido
+}
+// Coloca un panel de cw × ch px pegado al borde de la pantalla donde está la cámara.
+// cam = {edge: 'top'|'bottom'|'left'|'right', pos: 0..1 a lo largo del borde (izquierda→derecha o arriba→abajo)}.
+function guidePlacement(cam, vw, vh, cw, ch, m = 8) {
+  const cl = (v, a, b) => Math.max(a, Math.min(b, v));
+  const e = cam && cam.edge || 'top', pos = cam && isFinite(cam.pos) ? cam.pos : 0.5;
+  const px = e === 'top' || e === 'bottom' ? pos * vw : e === 'left' ? 0 : vw, py = e === 'left' || e === 'right' ? pos * vh : e === 'top' ? 0 : vh;
+  const left = e === 'left' ? m : e === 'right' ? vw - cw - m : cl(px - cw / 2, m, vw - cw - m);
+  const top = e === 'top' ? m : e === 'bottom' ? vh - ch - m : cl(py - ch / 2, m, vh - ch - m);
+  return { left, top, cam: { x: px, y: py, edge: e } };
+}
+
 // ---------- Histórico: registros de medida, resumen, exportación (sin DOM) ----------
 const REC_KEYS = ['pdFar', 'monoOD', 'monoOS', 'hOD', 'hOS', 'pdNear', 'DBL', 'DNC', 'Z', 'vertex'];
 const r2 = v => v == null || !isFinite(v) ? null : Math.round(v * 100) / 100;
@@ -1474,11 +1580,13 @@ const S = {
   fov: { ...GENERIC_FOV }, mode: 'frame', step: 'G', tolKey: 'normal', voice: true,
   lmV: null, lmI: null, tilt: null, isMobile: false,
   tpl: null,   // medidas de la montura en la plantilla {W, Aod, Aos, DBL} (mm)
+  who: 'selfie',   // quién hace la foto: 'selfie' (la propia persona) u 'operator' (el óptico, con la cámara trasera)
+  devRoll: null, camManual: false,
 };
 const BURST_N = 8;     // fotogramas por ráfaga
 const STACK_UP = 2;    // remuestreo del promedio en la zona de las gafas
 const conv = { yawAgree: 0, yawDis: 0, yawFlip: false, pitchFlip: false, ps: [] };
-const live = { running: false, paused: false, lastT: -1, frame: 0, sm: null, hist: [], cardHist: [], cardLines: null, cardOk: false, okSince: 0, cdStart: 0, cdLast: -1, capturing: false, offCv: null };
+const live = { running: false, paused: false, lastT: -1, frame: 0, sm: null, hist: [], cardHist: [], cardLines: null, cardOk: false, okSince: 0, phase: 'pos', lookSince: 0, gazeSince: 0, gKey: null, capturing: false, offCv: null };
 let M = { mode: 'frame', caps: [] };   // modelo de medición
 let view = 'G', sel = null, drag = null, lastRes = null;
 const pending = { N: null, G: null };
@@ -1670,6 +1778,9 @@ function openScr(first) {
   if (cw / CSS_PX_MM < 120 && $('scrRef').value === '100') $('scrRef').value = '50';
   scr.lenPx = scrCal().pxPerMm * scrRefMm();
   $('scrSkip').textContent = first ? 'Ahora no' : 'Cerrar';
+  scr.cam = camPos() || (S.isMobile ? null : { edge: 'top', pos: 0.5 });
+  const draw = () => renderCamPick($('camPickScr'), scr.cam, p => { scr.cam = p; draw(); });
+  draw();
   scrSync();
 }
 function scrSync() {
@@ -1713,6 +1824,7 @@ function setupScrEvents() {
   $('scrSave').addEventListener('click', () => {
     const L = scrRefMm();
     store.set(SCR_KEY, { pxPerMm: scr.lenPx / L, refMm: L, ...scrNow(), date: new Date().toLocaleDateString('es-ES') });
+    if (scr.cam) setCamPos(scr.cam);
     $('scrPanel').classList.add('hidden'); renderScrStatus();
     if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
   });
@@ -1742,16 +1854,13 @@ function openTpl() {
   $('tplPanel').classList.toggle('full', full); document.body.classList.toggle('noscroll', full);
   $('tplFs').classList.toggle('hidden', !full || !document.documentElement.requestFullscreen);
   $('tplKicker').textContent = `Paso ${wizSteps().indexOf('frame') + 1} de ${wizSteps().length} · Montura`;
-  if (full && !document.fullscreenElement) tplFullscreen(true);
+  if (full) fsEnter();
   tplInnerUI(); tplWarn(); tplLayout(); tplDraw(); tplToInputs();
 }
-function tplFullscreen(on) {
-  try {
-    if (on && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
-    if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => { });
-  } catch { }
-}
-function tplLeave() { $('tplPanel').classList.remove('full'); document.body.classList.remove('noscroll'); tplFullscreen(false); }
+function fsEnter() { try { if (!document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { }); } catch { } }
+function fsExit() { try { if (document.fullscreenElement) document.exitFullscreen().catch(() => { }); } catch { } }
+function tplFullscreen(on) { if (on) fsEnter(); else fsExit(); }
+function tplLeave() { $('tplPanel').classList.remove('full'); }
 function tplInnerUI() { for (const el of document.querySelectorAll('.tplIn')) el.classList.toggle('hidden', !tplInner()); }
 function tplWarn() {
   const c = scrCal(), w = [];
@@ -1926,8 +2035,9 @@ function setupTplEvents() {
   $('tplInner').addEventListener('change', () => { tplInnerUI(); if (!tplInner() && tpl.sel !== 'yc' && tpl.sel[0] !== 'o') tpl.sel = 'oR'; tplDraw(); });
   $('tplFs').addEventListener('click', () => { tplFullscreen(!document.fullscreenElement); });
   document.addEventListener('fullscreenchange', () => {
-    $('tplFs').textContent = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
+    for (const id of ['tplFs', 'capFs']) $(id).textContent = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
     if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
+    if (!$('livePanel').classList.contains('hidden') && S.who === 'selfie') placeGuide();
   });
   $('tplCancel').addEventListener('click', () => showStep('person'));
   $('tplOk').addEventListener('click', () => {
@@ -1949,20 +2059,65 @@ function setupTplEvents() {
   });
 }
 
+// ---------- Posición de la cámara respecto a la pantalla (por orientación del dispositivo) ----------
+const CAMPOS_KEY = 'dipapp.campos';
+const CAM_SPOTS = [
+  ...[0.1, 0.5, 0.9].map(pos => ({ edge: 'top', pos })), ...[0.1, 0.5, 0.9].map(pos => ({ edge: 'bottom', pos })),
+  ...[0.15, 0.5, 0.85].map(pos => ({ edge: 'left', pos })), ...[0.15, 0.5, 0.85].map(pos => ({ edge: 'right', pos })),
+];
+function orientKey() { const t = screen.orientation && screen.orientation.type; return t || (window.innerWidth >= window.innerHeight ? 'landscape-primary' : 'portrait-primary'); }
+function camPos() { const m = store.get(CAMPOS_KEY) || {}; return m[orientKey()] || null; }
+function setCamPos(p) { const m = store.get(CAMPOS_KEY) || {}; m[orientKey()] = { edge: p.edge, pos: p.pos }; store.set(CAMPOS_KEY, m); renderCamStatus(); }
+function camText(p) {
+  if (!p) return 'sin indicar';
+  const side = { top: 'arriba', bottom: 'abajo', left: 'a la izquierda', right: 'a la derecha' }[p.edge];
+  const along = p.pos < 0.3 ? (p.edge === 'top' || p.edge === 'bottom' ? 'a la izquierda' : 'arriba') : p.pos > 0.7 ? (p.edge === 'top' || p.edge === 'bottom' ? 'a la derecha' : 'abajo') : 'en el centro';
+  return `${side}, ${along}`;
+}
+function renderCamStatus() { $('camPosStatus').textContent = `${camText(camPos())} (${orientKey().startsWith('portrait') ? 'en vertical' : 'en horizontal'})`; }
+function renderCamPick(el, cur, onPick) {
+  const portrait = window.innerHeight > window.innerWidth;
+  el.style.aspectRatio = portrait ? '10 / 16' : '16 / 10'; el.style.width = portrait ? 'min(220px,100%)' : 'min(340px,100%)';
+  el.innerHTML = CAM_SPOTS.map((p, i) => {
+    const x = p.edge === 'left' ? 0 : p.edge === 'right' ? 100 : p.pos * 100, y = p.edge === 'top' ? 0 : p.edge === 'bottom' ? 100 : p.pos * 100;
+    const on = cur && cur.edge === p.edge && Math.abs(cur.pos - p.pos) < 0.01;
+    return `<button type="button" data-i="${i}" class="${on ? 'on' : ''}" style="left:${x}%;top:${y}%" title="Cámara ${camText(p)}" aria-label="Cámara ${camText(p)}"></button>`;
+  }).join('');
+  el.onclick = e => { const b = e.target.closest('button[data-i]'); if (b) onPick(CAM_SPOTS[+b.dataset.i]); };
+}
+let camModalCb = null, camTmp = null;
+function openCamModal(cb) {
+  camModalCb = cb || null; camTmp = camPos() || { edge: 'top', pos: 0.5 };
+  const draw = () => renderCamPick($('camPickModal'), camTmp, p => { camTmp = p; draw(); });
+  draw(); $('camModal').classList.remove('hidden');
+}
+function setWho(w) {
+  S.who = w === 'operator' ? 'operator' : 'selfie';
+  for (const b of document.querySelectorAll('#whoSeg button')) b.classList.toggle('on', b.dataset.who === S.who);
+  $('whoSel').value = S.who;
+}
+
 // ---------- Cámara ----------
 function stepText() {
-  if (S.mode === 'frame') return 'Foto con las gafas puestas (sin tarjeta)';
+  if (S.mode === 'frame') return 'Foto con las gafas puestas';
   if (S.mode === 'card') return 'Foto con gafas y tarjeta sobre la montura';
   return S.step === 'N' ? 'Foto 1 de 2 · SIN gafas' : 'Foto 2 de 2 · CON gafas (misma distancia)';
 }
 async function startCamera(step) {
   S.step = step || (S.mode === 'iris' ? 'N' : 'G');
+  // selfie: hace falta saber dónde está la cámara para poner las indicaciones junto a ella
+  if (S.who === 'selfie' && !camPos()) { openCamModal(() => startCamera(S.step)); return; }
+  setupOrientation();          // permiso de los sensores (iOS) dentro del gesto del usuario
+  fsEnter();                   // pantalla completa: las indicaciones quedan pegadas al borde real de la pantalla
+  const op = S.who === 'operator';
+  $('livePanel').classList.toggle('operator', op); $('livePanel').classList.toggle('selfie', !op);
   showStep('photo');
-  $('msg').textContent = 'Activando la cámara…'; $('msg').className = '';
+  live.gKey = null; showGuide('face', 'Activando la cámara…', false);
   try {
     stopCamera();
     const v = { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } };
-    if (S.deviceId) v.deviceId = { exact: S.deviceId }; else v.facingMode = 'user';
+    // óptico: cámara trasera; selfie: frontal (salvo que se haya elegido una cámara en Ajustes)
+    if (S.deviceId && S.camManual) v.deviceId = { exact: S.deviceId }; else v.facingMode = { ideal: op ? 'environment' : 'user' };
     S.stream = await navigator.mediaDevices.getUserMedia({ video: v, audio: false });
     S.track = S.stream.getVideoTracks()[0];
     const caps = S.track.getCapabilities ? S.track.getCapabilities() : {};
@@ -1985,26 +2140,23 @@ async function startCamera(step) {
     await listCameras(); identifyCamera();
     $('between').classList.add('hidden');
     $('stepTitle').textContent = stepText();
-    $('lookHere').classList.remove('hidden');
-    if (!S.lmV) { $('msg').textContent = 'Cargando detector facial…'; S.lmV = await makeLandmarker('VIDEO'); }
+    if (!S.lmV) { live.gKey = null; showGuide('face', 'Cargando el detector facial…', false); S.lmV = await makeLandmarker('VIDEO'); }
     $('loadMsg').textContent = '';
-    setupOrientation();
     resetLive();
+    if (!op) placeGuide();
     live.running = true;
-    speech.say(S.step === 'N' ? 'Primera foto, sin gafas.' : S.mode === 'iris' ? 'Segunda foto, con gafas.' : S.mode === 'frame' ? 'Ponte las gafas y mira al objetivo de la cámara.' : 'Ponte las gafas y apoya la tarjeta sobre la montura.', true);
+    if (!op) speech.say(S.step === 'N' ? 'Primera foto, sin gafas.' : S.mode === 'iris' ? 'Segunda foto, con gafas.' : S.mode === 'frame' ? 'Ponte las gafas y sigue las indicaciones junto a la cámara.' : 'Ponte las gafas y apoya la tarjeta sobre la montura.', true);
     requestAnimationFrame(loop);
   } catch (e) {
     console.error(e);
-    $('msg').className = 'bad';
-    $('msg').innerHTML = `No se pudo iniciar la cámara: ${e.message || e}.<div class="note" style="font-weight:400;margin-top:6px">Abre la página desde https:// o localhost y permite el acceso a la cámara. Si el ordenador tiene varias, elige otra en Ajustes → Cámara.</div>`;
+    live.gKey = null; showGuide('face', `No se pudo iniciar la cámara: ${e.message || e}. Abre la página desde https:// o localhost, permite el acceso a la cámara o elige otra en Ajustes → Cámara.`, false);
   }
 }
-function resetLive() { Object.assign(live, { paused: false, lastT: -1, sm: null, hist: [], cardHist: [], cardOk: false, okSince: 0, cdStart: 0, capturing: false }); $('countdown').textContent = ''; }
+function resetLive() { Object.assign(live, { paused: false, lastT: -1, sm: null, hist: [], cardHist: [], cardOk: false, okSince: 0, phase: 'pos', lookSince: 0, gazeSince: 0, gKey: null, gazeUnconfirmed: false, capturing: false }); $('countdown').textContent = ''; leaveLook(); }
 function stopCamera() {
   live.running = false;
   if (S.stream) S.stream.getTracks().forEach(t => t.stop());
   S.stream = null;
-  $('lookHere').classList.add('hidden');
 }
 async function listCameras() {
   try {
@@ -2014,7 +2166,7 @@ async function listCameras() {
 }
 function setupOrientation() {
   if (!S.isMobile || !('DeviceOrientationEvent' in window) || S.orientOn) return;
-  const h = e => { if (e.beta == null) return; const up = Math.cos(e.beta * DEG) * Math.cos((e.gamma || 0) * DEG); S.tilt = Math.asin(Math.max(-1, Math.min(1, up))) / DEG; };
+  const h = e => { if (e.beta == null) return; const at = deviceAttitude(e.beta, e.gamma); S.tilt = at.tilt; S.devRoll = at.roll; };
   const add = () => { window.addEventListener('deviceorientation', h); S.orientOn = true; };
   if (typeof DeviceOrientationEvent.requestPermission === 'function') DeviceOrientationEvent.requestPermission().then(r => r === 'granted' && add()).catch(() => { });
   else add();
@@ -2062,69 +2214,138 @@ function loop() {
       }
     } else { live.sm = null; live.hist = []; }
     live.a = a;
-    const checks = evaluate(a, live.cdStart ? 1.35 : 1);
-    drawOverlay(a, checks); drawPose(a); renderChecks(checks); guidance(checks);
+    const checks = evaluate(a, live.phase === 'look' ? 1.35 : 1);
+    drawOverlay(a, checks); drawPose(a); renderChecks(checks); updateLevel(); guidance(checks);
   }
   requestAnimationFrame(loop);
 }
+// Nombre del dispositivo para las indicaciones
+function devNoun() { return dev.os === 'iPadOS' || /iPad/.test(navigator.userAgent) || (S.isMobile && Math.min(screen.width, screen.height) >= 600) ? 'la tablet' : S.isMobile ? 'el móvil' : 'el portátil'; }
+// Comprobaciones de la captura. Cada una lleva un mensaje y un icono según quién hace la foto:
+//  · selfie: se habla a la persona, que ve la imagen en espejo (su derecha está a la derecha de la pantalla);
+//  · óptico: se habla al óptico, que ve la imagen sin espejo (la derecha de la persona está a su izquierda).
+// El orden importa: primero el dispositivo, luego la distancia y el encuadre, después la cabeza; la mirada va al final.
 function evaluate(a, relax = 1) {
-  const t = TOLS[S.tolKey], L = [];
-  const add = (id, label, ok, msg, val = '') => L.push({ id, label, ok, msg, val });
-  if (!a) { add('face', 'Cara detectada', false, 'No detecto tu cara. Colócate frente a la cámara, con buena luz.'); return L; }
-  add('face', 'Cara detectada', true);
+  const t = TOLS[S.tolKey], L = [], op = S.who === 'operator', dn = devNoun(), lap = dn === 'el portátil';
+  const add = (id, ok, msg, icon, val = '') => L.push({ id, ok, msg, icon, val });
+  if (S.tilt != null) add('dev', Math.abs(S.tilt) < 3 * relax, `Pon ${dn} vertical: inclina la parte de arriba ${S.tilt > 0 ? 'hacia ti' : 'hacia delante'}.`, S.tilt > 0 ? 'tiltToward' : 'tiltAway', `${S.tilt.toFixed(1)}°`);
+  if (S.devRoll != null) add('lvl', Math.abs(S.devRoll) < 1.5 * relax, `Endereza ${dn}: gíra${dn === 'la tablet' ? 'la' : 'lo'} ${S.devRoll > 0 ? 'en el sentido de las agujas del reloj' : 'en sentido contrario a las agujas del reloj'}.`, S.devRoll > 0 ? 'cw' : 'ccw', `${S.devRoll.toFixed(1)}°`);
+  if (!a) { add('face', false, op ? 'Encuadra la cara de la persona en la imagen.' : 'No te veo: colócate frente a la cámara, con buena luz.', 'face'); return L; }
+  add('face', true, '', 'face');
   const N = M.caps.find(c => c.id === 'N');
   if (S.mode === 'iris' && S.step === 'G' && N) {
     const fl = focalFromDfov(S.fov.dfov, S.fov.ref, S.W, S.H);
     const r = (a.feat / fl) / (N.feat / N.f);   // >1: más cerca que en la foto 1 (en unidades angulares: N puede estar remuestreada)
-    add('dist', 'Misma distancia que la foto 1', Math.abs(r - 1) <= t.zr * relax, r > 1 ? 'Aléjate un poco: iguala la distancia de la primera foto.' : 'Acércate un poco: iguala la distancia de la primera foto.', `${r > 1 ? '+' : ''}${((r - 1) * 100).toFixed(1)} %`);
+    add('dist', Math.abs(r - 1) <= t.zr * relax, r > 1 ? (op ? 'Aléjate un poco: la misma distancia que en la foto 1.' : 'Aléjate un poco: la misma distancia que en la primera foto.') : (op ? 'Acércate un poco: la misma distancia que en la foto 1.' : 'Acércate un poco: la misma distancia que en la primera foto.'), r > 1 ? 'farther' : 'closer', `${r > 1 ? '+' : ''}${((r - 1) * 100).toFixed(1)} %`);
   } else {
-    add('dist', 'Distancia 32–52 cm', a.Z >= 320 && a.Z <= 520, a.Z > 520 ? 'Acércate un poco a la pantalla, a unos 40 centímetros.' : 'Aléjate un poco de la pantalla, a unos 40 centímetros.', `${(a.Z / 10).toFixed(0)} cm`);
+    const far = a.Z > 520;
+    add('dist', a.Z >= 320 && a.Z <= 520, far ? (op ? 'Acércate a la persona, a unos 40 cm.' : 'Acércate un poco a la cámara, a unos 40 cm.') : (op ? 'Aléjate un poco de la persona, a unos 40 cm.' : 'Aléjate un poco de la cámara, a unos 40 cm.'), far ? 'closer' : 'farther', `${(a.Z / 10).toFixed(0)} cm`);
   }
-  add('h', 'Centrado frente a la cámara', Math.abs(a.hAng) <= t.h * relax, a.hAng < 0 ? 'Desplázate un poco hacia tu izquierda.' : 'Desplázate un poco hacia tu derecha.', `${a.hAng.toFixed(1)}°`);
-  add('v', 'Ojos a la altura de la cámara', Math.abs(a.vAng) <= t.v * relax, a.vAng < 0 ? 'Tus ojos están por encima de la cámara: baja el asiento o eleva el portátil, sin inclinar la pantalla.' : 'Tus ojos están por debajo de la cámara: sube el asiento o coloca el portátil más bajo, sin inclinar la pantalla.', `${a.vAng.toFixed(1)}°`);
-  if (S.tilt != null) add('dev', 'Dispositivo vertical', Math.abs(S.tilt) < 3, S.tilt > 0 ? 'Pon el dispositivo más vertical: está inclinado hacia atrás.' : 'Pon el dispositivo más vertical: está inclinado hacia delante.', `${S.tilt.toFixed(1)}°`);
-  add('roll', 'Cabeza sin ladear', Math.abs(a.roll) <= t.roll * relax, a.roll > 0 ? 'Endereza la cabeza: inclínala un poco hacia tu hombro derecho.' : 'Endereza la cabeza: inclínala un poco hacia tu hombro izquierdo.', `${a.roll.toFixed(1)}°`);
-  add('yaw', 'Sin giro lateral', Math.abs(a.yaw) <= t.yaw * relax, a.yaw > 0 ? 'Gira la cabeza un poco hacia tu derecha.' : 'Gira la cabeza un poco hacia tu izquierda.', `${a.yaw.toFixed(1)}°`);
-  add('pitch', 'Sin inclinación arriba/abajo', Math.abs(a.pitch) <= t.pitch * relax, a.pitch > 0 ? 'Baja ligeramente la barbilla.' : 'Sube ligeramente la barbilla.', `${a.pitch.toFixed(1)}°`);
-  if (S.mode === 'card') add('card', 'Tarjeta sobre la montura', live.cardOk, 'Apoya la tarjeta horizontal sobre la parte superior de la montura, plana, sin tapar sus bordes laterales.');
-  add('gaze', 'Mirada al objetivo', a.gazeOk, 'Mira directamente al objetivo de la cámara, arriba de la pantalla.');
-  add('eyes', 'Ojos abiertos', a.blink < 0.4, 'Mantén los ojos bien abiertos.');
-  add('still', 'Sin movimiento', !!live.stable, 'Quédate quieto un momento.');
+  const lft = a.hAng < 0;
+  add('h', Math.abs(a.hAng) <= t.h * relax, op ? `Mueve ${dn} hacia la ${lft ? 'izquierda' : 'derecha'}.` : `Desplázate un poco hacia tu ${lft ? 'izquierda' : 'derecha'}.`, lft ? 'left' : 'right', `${a.hAng.toFixed(1)}°`);
+  const above = a.vAng < 0;   // ojos por encima del eje de la cámara
+  add('v', Math.abs(a.vAng) <= t.v * relax,
+    op ? `${above ? 'Sube' : 'Baja'} ${dn} hasta la altura de sus ojos.`
+      : lap ? (above ? 'Tus ojos están por encima de la cámara: baja el asiento o sube el portátil, sin inclinar la pantalla.' : 'Tus ojos están por debajo de la cámara: sube el asiento o baja el portátil, sin inclinar la pantalla.')
+        : `${above ? 'Sube' : 'Baja'} ${dn} hasta la altura de tus ojos.`, above ? 'up' : 'down', `${a.vAng.toFixed(1)}°`);
+  const rr = a.roll > 0;
+  add('roll', Math.abs(a.roll) <= t.roll * relax, op ? `Pide que enderece la cabeza, hacia su hombro ${rr ? 'derecho' : 'izquierdo'}.` : `Endereza la cabeza: inclínala un poco hacia tu hombro ${rr ? 'derecho' : 'izquierdo'}.`, op ? (rr ? 'ccw' : 'cw') : (rr ? 'cw' : 'ccw'), `${a.roll.toFixed(1)}°`);
+  const yr = a.yaw > 0;
+  add('yaw', Math.abs(a.yaw) <= t.yaw * relax, op ? `Pide que gire la cabeza un poco hacia su ${yr ? 'derecha' : 'izquierda'}.` : `Gira la cabeza un poco hacia tu ${yr ? 'derecha' : 'izquierda'}.`, op ? (yr ? 'left' : 'right') : (yr ? 'right' : 'left'), `${a.yaw.toFixed(1)}°`);
+  const pu = a.pitch > 0;
+  add('pitch', Math.abs(a.pitch) <= t.pitch * relax, op ? `Pide que ${pu ? 'baje' : 'suba'} ligeramente la barbilla.` : `${pu ? 'Baja' : 'Sube'} ligeramente la barbilla.`, pu ? 'down' : 'up', `${a.pitch.toFixed(1)}°`);
+  if (S.mode === 'card') add('card', live.cardOk, op ? 'Pide que apoye la tarjeta horizontal sobre la parte de arriba de la montura, sin tapar sus bordes.' : 'Apoya la tarjeta horizontal sobre la parte de arriba de la montura, sin tapar sus bordes.', 'card');
+  add('eyes', a.blink < 0.4, op ? 'Pide que abra bien los ojos.' : 'Abre bien los ojos.', 'eye');
+  add('still', !!live.stable, op ? `Sujeta ${dn} sin moverte y pide que no se mueva.` : 'Quédate quieto un momento.', 'still');
+  add('gaze', a.gazeOk, op ? 'Pide que mire al objetivo de la cámara.' : 'Mira a la cámara.', 'eye');
   return L;
 }
+const CHECK_LABEL = { dev: 'Dispositivo vertical', lvl: 'Dispositivo sin girar', face: 'Cara detectada', dist: 'Distancia', h: 'Centrado frente a la cámara', v: 'Ojos a la altura de la cámara', roll: 'Cabeza sin ladear', yaw: 'Sin giro lateral', pitch: 'Sin inclinación arriba/abajo', card: 'Tarjeta sobre la montura', eyes: 'Ojos abiertos', still: 'Sin movimiento', gaze: 'Mirada al objetivo' };
 function renderChecks(L) {
-  const order = ['face', 'dist', 'h', 'v', 'dev', 'roll', 'yaw', 'pitch', 'card', 'gaze', 'eyes', 'still'];
-  const labels = { face: 'Cara detectada', dist: S.mode === 'iris' && S.step === 'G' ? 'Misma distancia que la foto 1' : 'Distancia 32–52 cm', h: 'Centrado frente a la cámara', v: 'Ojos a la altura de la cámara', dev: 'Dispositivo vertical', roll: 'Cabeza sin ladear', yaw: 'Sin giro lateral', pitch: 'Sin inclinación arriba/abajo', card: 'Tarjeta sobre la montura', gaze: 'Mirada al objetivo', eyes: 'Ojos abiertos', still: 'Sin movimiento' };
-  const by = Object.fromEntries(L.map(c => [c.id, c]));
   let html = '';
-  for (const id of order) {
-    if (id === 'card' && S.mode !== 'card') continue;
-    if (id === 'dev' && S.tilt == null) continue;
-    const c = by[id], cls = c ? (c.ok ? 'ok' : 'bad') : 'na';
-    html += `<li class="${cls}"><span>${labels[id]}</span><span><span class="val">${c && c.val ? c.val + ' ' : ''}</span><span class="st">${c ? (c.ok ? '✓' : '✗') : '–'}</span></span></li>`;
-  }
-  if (!S.isMobile) html += `<li class="na"><span>Pantalla del portátil vertical (90°)</span><span class="st" title="No medible desde el navegador">ⓘ</span></li>`;
+  for (const c of L) html += `<li class="${c.ok ? 'ok' : 'bad'}"><span>${CHECK_LABEL[c.id]}</span><span><span class="val">${c.val ? c.val + ' ' : ''}</span><span class="st">${c.ok ? '✓' : '✗'}</span></span></li>`;
+  if (devNoun() === 'el portátil') html += `<li class="na"><span>Pantalla del portátil vertical (90°)</span><span class="st" title="No medible desde el navegador">ⓘ</span></li>`;
   $('checks').innerHTML = html;
+  $('checkDots').innerHTML = L.map(c => `<i class="${c.ok ? 'ok' : 'bad'}" title="${CHECK_LABEL[c.id]}"></i>`).join('');
 }
+// Iconos de las indicaciones (SVG en línea, color del texto)
+function icon(kind) {
+  const w = b => `<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${b}</svg>`;
+  const arrow = '<path d="M24 40V9"/><path d="M11 21L24 8l13 13"/>', rot = d => `<g transform="rotate(${d} 24 24)">${arrow}</g>`;
+  const turn = '<path d="M39 26a15 15 0 1 1-5-12.6"/><path d="M35 5v9h-9"/>';
+  const dev = '<rect x="17" y="6" width="14" height="36" rx="3"/>';
+  return w({
+    up: rot(0), down: rot(180), left: rot(270), right: rot(90),
+    cw: turn, ccw: `<g transform="matrix(-1 0 0 1 48 0)">${turn}</g>`,
+    closer: '<path d="M19 19L8 8M8 17V8h9M29 19L40 8M31 8h9v9M19 29L8 40M8 31v9h9M29 29l11 11M40 31v9h-9"/>',
+    farther: '<path d="M8 8l11 11M10 19h9v-9M40 8L29 19M29 10v9h9M8 40l11-11M19 38v-9h-9M40 40L29 29M38 29h-9v9"/>',
+    tiltToward: `<g transform="rotate(14 24 24)">${dev}</g><path d="M38 18c-3-6-8-9-14-10"/><path d="M28 4l-4 4 4 4"/>`,
+    tiltAway: `<g transform="rotate(-14 24 24)">${dev}</g><path d="M10 18c3-6 8-9 14-10"/><path d="M20 4l4 4-4 4"/>`,
+    eye: '<path d="M3 24s8-13 21-13 21 13 21 13-8 13-21 13S3 24 3 24z"/><circle cx="24" cy="24" r="6"/>',
+    face: '<circle cx="24" cy="24" r="18"/><path d="M17 20h.01M31 20h.01M17 31c4 4 10 4 14 0"/>',
+    still: '<path d="M18 12v24M30 12v24"/>',
+    card: '<rect x="6" y="13" width="36" height="22" rx="3"/><path d="M6 20h36"/>',
+    check: '<path d="M10 25l9 9 19-20"/>',
+  }[kind] || '');
+}
+function showGuide(kind, text, ok) {
+  const key = kind + '|' + text + '|' + ok;
+  if (live.gKey === key) return;
+  live.gKey = key;
+  $('guideIcon').innerHTML = icon(kind); $('guideIcon').classList.toggle('ok', !!ok);
+  $('msg').textContent = text; $('msg').className = ok ? 'ok' : 'bad';
+  if (S.who === 'selfie') placeGuide();
+}
+// Fase final: la cabeza ya está bien; se pide mirar a la cámara y se espera a que la mirada se asiente
+function enterLook() {
+  const op = S.who === 'operator';
+  if (!op) $('guideCard').classList.add('look');
+  live.gKey = null; showGuide('eye', op ? 'Pide que mire al objetivo de la cámara' : 'Mira a la cámara', true);
+  if (!op) { placeGuide(); $('camArrow').classList.remove('hidden'); }
+}
+function leaveLook() { $('guideCard').classList.remove('look'); $('camArrow').classList.add('hidden'); live.gKey = null; if (S.who === 'selfie') placeGuide(); }
 function guidance(L) {
-  const bad = L.find(c => !c.ok), msg = $('msg'), cd = $('countdown'), now = performance.now();
+  const now = performance.now(), op = S.who === 'operator';
+  const bad = L.find(c => c.id !== 'gaze' && !c.ok), gz = L.find(c => c.id === 'gaze');
   if (bad) {
-    if (live.cdStart) { live.cdStart = 0; cd.textContent = ''; $('lookHere').classList.remove('pulse'); }
-    live.okSince = 0; msg.textContent = bad.msg; msg.className = 'bad'; speech.say(bad.msg);
+    if (live.phase === 'look') leaveLook();
+    live.phase = 'pos'; live.okSince = 0;
+    showGuide(bad.icon, bad.msg, false);
+    if (!op) speech.say(bad.msg);
     return;
   }
-  msg.className = 'ok';
   if (!live.okSince) live.okSince = now;
-  if (!live.cdStart && now - live.okSince > 600) {
-    live.cdStart = now; live.cdLast = -1; $('lookHere').classList.add('pulse');
-    speech.say('Perfecto. No te muevas y mira a la cámara.', true);
+  if (live.phase !== 'look') {
+    if (now - live.okSince < 400) { showGuide('check', op ? 'Muy bien: que no se mueva…' : 'Muy bien. No te muevas…', true); return; }
+    live.phase = 'look'; live.lookSince = now; live.gazeSince = 0; enterLook();
+    speech.say(op ? 'Mire al objetivo de la cámara, por favor.' : 'Ahora mira a la cámara.', true); beep(880, 0.08);
   }
-  if (live.cdStart) {
-    const left = 3 - Math.floor((now - live.cdStart) / 1000);
-    if (left !== live.cdLast) { live.cdLast = left; if (left > 0) beep(left === 1 ? 990 : 660); }
-    if (left > 0) { cd.textContent = left; msg.textContent = '¡Perfecto! No te muevas y mira al objetivo…'; }
-    else { cd.textContent = ''; live.cdStart = 0; $('lookHere').classList.remove('pulse'); captureBurst(); }
-  } else msg.textContent = 'Todo correcto. Mantén la posición…';
+  if (gz && gz.ok) { if (!live.gazeSince) live.gazeSince = now; } else live.gazeSince = 0;
+  const waited = now - live.lookSince;
+  // tras el aviso, se espera a que los ojos lleguen a la cámara (≥ 0,9 s) y se queden quietos en ella (≥ 0,7 s)
+  if ((waited > 900 && live.gazeSince && now - live.gazeSince > 700) || waited > 6000) {
+    live.gazeUnconfirmed = !live.gazeSince;
+    captureBurst();
+  }
+}
+// Coloca las indicaciones junto a la cámara (selfie) y la flecha «Mira aquí»
+function placeGuide() {
+  const g = $('guideCard'), look = g.classList.contains('look'), cam = camPos() || { edge: 'top', pos: 0.5 };
+  const P = guidePlacement(cam, window.innerWidth, window.innerHeight, g.offsetWidth, g.offsetHeight, look ? 84 : 8);
+  g.style.left = P.left + 'px'; g.style.top = P.top + 'px';
+  const ar = $('camArrow'), rot = { top: 0, right: 90, bottom: 180, left: 270 }[P.cam.edge];
+  const ax = Math.max(40, Math.min(window.innerWidth - 40, P.cam.x)), ay = Math.max(30, Math.min(window.innerHeight - 30, P.cam.y));
+  const inX = P.cam.edge === 'left' ? 34 : P.cam.edge === 'right' ? -34 : 0, inY = P.cam.edge === 'top' ? 30 : P.cam.edge === 'bottom' ? -30 : 0;
+  ar.style.left = (ax + inX) + 'px'; ar.style.top = (ay + inY) + 'px'; ar.style.transform = `translate(-50%,-50%) rotate(${rot}deg)`;
+  $('capBar').classList.toggle('atTop', S.who === 'selfie' && cam.edge === 'bottom');
+}
+function updateLevel() {
+  const box = $('levelBox');
+  if (S.devRoll == null && S.tilt == null) { box.classList.add('hidden'); return; }
+  box.classList.remove('hidden');
+  const roll = S.devRoll || 0, tilt = S.tilt || 0;
+  $('lvlHz').style.transform = `translateY(${Math.max(-20, Math.min(20, tilt * 1.5))}px) rotate(${roll}deg)`;
+  box.classList.toggle('bad', Math.abs(roll) >= 1.5 || Math.abs(tilt) >= 3);
 }
 function drawOverlay(a, checks) {
   const c = $('ov'), x = c.getContext('2d'), W = c.width, H = c.height;
@@ -2171,7 +2392,7 @@ async function captureBurst() {
   if (live.capturing) return;
   live.capturing = true;
   const video = $('video'), W = S.W, H = S.H, t0 = performance.now();
-  $('msg').textContent = 'Capturando…'; $('msg').className = 'ok';
+  live.gKey = null; showGuide('still', S.who === 'operator' ? 'Capturando… que no se mueva' : 'Capturando… no te muevas', true);
   beep(1320, 0.18);
   const frames = [], f = focalFromDfov(S.fov.dfov, S.fov.ref, W, H);
   for (let i = 0; i < BURST_N; i++) {
@@ -2186,7 +2407,7 @@ async function captureBurst() {
     const g = makeGray(ctx.getImageData(bx0, by0, bx1 - bx0, by1 - by0), bx0, by0);
     frames.push({ cv, a, sharp: lapVar(g, bx0, by0, bx1 - 1, by1 - 1) });
   }
-  if (!frames.length) { live.capturing = false; $('msg').textContent = 'No se pudo capturar. Inténtalo de nuevo.'; return; }
+  if (!frames.length) { live.capturing = false; live.gKey = null; showGuide('face', 'No se pudo capturar. Inténtalo de nuevo.', false); return; }
   const tCap = performance.now() - t0;
   // referencia: entre los más nítidos, el mejor alineado
   const maxS = Math.max(...frames.map(q => q.sharp));
@@ -2194,11 +2415,11 @@ async function captureBurst() {
   const score = q => Math.abs(q.a.yaw) + Math.abs(q.a.roll) + 0.5 * Math.abs(q.a.pitch);
   (cand.length ? cand : frames).sort((p, q) => score(p) - score(q));
   const best = (cand.length ? cand : frames)[0];
-  $('msg').textContent = 'Procesando la ráfaga…';
+  live.gKey = null; showGuide('check', 'Procesando la ráfaga…', true);
   await new Promise(r => setTimeout(r, 20));
   let st = null;
   try { st = stackBurst(frames, best, maxS); } catch (e) { console.warn('apilado', e); }
-  const info = { ...(st ? st.info : { n: 1, of: frames.length, up: 1, reason: 'error en el apilado' }), tCap, tProc: performance.now() - t0 - tCap };
+  const info = { ...(st ? st.info : { n: 1, of: frames.length, up: 1, reason: 'error en el apilado' }), tCap, tProc: performance.now() - t0 - tCap, gazeUnconfirmed: !!live.gazeUnconfirmed };
   speech.say('Foto tomada.', true);
   const pose = { yaw: best.a.yaw, pitch: best.a.pitch, roll: best.a.roll };
   const burst = { stack: st && st.cv, best: best.cv, info };
@@ -2298,6 +2519,7 @@ async function analyzeCapture(cv, pose, kind, extra = {}) {
   for (const e of ['od', 'os']) iris[e] = rf[e] ? { x: rf[e].x, y: rf[e].y, r: rf[e].r } : { x: a[e].c.x, y: a[e].c.y, r: a[e].d / 2 };
   const cap = { id: kind, cv, W, H, f, ss: extra.ss || 1, burst: extra.burst || null, iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
   const bn = burstNote(cap); if (bn) cap.notes.push(bn);
+  if (cap.burst && cap.burst.info.gazeUnconfirmed) cap.notes.push('No se pudo confirmar que la mirada estaba en la cámara: comprueba que los ojos miran al objetivo o repite la foto.');
   if (!rf.od || !rf.os) cap.notes.push('El ajuste fino de algún iris no fue fiable: revisa su centro y su borde con la lupa.');
   const eyeMid = { x: (iris.od.x + iris.os.x) / 2, y: (iris.od.y + iris.os.y) / 2 };
   if (kind === 'N') { cap.bridge = { x: a.bridge.x, y: eyeMid.y }; $('loadMsg').textContent = ''; return cap; }
@@ -2735,7 +2957,7 @@ function go(v) {
   for (const x of VIEWS) $('view' + x[0].toUpperCase() + x.slice(1)).classList.toggle('hidden', x !== v);
   for (const b of document.querySelectorAll('nav .nav')) b.classList.toggle('on', b.dataset.view === v || ((v === 'person' || v === 'record') && b.dataset.view === 'people'));
   if (v !== 'wizard' && live.running) stopCamera();
-  if (v !== 'wizard') tplLeave();
+  if (v !== 'wizard') { tplLeave(); fsExit(); document.body.classList.remove('noscroll'); }
   if (S.view !== v) window.scrollTo({ top: 0, behavior: 'instant' });
   S.view = v;
 }
@@ -2743,6 +2965,9 @@ function wizSteps() { return S.mode === 'frame' ? ['person', 'frame', 'photo', '
 function showStep(st) {
   go('wizard');
   if (st !== 'frame') tplLeave();
+  const fsWanted = (st === 'frame' && tplDesktop()) || st === 'photo';
+  if (!fsWanted) fsExit();
+  document.body.classList.toggle('noscroll', st === 'photo' || (st === 'frame' && tplDesktop()));
   const changed = wiz.step !== st;
   wiz.step = st;
   const map = { person: 'stepPerson', frame: 'tplPanel', photo: 'livePanel', review: 'measurePanel' };
@@ -2950,12 +3175,13 @@ async function importJson(file) {
   await renderPeople();
 }
 // Preferencias (método, exigencia, voz)
-function savePrefs() { store.set('dipapp.prefs', { mode: S.mode, tol: S.tolKey, voice: S.voice }); }
+function savePrefs() { store.set('dipapp.prefs', { mode: S.mode, tol: S.tolKey, voice: S.voice, who: S.who }); }
 function loadPrefs() {
   const p = store.get('dipapp.prefs'); if (!p) return;
   if (METHOD_NAME[p.mode]) { S.mode = p.mode; M.mode = p.mode; $('modeSel').value = p.mode; }
   if (TOLS[p.tol]) { S.tolKey = p.tol; $('tolSel').value = p.tol; }
   if (typeof p.voice === 'boolean') { S.voice = p.voice; $('voiceChk').checked = p.voice; }
+  if (p.who) setWho(p.who);
 }
 function setupAppEvents() {
   document.addEventListener('click', ev => {
@@ -2965,6 +3191,19 @@ function setupAppEvents() {
     const pk = ev.target.closest('[data-pick]'); if (pk) { wiz.person = pk.dataset.pick; nextAfterPerson(); }
   });
   $('peopleSearch').addEventListener('input', renderPeople);
+  $('whoSeg').addEventListener('click', e => { const b = e.target.closest('button[data-who]'); if (b) { setWho(b.dataset.who); savePrefs(); } });
+  $('whoSel').addEventListener('change', e => { setWho(e.target.value); savePrefs(); });
+  $('camPosBtn').addEventListener('click', () => openCamModal(null));
+  $('camOk').addEventListener('click', () => { setCamPos(camTmp); $('camModal').classList.add('hidden'); const cb = camModalCb; camModalCb = null; if (cb) cb(); });
+  $('camCancel').addEventListener('click', () => { $('camModal').classList.add('hidden'); camModalCb = null; });
+  $('capFs').addEventListener('click', () => { if (document.fullscreenElement) fsExit(); else fsEnter(); });
+  const reorient = () => {
+    renderCamStatus();
+    if ($('livePanel').classList.contains('hidden') || S.who !== 'selfie') return;
+    if (!camPos()) openCamModal(placeGuide); else placeGuide();
+  };
+  window.addEventListener('resize', reorient);
+  if (screen.orientation) screen.orientation.addEventListener('change', reorient);
   $('stepPersonSearch').addEventListener('input', renderStepPerson);
   $('personAddBtn').addEventListener('click', () => openPersonModal(null, p => renderPerson(p.id)));
   $('personNewBtn').addEventListener('click', () => openPersonModal(null, p => { wiz.person = p.id; nextAfterPerson(); }));
@@ -3015,7 +3254,7 @@ $('saveFovBtn').addEventListener('click', () => {
 $('modeSel').addEventListener('change', e => { S.mode = e.target.value; M = { mode: S.mode, caps: [] }; pending.N = pending.G = null; setModeUI(); savePrefs(); });
 $('tolSel').addEventListener('change', e => { S.tolKey = e.target.value; savePrefs(); });
 $('voiceChk').addEventListener('change', e => { S.voice = e.target.checked; savePrefs(); if (!S.voice) try { speechSynthesis.cancel(); } catch { } });
-$('camSel').addEventListener('change', e => { S.deviceId = e.target.value; if (live.running) startCamera(S.step); });
+$('camSel').addEventListener('change', e => { S.deviceId = e.target.value; S.camManual = true; if (live.running) startCamera(S.step); });
 $('newMeasureBtn').addEventListener('click', () => startMeasure(null));
 $('contBtn').addEventListener('click', () => { S.step = 'G'; $('between').classList.add('hidden'); $('stepTitle').textContent = stepText(); resetLive(); speech.say('Segunda foto, con gafas.', true); });
 $('stopBtn').addEventListener('click', () => { stopCamera(); showStep(S.mode === 'frame' ? 'frame' : 'person'); if (S.mode === 'frame') openTpl(); else renderStepPerson(); });
@@ -3093,7 +3332,9 @@ setupMeasureEvents();
 setupScrEvents();
 setupTplEvents();
 setupAppEvents();
+setWho('selfie');
 loadPrefs();
+renderCamStatus();
 setModeUI();
 detectDevice();
 renderScrStatus();
