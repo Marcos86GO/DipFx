@@ -96,6 +96,14 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - Tablet o móvil (selfie u óptico): se exige el dispositivo vertical (±3°) y sin girar respecto al suelo (±1,5°), a partir del sensor de orientación. Después, cara y cámara enfrentadas y alineadas con las comprobaciones de siempre.
 - Sin probar en una tablet real: los signos del sensor y la cámara trasera están por validar.
 
+## Sesión del 18 nov 2026: personalización e inglés
+
+- Panto y vértice con una **foto de perfil**: en tablet o móvil, la hace otra persona con la cámara trasera y la app la guía con el nivel del dispositivo (en selfie no es posible); en ordenador, se pide poner la cámara recta y una voz guía a la persona, de lado, y dispara. Se marcan cuatro puntos y la escala sale de la altura exterior del frente (de la foto frontal o medida con regla).
+- **Galbe** con una plantilla nueva: la montura apoyada por el borde inferior del frente y cuatro puntos en los extremos de las lentes.
+- Las dos medidas se activan en Ajustes («Medidas de personalización») y añaden dos pasos omitibles al asistente.
+- **Inglés**: selector de idioma en Ajustes (por defecto, el del navegador). Textos fijos por diccionario y textos generados con `Lg()`. CSV en inglés con coma y punto decimal.
+- Corregido de paso: al volver a elegir la misma foto en «Analizar fotos ya hechas» no se analizaba (el selector no avisaba del cambio); al subir fotos se arrastraban parámetros de la medida anterior.
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?

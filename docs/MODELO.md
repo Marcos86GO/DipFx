@@ -129,6 +129,23 @@ Si `|Z_ext − Z_caja|/Z > 2,5·√(σ_ext² + σ_caja²)`, se avisa. A partir d
 4. Con 3 o más fotogramas válidos se promedian (`stackRGBA`) en la zona de las gafas con remuestreo ×2 (píxel *j* ↔ `(j + 0,5)/2 − 0,5`); el resto de la imagen es la referencia ampliada. El ruido baja ≈ 1/√N.
 5. En la incertidumbre, los errores de localización se expresan en píxeles de la cámara (`× ss`).
 
+## 4 quater. Personalización
+
+**Foto de perfil** (`profileMeasure`). Con la cámara a nivel y la persona de perfil, mirando a lo lejos en su postura natural, se marcan cuatro puntos: T y B (borde exterior superior e inferior del frente), C (vértice corneal) y P (cara posterior de la lente delante de la córnea).
+
+```
+panto = atan2((B.x − T.x)·cara, B.y − T.y)       cara = signo(C.x − x medio de T y B)   (> 0: borde inferior hacia la cara)
+escala = H / |T − B|                  (H medida con regla: altura real del frente)
+escala = H_frontal / cos(panto) / |T − B|   (H de la foto frontal: está proyectada)
+vértice = |C − P| · escala
+```
+
+`H_frontal` = media de los dos ojos de (borde exterior inferior − superior) en la foto frontal, a la altura del centro de cada caja (`outerVDetect`, con `detectOuterEdge` en vertical), por la escala del plano de la lente.
+
+Incertidumbre: ±1 px (× ss) en cada punto, ±0,5 mm en H, y el nivel de la cámara en el panto (±1,5° con el sensor de una tablet; ±2,5° en ordenador). El panto y el vértice medidos sustituyen a los parámetros (`p.panto`, `p.vertex`) con su ± (`p.pantoSd`, `p.vertexSd`; en el método iris, el vértice de perfil es el valor previo con el que se fusiona el del iris).
+
+**Galbe** (`wrapFromPoints`). La montura se apoya por el borde inferior del frente sobre la pantalla, con las varillas hacia quien mira, y se marcan los extremos temporal y nasal de cada lente en el borde del frente. Plano del frente = recta por los puntos medios de cada lente (centros de las cajas, ISO 13666). Galbe de cada lente = ángulo de su recta nasal→temporal con ese plano, positivo si el extremo temporal va hacia la cara. Es una vista de planta casi paralela a la pantalla: una proyección central conserva los ángulos, así que no depende de la calibración ni del paralaje. En el cálculo se usa la media de los dos lados (±1°).
+
 ## 5. Montura (boxing)
 
 **Contorno de cada lente** (`detectLensContour`):

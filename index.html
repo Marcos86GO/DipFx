@@ -1668,18 +1668,18 @@ const TOLS = {
   flexible: { yaw: 3, pitch: 6, roll: 3, h: 5, v: 4, zr: 0.035 },
 };
 const CAM_DB = [
-  { re: /c270/i, name: 'Logitech C270', dfov: 55, ref: 16 / 9, src: 'Ficha técnica de Logitech', kind: 'spec' },
-  { re: /c505/i, name: 'Logitech C505 / C505e', dfov: 60, ref: 16 / 9, src: 'Ficha técnica de Logitech', kind: 'spec' },
-  { re: /c92[02]|hd pro webcam/i, name: 'Logitech C920 / C922', dfov: 78, ref: 16 / 9, src: 'Ficha técnica de Logitech', kind: 'spec' },
-  { re: /c930/i, name: 'Logitech C930e', dfov: 90, ref: 16 / 9, src: 'Ficha técnica de Logitech', kind: 'spec' },
-  { re: /hp 435/i, name: 'HP 435 FHD', dfov: 85, ref: 16 / 9, src: 'Ficha técnica de HP', kind: 'spec' },
-  { re: /iphone|continuity/i, name: 'iPhone como webcam (Continuity)', dfov: 75, ref: 16 / 9, src: 'Estimado: usa mejor la cámara integrada', kind: 'est', warn: 'Estás usando un iPhone como webcam: su encuadre puede cambiar. Usa la cámara integrada del portátil.' },
-  { re: /obs|virtual|snap camera|camo|droidcam|manycam|xsplit|nvidia broadcast/i, name: 'Cámara virtual', dfov: 75, ref: 16 / 9, src: 'Cámara virtual: FOV desconocido', kind: 'est', warn: 'Es una cámara virtual (software). Puede recortar o escalar la imagen: elige la cámara física.' },
-  { re: /facetime|macbook|built-in|isight/i, name: 'Cámara integrada de Mac', dfov: 68, ref: 16 / 9, src: 'Apple no publica el FOV: estimado', kind: 'est', warn: 'En Mac, desactiva Center Stage (Encuadre centrado) desde el icono de vídeo de la barra de menús mientras la cámara está activa.' },
-  { re: /integrated webcam/i, name: 'Webcam integrada (Dell)', dfov: 77, ref: 16 / 9, src: 'Rango de fichas Dell 74,9–78,6°: estimado', kind: 'est5', hi: { minW: 2500, dfov: 92, ref: 4 / 3, src: 'Dell 5 MP: 92° según fichas Dell' } },
-  { re: /integrated camera|integrated rgb/i, name: 'Cámara integrada (Lenovo u otra)', dfov: 75, ref: 16 / 9, src: 'Estimado', kind: 'est' },
+  { re: /c270/i, name: 'Logitech C270', dfov: 55, ref: 16 / 9, src: 'Ficha técnica de Logitech', srcEn: 'Logitech datasheet', kind: 'spec' },
+  { re: /c505/i, name: 'Logitech C505 / C505e', dfov: 60, ref: 16 / 9, src: 'Ficha técnica de Logitech', srcEn: 'Logitech datasheet', kind: 'spec' },
+  { re: /c92[02]|hd pro webcam/i, name: 'Logitech C920 / C922', dfov: 78, ref: 16 / 9, src: 'Ficha técnica de Logitech', srcEn: 'Logitech datasheet', kind: 'spec' },
+  { re: /c930/i, name: 'Logitech C930e', dfov: 90, ref: 16 / 9, src: 'Ficha técnica de Logitech', srcEn: 'Logitech datasheet', kind: 'spec' },
+  { re: /hp 435/i, name: 'HP 435 FHD', dfov: 85, ref: 16 / 9, src: 'Ficha técnica de HP', srcEn: 'HP datasheet', kind: 'spec' },
+  { re: /iphone|continuity/i, name: 'iPhone como webcam (Continuity)', nameEn: 'iPhone as webcam (Continuity)', dfov: 75, ref: 16 / 9, src: 'Estimado: usa mejor la cámara integrada', srcEn: 'Estimated: better use the built-in camera', kind: 'est', warn: 'Estás usando un iPhone como webcam: su encuadre puede cambiar. Usa la cámara integrada del portátil.', warnEn: 'You are using an iPhone as a webcam: its framing may change. Use the laptop’s built-in camera.' },
+  { re: /obs|virtual|snap camera|camo|droidcam|manycam|xsplit|nvidia broadcast/i, name: 'Cámara virtual', nameEn: 'Virtual camera', dfov: 75, ref: 16 / 9, src: 'Cámara virtual: FOV desconocido', srcEn: 'Virtual camera: unknown FOV', kind: 'est', warn: 'Es una cámara virtual (software). Puede recortar o escalar la imagen: elige la cámara física.', warnEn: 'This is a virtual (software) camera. It may crop or scale the image: choose the physical camera.' },
+  { re: /facetime|macbook|built-in|isight/i, name: 'Cámara integrada de Mac', nameEn: 'Mac built-in camera', dfov: 68, ref: 16 / 9, src: 'Apple no publica el FOV: estimado', srcEn: 'Apple does not publish the FOV: estimated', kind: 'est', warn: 'En Mac, desactiva Center Stage (Encuadre centrado) desde el icono de vídeo de la barra de menús mientras la cámara está activa.', warnEn: 'On a Mac, turn off Center Stage from the video icon in the menu bar while the camera is on.' },
+  { re: /integrated webcam/i, name: 'Webcam integrada (Dell)', nameEn: 'Built-in webcam (Dell)', dfov: 77, ref: 16 / 9, src: 'Rango de fichas Dell 74,9–78,6°: estimado', srcEn: 'Dell datasheet range 74.9–78.6°: estimated', kind: 'est5', hi: { minW: 2500, dfov: 92, ref: 4 / 3, src: 'Dell 5 MP: 92° según fichas Dell', srcEn: 'Dell 5 MP: 92° per Dell datasheets' } },
+  { re: /integrated camera|integrated rgb/i, name: 'Cámara integrada (Lenovo u otra)', nameEn: 'Built-in camera (Lenovo or other)', dfov: 75, ref: 16 / 9, src: 'Estimado', srcEn: 'Estimated', kind: 'est' },
 ];
-const GENERIC_FOV = { name: 'Cámara no identificada', dfov: 75, ref: 16 / 9, src: 'Valor genérico (portátiles: 55–92°)', kind: 'est' };
+const GENERIC_FOV = { name: 'Cámara no identificada', nameEn: 'Unidentified camera', dfov: 75, ref: 16 / 9, src: 'Valor genérico (portátiles: 55–92°)', srcEn: 'Generic value (laptops: 55–92°)', kind: 'est' };
 const SF = { spec: 0.04, est5: 0.06, est: 0.15, cal: 0.03, manual: 0.05 };
 
 const S = {
@@ -1745,54 +1745,54 @@ async function detectDevice() {
   renderDevInfo();
 }
 function renderDevInfo() {
-  const rows = [['Sistema / navegador', `${dev.os} · ${dev.browser}`]];
-  rows.push(['Modelo del equipo', dev.model ? dev.model : dev.macGuess ? `Posible ${dev.macGuess} <span class="note">(deducido de la resolución de pantalla)</span>` : '<span class="note">No disponible: los navegadores de escritorio no exponen el modelo del equipo. Se identifica la cámara por su nombre.</span>']);
-  rows.push(['Pantalla', dev.screen]);
+  const rows = [[Lg('Sistema / navegador', 'System / browser'), `${dev.os} · ${dev.browser}`]];
+  rows.push([Lg('Modelo del equipo', 'Device model'), dev.model ? dev.model : dev.macGuess ? `${Lg('Posible', 'Possibly a')} ${dev.macGuess} <span class="note">(${Lg('deducido de la resolución de pantalla', 'deduced from the screen resolution')})</span>` : `<span class="note">${Lg('No disponible: los navegadores de escritorio no exponen el modelo del equipo. Se identifica la cámara por su nombre.', 'Not available: desktop browsers do not expose the device model. The camera is identified by its name.')}</span>`]);
+  rows.push([Lg('Pantalla', 'Screen'), dev.screen]);
   if (S.camLabel && S.W) {
     const vp = S.camLabel.match(/\(([0-9a-f]{4}):([0-9a-f]{4})\)/i);
-    rows.push(['Cámara', S.camLabel + (vp ? ` <span class="note">(USB ${vp[1]}:${vp[2]})</span>` : '')]);
-    rows.push(['Resolución del stream', `${S.W}×${S.H}${S.maxRes ? ` <span class="note">(máx. ${S.maxRes})</span>` : ''}`]);
-    rows.push(['Identificada como', S.fov.name]);
+    rows.push([Lg('Cámara', 'Camera'), S.camLabel + (vp ? ` <span class="note">(USB ${vp[1]}:${vp[2]})</span>` : '')]);
+    rows.push([Lg('Resolución del stream', 'Stream resolution'), `${S.W}×${S.H}${S.maxRes ? ` <span class="note">(${Lg('máx.', 'max.')} ${S.maxRes})</span>` : ''}`]);
+    rows.push([Lg('Identificada como', 'Identified as'), Lg(S.fov.name, S.fov.nameEn || S.fov.name)]);
     const f = focalFromDfov(S.fov.dfov, S.fov.ref, S.W, S.H);
-    rows.push(['Focal equivalente', `${f.toFixed(0)} px · FOV horizontal ${(2 * Math.atan(S.W / 2 / f) / DEG).toFixed(1)}°`]);
-  } else rows.push(['Cámara', '<span class="note">Pulsa «Iniciar cámara» para identificarla</span>']);
+    rows.push([Lg('Focal equivalente', 'Equivalent focal length'), `${f.toFixed(0)} px · ${Lg('FOV horizontal', 'horizontal FOV')} ${(2 * Math.atan(S.W / 2 / f) / DEG).toFixed(1)}°`]);
+  } else rows.push([Lg('Cámara', 'Camera'), `<span class="note">${Lg('Se identifica al hacer la primera foto', 'Identified when the first photo is taken')}</span>`]);
   $('devinfo').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
 }
 function identifyCamera() {
   const saved = store.get(fovKey());
   const e = CAM_DB.find(x => x.re.test(S.camLabel));
   let fov;
-  if (e) { fov = { name: e.name, dfov: e.dfov, ref: e.ref, src: e.src, kind: e.kind, warn: e.warn }; if (e.hi && S.maxW >= e.hi.minW) Object.assign(fov, { dfov: e.hi.dfov, ref: e.hi.ref, src: e.hi.src, kind: 'spec' }); }
-  else { fov = { ...GENERIC_FOV }; if (S.isMobile) Object.assign(fov, { name: 'Cámara frontal de móvil/tableta', dfov: 78, src: 'Estimado (cámara frontal)' }); }
-  if (saved && saved.dfov) Object.assign(fov, { dfov: saved.dfov, ref: saved.ref, src: saved.src, kind: saved.kind });
+  if (e) { fov = { name: e.name, nameEn: e.nameEn, dfov: e.dfov, ref: e.ref, src: e.src, srcEn: e.srcEn, kind: e.kind, warn: e.warn, warnEn: e.warnEn }; if (e.hi && S.maxW >= e.hi.minW) Object.assign(fov, { dfov: e.hi.dfov, ref: e.hi.ref, src: e.hi.src, srcEn: e.hi.srcEn, kind: 'spec' }); }
+  else { fov = { ...GENERIC_FOV }; if (S.isMobile) Object.assign(fov, { name: 'Cámara de móvil o tablet', nameEn: 'Phone or tablet camera', dfov: 78, src: 'Estimado (cámara de móvil o tablet)', srcEn: 'Estimated (phone or tablet camera)' }); }
+  if (saved && saved.dfov) Object.assign(fov, { dfov: saved.dfov, ref: saved.ref, src: saved.src, srcEn: saved.srcEn, kind: saved.kind });
   S.fov = fov; syncFovUI();
   const warns = [];
-  if (fov.warn) warns.push(fov.warn);
-  if (S.W && S.W < 1280) warns.push(`La cámara entrega solo ${S.W}×${S.H}. La precisión será menor (≈0,4 mm/px a 40 cm).`);
-  warns.push('Desactiva cualquier encuadre automático (Center Stage, Windows Studio Effects, software del fabricante): cambia el campo de visión sin avisar.');
+  if (fov.warn) warns.push(Lg(fov.warn, fov.warnEn || fov.warn));
+  if (S.W && S.W < 1280) warns.push(Lg(`La cámara entrega solo ${S.W}×${S.H}. La precisión será menor (≈0,4 mm/px a 40 cm).`, `The camera only delivers ${S.W}×${S.H}. Precision will be lower (≈0.4 mm/px at 40 cm).`));
+  if (S.facing !== 'environment') warns.push(Lg('Desactiva cualquier encuadre automático (Center Stage, Windows Studio Effects, software del fabricante): cambia el campo de visión sin avisar.', 'Turn off any automatic framing (Center Stage, Windows Studio Effects, manufacturer software): it changes the field of view without warning.'));
   $('camWarn').innerHTML = warns.map(w => `<div class="warnbox">${w}</div>`).join('');
   renderDevInfo();
 }
 function syncFovUI() {
   $('fovIn').value = (+S.fov.dfov).toFixed(1);
   $('refSel').value = Math.abs(S.fov.ref - 4 / 3) < 0.01 ? '1.3333' : '1.7778';
-  const b = $('fovSrc'); b.textContent = S.fov.src;
+  const b = $('fovSrc'); b.textContent = Lg(S.fov.src, S.fov.srcEn || S.fov.src);
   b.className = 'badge ' + (S.fov.kind === 'cal' ? 'cal' : S.fov.kind === 'spec' ? '' : 'est');
   $('pFov').value = (+S.fov.dfov).toFixed(1);
 }
 function setModeUI() {
   const iris = S.mode === 'iris';
   $('fileNWrap').classList.toggle('hidden', !iris);
-  $('fileGLabel').textContent = S.mode === 'card' ? 'Foto CON gafas y tarjeta' : 'Foto CON gafas';
-  $('modeDesc').textContent = METHOD_DESC[S.mode];
-  $('methodNote').textContent = `Método: ${METHOD_NAME[S.mode]} · se cambia en Ajustes`;
+  $('fileGLabel').textContent = S.mode === 'card' ? Lg('Foto CON gafas y tarjeta', 'Photo WITH glasses and card') : Lg('Foto CON gafas', 'Photo WITH glasses');
+  $('modeDesc').textContent = Lg(...METHOD_DESC[S.mode]);
+  $('methodNote').textContent = Lg(`Método: ${METHOD_NAME[S.mode][0]} · se cambia en Ajustes`, `Method: ${METHOD_NAME[S.mode][1]} · change it in Settings`);
 }
 
 // ---------- MediaPipe ----------
 let FaceLandmarker, FilesetResolver, fileset;
 async function loadMP() {
   if (fileset) return;
-  $('loadMsg').textContent = 'Cargando el detector facial (MediaPipe)…';
+  $('loadMsg').textContent = Lg('Cargando el detector facial (MediaPipe)…', 'Loading the face detector (MediaPipe)…');
   const mod = await import(`${MP_BASE}/vision_bundle.mjs`);
   FaceLandmarker = mod.FaceLandmarker; FilesetResolver = mod.FilesetResolver;
   fileset = await FilesetResolver.forVisionTasks(`${MP_BASE}/wasm`);
@@ -1875,9 +1875,9 @@ function scrCal() {
 }
 function renderScrStatus() {
   const c = scrCal();
-  $('scrStatus').innerHTML = c.reason === 'none' ? '<span class="badge est">sin calibrar</span>'
-    : !c.ok ? '<span class="badge est">la pantalla o el zoom del navegador han cambiado: recalibra</span>'
-      : `<span class="badge cal">calibrada · ${fmt(c.pxPerMm, 3)} px/mm</span> <span class="note">${c.s.date || ''}</span>`;
+  $('scrStatus').innerHTML = c.reason === 'none' ? `<span class="badge est">${Lg('sin calibrar', 'not calibrated')}</span>`
+    : !c.ok ? `<span class="badge est">${Lg('la pantalla o el zoom del navegador han cambiado: recalibra', 'the screen or the browser zoom has changed: recalibrate')}</span>`
+      : `<span class="badge cal">${Lg('calibrada', 'calibrated')} · ${fmt(c.pxPerMm, 3)} px/mm</span> <span class="note">${c.s.date || ''}</span>`;
 }
 function scrRefMm() { const v = $('scrRef').value; return v === 'custom' ? Math.max(20, parseFloat($('scrCustom').value) || 150) : parseFloat(v); }
 function openScr(first) {
@@ -1885,7 +1885,7 @@ function openScr(first) {
   const cw = $('scrCv').parentElement.clientWidth;
   if (cw / CSS_PX_MM < 120 && $('scrRef').value === '100') $('scrRef').value = '50';
   scr.lenPx = scrCal().pxPerMm * scrRefMm();
-  $('scrSkip').textContent = first ? 'Ahora no' : 'Cerrar';
+  $('scrSkip').textContent = first ? Lg('Ahora no', 'Not now') : Lg('Cerrar', 'Close');
   scrSync();
 }
 function scrSync() {
@@ -1894,7 +1894,7 @@ function scrSync() {
   scr.lenPx = Math.max(L * 1.2, Math.min(maxLen, scr.lenPx));
   const r = $('scrRange'); r.min = (L * 1.2).toFixed(0); r.max = maxLen.toFixed(0); r.value = scr.lenPx;
   const k = scr.lenPx / L;
-  $('scrVal').innerHTML = `Barra: ${fmt(scr.lenPx, 2)} px → <b>${fmt(k, 3)} px/mm</b> (${fmt(k * 25.4, 1)} px por pulgada)` + (L * CSS_PX_MM * 0.8 > maxLen ? ' · <span style="color:var(--bad)">la barra no cabe: elige una longitud menor</span>' : '');
+  $('scrVal').innerHTML = Lg(`Barra: ${fmt(scr.lenPx, 2)} px → <b>${fmt(k, 3)} px/mm</b> (${fmt(k * 25.4, 1)} px por pulgada)`, `Bar: ${fmt(scr.lenPx, 2)} px → <b>${fmt(k, 3)} px/mm</b> (${fmt(k * 25.4, 1)} px per inch)`) + (L * CSS_PX_MM * 0.8 > maxLen ? ` · <span style="color:var(--bad)">${Lg('la barra no cabe: elige una longitud menor', 'the bar does not fit: choose a shorter length')}</span>` : '');
   scrDraw();
 }
 function scrDraw() {
@@ -1928,7 +1928,7 @@ function setupScrEvents() {
   $('scrCustom').addEventListener('input', () => { scr.lenPx = scrCal().pxPerMm * scrRefMm(); scrSync(); });
   $('scrSave').addEventListener('click', () => {
     const L = scrRefMm();
-    store.set(SCR_KEY, { pxPerMm: scr.lenPx / L, refMm: L, ...scrNow(), date: new Date().toLocaleDateString('es-ES') });
+    store.set(SCR_KEY, { pxPerMm: scr.lenPx / L, refMm: L, ...scrNow(), date: new Date().toLocaleDateString(Lg('es-ES', 'en-US')) });
     $('scrPanel').classList.add('hidden'); renderScrStatus();
     if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
   });
@@ -1940,7 +1940,7 @@ function setupScrEvents() {
 // En ordenador, la plantilla ocupa la pantalla (mejor en pantalla completa) y queda pegada al borde inferior:
 // la montura se apoya en la base del teclado. La línea horizontal (centro de las lentes) se puede arrastrar.
 const TPL_KEYS = ['oL', 'tL', 'nL', 'nR', 'tR', 'oR'];
-const TPL_LAB = { oL: 'Borde exterior', tL: 'Temporal OI', nL: 'Nasal OI', nR: 'Nasal OD', tR: 'Temporal OD', oR: 'Borde exterior' };
+const TPL_LAB = { oL: ['Borde exterior', 'Outer edge'], tL: ['Temporal OI', 'Temporal OS'], nL: ['Nasal OI', 'Nasal OS'], nR: ['Nasal OD', 'Nasal OD'], tR: ['Temporal OD', 'Temporal OD'], oR: ['Borde exterior', 'Outer edge'] };
 const tpl = { lines: null, sel: 'oR', drag: null, typed: false, yMm: 30 };
 const tplDefault = () => ({ oL: -66, tL: -61, nL: -9, nR: 9, tR: 61, oR: 66 });
 const tplInner = () => $('tplInner').checked;
@@ -1957,7 +1957,7 @@ function openTpl() {
   const full = tplDesktop();
   $('tplPanel').classList.toggle('full', full); document.body.classList.toggle('noscroll', full);
   $('tplFs').classList.toggle('hidden', !full || !document.documentElement.requestFullscreen);
-  $('tplKicker').textContent = `Paso ${wizSteps().indexOf('frame') + 1} de ${wizSteps().length} · Montura`;
+  $('tplKicker').textContent = `${Lg('Paso', 'Step')} ${wizSteps().indexOf('frame') + 1} ${Lg('de', 'of')} ${wizSteps().length} · ${Lg('Montura', 'Frame')}`;
   if (full) fsEnter();
   tplInnerUI(); tplWarn(); tplLayout(); tplDraw(); tplToInputs();
 }
@@ -1968,10 +1968,10 @@ function tplLeave() { $('tplPanel').classList.remove('full'); }
 function tplInnerUI() { for (const el of document.querySelectorAll('.tplIn')) el.classList.toggle('hidden', !tplInner()); }
 function tplWarn() {
   const c = scrCal(), w = [];
-  if (!c.ok) w.push(`<div class="warnbox"><b>${c.reason === 'none' ? 'La pantalla no está calibrada' : 'La pantalla o el zoom han cambiado desde la calibración'}</b>: la plantilla no está a tamaño real. <button type="button" onclick="document.getElementById('scrOpen').click()">Calibrar pantalla</button> o escribe las medidas tomadas con una regla.</div>`);
+  if (!c.ok) w.push(`<div class="warnbox"><b>${c.reason === 'none' ? Lg('La pantalla no está calibrada', 'The screen is not calibrated') : Lg('La pantalla o el zoom han cambiado desde la calibración', 'The screen or zoom has changed since calibration')}</b>: ${Lg('la plantilla no está a tamaño real.', 'the template is not at real size.')} <button type="button" onclick="document.getElementById('scrOpen').click()">${Lg('Calibrar pantalla', 'Calibrate screen')}</button> ${Lg('o escribe las medidas tomadas con una regla.', 'or type the measurements taken with a ruler.')}</div>`);
   const cwMm = $('tplCv').parentElement.clientWidth / c.pxPerMm;
-  if (cwMm < 150) w.push(`<div class="warnbox">La zona visible mide unos ${fmt(cwMm, 0)} mm de ancho: puede que la montura no quepa. Usa una pantalla más ancha o escribe las medidas.</div>`);
-  if (tplDesktop() && !document.fullscreenElement && document.documentElement.requestFullscreen) w.push('<div class="note" style="margin-top:6px">Consejo: con «Pantalla completa» la plantilla llega justo al borde inferior de la pantalla.</div>');
+  if (cwMm < 150) w.push(`<div class="warnbox">${Lg(`La zona visible mide unos ${fmt(cwMm, 0)} mm de ancho: puede que la montura no quepa. Usa una pantalla más ancha o escribe las medidas.`, `The visible area is about ${fmt(cwMm, 0)} mm wide: the frame may not fit. Use a wider screen or type the measurements.`)}</div>`);
+  if (tplDesktop() && !document.fullscreenElement && document.documentElement.requestFullscreen) w.push(`<div class="note" style="margin-top:6px">${Lg('Consejo: con «Pantalla completa» la plantilla llega justo al borde inferior de la pantalla.', 'Tip: with “Full screen” the template reaches right to the bottom edge of the screen.')}</div>`);
   $('tplWarn').innerHTML = w.join('');
 }
 function tplLayout() {
@@ -2064,7 +2064,7 @@ function tplDraw() {
   const onY = tpl.sel === 'yc';
   x.strokeStyle = onY ? '#0b63c9' : '#5d6778'; x.lineWidth = onY ? 2 : 1;
   x.beginPath(); x.moveTo(0, Math.round(yc) + 0.5); x.lineTo(cw, Math.round(yc) + 0.5); x.stroke();
-  chip(x, '⇕ centro de las lentes', 92, yc, onY ? '#0b63c9' : '#5d6778');
+  chip(x, Lg('⇕ centro de las lentes', '⇕ lens centres'), 92, yc, onY ? '#0b63c9' : '#5d6778');
   // líneas de medida con asa
   const keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
   for (const key of keys) {
@@ -2076,7 +2076,7 @@ function tplDraw() {
     x.fillStyle = col; x.beginPath(); x.arc(xx, ky, on ? 8 : 6.5, 0, 2 * Math.PI); x.fill();
     x.fillStyle = '#fff'; x.beginPath(); x.arc(xx, ky, 2.5, 0, 2 * Math.PI); x.fill();
     x.fillStyle = col; x.font = `${on ? 700 : 600} 11px system-ui`;
-    const lab = TPL_LAB[key], tw = x.measureText(lab).width, left = key === 'oL' || key === 'tL' || key === 'nR';
+    const lab = Lg(...TPL_LAB[key]), tw = x.measureText(lab).width, left = key === 'oL' || key === 'tL' || key === 'nR';
     x.fillText(lab, left ? xx + 12 : xx - tw - 12, ky + 4);
   }
   // cotas
@@ -2089,8 +2089,8 @@ function tplDraw() {
   x.strokeStyle = '#0b63c9'; x.fillStyle = '#0b63c9'; x.lineWidth = 1.2;
   x.beginPath(); x.moveTo(xa, dy); x.lineTo(xb, dy); x.stroke();
   for (const [xx, d] of [[xa, 1], [xb, -1]]) { x.beginPath(); x.moveTo(xx, dy); x.lineTo(xx + 8 * d, dy - 4); x.lineTo(xx + 8 * d, dy + 4); x.closePath(); x.fill(); }
-  chip(x, `Ancho ${fmt(t.W)} mm`, (xa + xb) / 2, dy, '#0b63c9', true);
-  $('tplVals').textContent = `Ancho ${fmt(t.W)}` + (t.DBL != null ? ` · A ${fmt(t.Aod)} / ${fmt(t.Aos)} · DBL ${fmt(t.DBL)}` : '') + ' mm';
+  chip(x, `${Lg('Ancho', 'Width')} ${fmt(t.W)} mm`, (xa + xb) / 2, dy, '#0b63c9', true);
+  $('tplVals').textContent = `${Lg('Ancho', 'Width')} ${fmt(t.W)}` + (t.DBL != null ? ` · A ${fmt(t.Aod)} / ${fmt(t.Aos)} · DBL ${fmt(t.DBL)}` : '') + ' mm';
 }
 function tplToInputs() {
   const t = tplFromLines(tpl.lines), r1 = v => (Math.round(v * 10) / 10).toFixed(1);
@@ -2139,20 +2139,20 @@ function setupTplEvents() {
   $('tplInner').addEventListener('change', () => { tplInnerUI(); if (!tplInner() && tpl.sel !== 'yc' && tpl.sel[0] !== 'o') tpl.sel = 'oR'; tplDraw(); });
   $('tplFs').addEventListener('click', () => { tplFullscreen(!document.fullscreenElement); });
   document.addEventListener('fullscreenchange', () => {
-    for (const id of ['tplFs', 'capFs']) $(id).textContent = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
+    for (const id of ['tplFs', 'capFs', 'wrapFs']) $(id).textContent = document.fullscreenElement ? Lg('Salir de pantalla completa', 'Exit full screen') : Lg('Pantalla completa', 'Full screen');
     if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
     if (!$('livePanel').classList.contains('hidden') && S.who === 'selfie') placeGuide();
   });
   $('tplCancel').addEventListener('click', () => showStep('person'));
   $('tplOk').addEventListener('click', () => {
     const t = tplValues(), err = [];
-    if (!(t.W >= 80 && t.W <= 180)) err.push('El ancho exterior debe estar entre 80 y 180 mm.');
+    if (!(t.W >= 80 && t.W <= 180)) err.push(Lg('El ancho exterior debe estar entre 80 y 180 mm.', 'The outer width must be between 80 and 180 mm.'));
     if (t.DBL != null) {
-      if (!(t.Aod >= 30 && t.Aod <= 75 && t.Aos >= 30 && t.Aos <= 75)) err.push('Cada A debe estar entre 30 y 75 mm.');
-      if (!(t.DBL >= 8 && t.DBL <= 32)) err.push('El puente DBL debe estar entre 8 y 32 mm.');
-      if (t.Aod + t.Aos + t.DBL >= t.W) err.push('A + DBL + A no puede superar el ancho exterior: revisa el orden de las líneas.');
+      if (!(t.Aod >= 30 && t.Aod <= 75 && t.Aos >= 30 && t.Aos <= 75)) err.push(Lg('Cada A debe estar entre 30 y 75 mm.', 'Each A must be between 30 and 75 mm.'));
+      if (!(t.DBL >= 8 && t.DBL <= 32)) err.push(Lg('El puente DBL debe estar entre 8 y 32 mm.', 'The DBL bridge must be between 8 and 32 mm.'));
+      if (t.Aod + t.Aos + t.DBL >= t.W) err.push(Lg('A + DBL + A no puede superar el ancho exterior: revisa el orden de las líneas.', 'A + DBL + A cannot exceed the outer width: check the order of the lines.'));
     }
-    if (!scrCal().ok && !tpl.typed) err.push('La pantalla no está calibrada: calibra la pantalla o escribe las medidas tomadas con una regla.');
+    if (!scrCal().ok && !tpl.typed) err.push(Lg('La pantalla no está calibrada: calibra la pantalla o escribe las medidas tomadas con una regla.', 'The screen is not calibrated: calibrate the screen or type the measurements taken with a ruler.'));
     if (err.length) { $('tplMsg').innerHTML = err.map(e => `<div class="errbox">${e}</div>`).join(''); return; }
     const r1 = v => v == null ? undefined : Math.round(v * 10) / 10;
     S.tpl = { W: r1(t.W), Aod: r1(t.Aod), Aos: r1(t.Aos), DBL: r1(t.DBL) };
@@ -2173,14 +2173,15 @@ function orientKey() { const t = screen.orientation && screen.orientation.type; 
 function camPos() { const m = store.get(CAMPOS_KEY) || {}; return m[orientKey()] || null; }
 function setCamPos(p) { const m = store.get(CAMPOS_KEY) || {}; m[orientKey()] = { edge: p.edge, pos: p.pos }; store.set(CAMPOS_KEY, m); renderCamStatus(); }
 function camText(p) {
-  if (!p) return 'sin indicar';
-  const side = { top: 'arriba', bottom: 'abajo', left: 'a la izquierda', right: 'a la derecha' }[p.edge];
-  const along = p.pos < 0.3 ? (p.edge === 'top' || p.edge === 'bottom' ? 'a la izquierda' : 'arriba') : p.pos > 0.7 ? (p.edge === 'top' || p.edge === 'bottom' ? 'a la derecha' : 'abajo') : 'en el centro';
-  return `${side}, ${along}`;
+  if (!p) return Lg('sin indicar', 'not set');
+  const hz = p.edge === 'top' || p.edge === 'bottom';
+  const side = Lg(...{ top: ['arriba', 'top'], bottom: ['abajo', 'bottom'], left: ['a la izquierda', 'left'], right: ['a la derecha', 'right'] }[p.edge]);
+  const along = p.pos < 0.3 ? Lg(...(hz ? ['a la izquierda', 'left'] : ['arriba', 'top'])) : p.pos > 0.7 ? Lg(...(hz ? ['a la derecha', 'right'] : ['abajo', 'bottom'])) : Lg('en el centro', 'centre');
+  return Lg(`${side}, ${along}`, `${side} edge, ${along}`);
 }
 function renderCamStatus() {
-  const m = store.get(CAMPOS_KEY) || {}, ks = Object.keys(m), pretty = k => k.startsWith('portrait') ? 'en vertical' : 'en horizontal';
-  $('camPosStatus').textContent = ks.length ? ks.map(k => `${camText(m[k])} (${pretty(k)})`).join(' · ') : 'sin indicar (se preguntará en la primera medida)';
+  const m = store.get(CAMPOS_KEY) || {}, ks = Object.keys(m), pretty = k => k.startsWith('portrait') ? Lg('en vertical', 'portrait') : Lg('en horizontal', 'landscape');
+  $('camPosStatus').textContent = ks.length ? ks.map(k => `${camText(m[k])} (${pretty(k)})`).join(' · ') : Lg('sin indicar (se preguntará en la primera medida)', 'not set (you will be asked on the first measurement)');
 }
 function renderCamPick(el, cur, onPick) {
   const portrait = window.innerHeight > window.innerWidth;
@@ -2188,7 +2189,7 @@ function renderCamPick(el, cur, onPick) {
   el.innerHTML = CAM_SPOTS.map((p, i) => {
     const x = p.edge === 'left' ? 0 : p.edge === 'right' ? 100 : p.pos * 100, y = p.edge === 'top' ? 0 : p.edge === 'bottom' ? 100 : p.pos * 100;
     const on = cur && cur.edge === p.edge && Math.abs(cur.pos - p.pos) < 0.01;
-    return `<button type="button" data-i="${i}" class="${on ? 'on' : ''}" style="left:${x}%;top:${y}%" title="Cámara ${camText(p)}" aria-label="Cámara ${camText(p)}"></button>`;
+    return `<button type="button" data-i="${i}" class="${on ? 'on' : ''}" style="left:${x}%;top:${y}%" title="${Lg('Cámara', 'Camera')}: ${camText(p)}" aria-label="${Lg('Cámara', 'Camera')}: ${camText(p)}"></button>`;
   }).join('');
   el.onclick = e => { const b = e.target.closest('button[data-i]'); if (b) onPick(CAM_SPOTS[+b.dataset.i]); };
 }
@@ -2329,12 +2330,7 @@ async function startProfile() {
     if (!tab) profVoice();
   } catch (e) { console.error(e); live.gKey = null; showGuide('face', Lg(`No se pudo iniciar la cámara: ${e.message || e}.`, `Could not start the camera: ${e.message || e}.`), false); }
 }
-function profChecks() {
-  const L2 = [], dn = devNoun();
-  if (S.tilt != null) L2.push({ id: 'dev', ok: Math.abs(S.tilt) < 3, msg: Lg(`Pon ${dn} vertical: inclina la parte de arriba ${S.tilt > 0 ? 'hacia ti' : 'hacia delante'}.`, `Hold the ${dn === 'la tablet' ? 'tablet' : 'phone'} upright: tilt the top ${S.tilt > 0 ? 'towards you' : 'away from you'}.`), icon: S.tilt > 0 ? 'tiltToward' : 'tiltAway', val: `${S.tilt.toFixed(1)}°` });
-  if (S.devRoll != null) L2.push({ id: 'lvl', ok: Math.abs(S.devRoll) < 1.5, msg: Lg(`Endereza ${dn}: gíra${dn === 'la tablet' ? 'la' : 'lo'} ${S.devRoll > 0 ? 'en el sentido de las agujas del reloj' : 'en sentido contrario a las agujas del reloj'}.`, `Level the device: rotate it ${S.devRoll > 0 ? 'clockwise' : 'anticlockwise'}.`), icon: S.devRoll > 0 ? 'cw' : 'ccw', val: `${S.devRoll.toFixed(1)}°` });
-  return L2;
-}
+function profChecks() { return devChecks(1); }
 function profLoop() {
   if (!live.running || live.kind !== 'profile') return;
   const Lc = profChecks(); renderChecks(Lc); updateLevel(); drawProfileGuide();
@@ -2424,9 +2420,9 @@ function outerVDetect(cap, img, mmpx) {
 
 // ---------- Cámara ----------
 function stepText() {
-  if (S.mode === 'frame') return 'Foto con las gafas puestas';
-  if (S.mode === 'card') return 'Foto con gafas y tarjeta sobre la montura';
-  return S.step === 'N' ? 'Foto 1 de 2 · SIN gafas' : 'Foto 2 de 2 · CON gafas (misma distancia)';
+  if (S.mode === 'frame') return Lg('Foto con las gafas puestas', 'Photo with the glasses on');
+  if (S.mode === 'card') return Lg('Foto con gafas y tarjeta sobre la montura', 'Photo with glasses and the card on the frame');
+  return S.step === 'N' ? Lg('Foto 1 de 2 · SIN gafas', 'Photo 1 of 2 · WITHOUT glasses') : Lg('Foto 2 de 2 · CON gafas (misma distancia)', 'Photo 2 of 2 · WITH glasses (same distance)');
 }
 async function startCamera(step) {
   S.step = step || (S.mode === 'iris' ? 'N' : 'G');
@@ -2491,7 +2487,7 @@ function stopCamera() {
 async function listCameras() {
   try {
     const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'videoinput');
-    $('camSel').innerHTML = devs.map(d => `<option value="${d.deviceId}" ${d.deviceId === S.deviceId ? 'selected' : ''}>${d.label || 'Cámara'}</option>`).join('');
+    $('camSel').innerHTML = devs.map(d => `<option value="${d.deviceId}" ${d.deviceId === S.deviceId ? 'selected' : ''}>${d.label || Lg('Cámara', 'Camera')}</option>`).join('');
   } catch { }
 }
 function setupOrientation() {
@@ -2549,54 +2545,60 @@ function loop() {
   }
   requestAnimationFrame(loop);
 }
-// Nombre del dispositivo para las indicaciones
-function devNoun() { return dev.os === 'iPadOS' || /iPad/.test(navigator.userAgent) || (S.isMobile && Math.min(screen.width, screen.height) >= 600) ? 'la tablet' : S.isMobile ? 'el móvil' : 'el portátil'; }
+// Tipo de dispositivo y su nombre en las indicaciones
+function devKind() { return dev.os === 'iPadOS' || /iPad/.test(navigator.userAgent) || (S.isMobile && Math.min(screen.width, screen.height) >= 600) ? 'tablet' : S.isMobile ? 'phone' : 'laptop'; }
+function devNoun() { return Lg(...{ tablet: ['la tablet', 'the tablet'], phone: ['el móvil', 'the phone'], laptop: ['el portátil', 'the laptop'] }[devKind()]); }
+const devPron = () => devKind() === 'tablet' ? 'la' : 'lo';   // gírala / gíralo
 // Comprobaciones de la captura. Cada una lleva un mensaje y un icono según quién hace la foto:
 //  · selfie: se habla a la persona, que ve la imagen en espejo (su derecha está a la derecha de la pantalla);
 //  · óptico: se habla al óptico, que ve la imagen sin espejo (la derecha de la persona está a su izquierda).
 // El orden importa: primero el dispositivo, luego la distancia y el encuadre, después la cabeza; la mirada va al final.
+function devChecks(relax = 1) {
+  const out = [], dn = devNoun();
+  if (S.tilt != null) out.push({ id: 'dev', ok: Math.abs(S.tilt) < 3 * relax, msg: Lg(`Pon ${dn} vertical: inclina la parte de arriba ${S.tilt > 0 ? 'hacia ti' : 'hacia delante'}.`, `Hold ${dn} upright: tilt the top ${S.tilt > 0 ? 'towards you' : 'away from you'}.`), icon: S.tilt > 0 ? 'tiltToward' : 'tiltAway', val: `${S.tilt.toFixed(1)}°` });
+  if (S.devRoll != null) out.push({ id: 'lvl', ok: Math.abs(S.devRoll) < 1.5 * relax, msg: Lg(`Endereza ${dn}: gíra${devPron()} ${S.devRoll > 0 ? 'en el sentido de las agujas del reloj' : 'en sentido contrario a las agujas del reloj'}.`, `Level ${dn}: rotate it ${S.devRoll > 0 ? 'clockwise' : 'anticlockwise'}.`), icon: S.devRoll > 0 ? 'cw' : 'ccw', val: `${S.devRoll.toFixed(1)}°` });
+  return out;
+}
 function evaluate(a, relax = 1) {
-  const t = TOLS[S.tolKey], L = [], op = S.who === 'operator', dn = devNoun(), lap = dn === 'el portátil';
-  const add = (id, ok, msg, icon, val = '') => L.push({ id, ok, msg, icon, val });
-  if (S.tilt != null) add('dev', Math.abs(S.tilt) < 3 * relax, `Pon ${dn} vertical: inclina la parte de arriba ${S.tilt > 0 ? 'hacia ti' : 'hacia delante'}.`, S.tilt > 0 ? 'tiltToward' : 'tiltAway', `${S.tilt.toFixed(1)}°`);
-  if (S.devRoll != null) add('lvl', Math.abs(S.devRoll) < 1.5 * relax, `Endereza ${dn}: gíra${dn === 'la tablet' ? 'la' : 'lo'} ${S.devRoll > 0 ? 'en el sentido de las agujas del reloj' : 'en sentido contrario a las agujas del reloj'}.`, S.devRoll > 0 ? 'cw' : 'ccw', `${S.devRoll.toFixed(1)}°`);
-  if (!a) { add('face', false, op ? 'Encuadra la cara de la persona en la imagen.' : 'No te veo: colócate frente a la cámara, con buena luz.', 'face'); return L; }
+  const t = TOLS[S.tolKey], out = devChecks(relax), op = S.who === 'operator', dn = devNoun(), lap = devKind() === 'laptop';
+  const add = (id, ok, msg, icon, val = '') => out.push({ id, ok, msg, icon, val });
+  if (!a) { add('face', false, op ? Lg('Encuadra la cara de la persona en la imagen.', 'Frame the person’s face in the image.') : Lg('No te veo: colócate frente a la cámara, con buena luz.', 'I can’t see you: sit in front of the camera, in good light.'), 'face'); return out; }
   add('face', true, '', 'face');
   const N = M.caps.find(c => c.id === 'N');
   if (S.mode === 'iris' && S.step === 'G' && N) {
     const fl = focalFromDfov(S.fov.dfov, S.fov.ref, S.W, S.H);
     const r = (a.feat / fl) / (N.feat / N.f);   // >1: más cerca que en la foto 1 (en unidades angulares: N puede estar remuestreada)
-    add('dist', Math.abs(r - 1) <= t.zr * relax, r > 1 ? (op ? 'Aléjate un poco: la misma distancia que en la foto 1.' : 'Aléjate un poco: la misma distancia que en la primera foto.') : (op ? 'Acércate un poco: la misma distancia que en la foto 1.' : 'Acércate un poco: la misma distancia que en la primera foto.'), r > 1 ? 'farther' : 'closer', `${r > 1 ? '+' : ''}${((r - 1) * 100).toFixed(1)} %`);
+    add('dist', Math.abs(r - 1) <= t.zr * relax, r > 1 ? Lg('Aléjate un poco: la misma distancia que en la primera foto.', 'Move back a little: the same distance as in the first photo.') : Lg('Acércate un poco: la misma distancia que en la primera foto.', 'Move a little closer: the same distance as in the first photo.'), r > 1 ? 'farther' : 'closer', `${r > 1 ? '+' : ''}${((r - 1) * 100).toFixed(1)} %`);
   } else {
     const far = a.Z > 520;
-    add('dist', a.Z >= 320 && a.Z <= 520, far ? (op ? 'Acércate a la persona, a unos 40 cm.' : 'Acércate un poco a la cámara, a unos 40 cm.') : (op ? 'Aléjate un poco de la persona, a unos 40 cm.' : 'Aléjate un poco de la cámara, a unos 40 cm.'), far ? 'closer' : 'farther', `${(a.Z / 10).toFixed(0)} cm`);
+    add('dist', a.Z >= 320 && a.Z <= 520, far ? (op ? Lg('Acércate a la persona, a unos 40 cm.', 'Move closer to the person, to about 40 cm.') : Lg('Acércate un poco a la cámara, a unos 40 cm.', 'Move a little closer to the camera, to about 40 cm.')) : (op ? Lg('Aléjate un poco de la persona, a unos 40 cm.', 'Move back a little from the person, to about 40 cm.') : Lg('Aléjate un poco de la cámara, a unos 40 cm.', 'Move back a little from the camera, to about 40 cm.')), far ? 'closer' : 'farther', `${(a.Z / 10).toFixed(0)} cm`);
   }
   const lft = a.hAng < 0;
-  add('h', Math.abs(a.hAng) <= t.h * relax, op ? `Mueve ${dn} hacia la ${lft ? 'izquierda' : 'derecha'}.` : `Desplázate un poco hacia tu ${lft ? 'izquierda' : 'derecha'}.`, lft ? 'left' : 'right', `${a.hAng.toFixed(1)}°`);
+  add('h', Math.abs(a.hAng) <= t.h * relax, op ? Lg(`Mueve ${dn} hacia la ${lft ? 'izquierda' : 'derecha'}.`, `Move ${dn} to the ${lft ? 'left' : 'right'}.`) : Lg(`Desplázate un poco hacia tu ${lft ? 'izquierda' : 'derecha'}.`, `Move a little to your ${lft ? 'left' : 'right'}.`), lft ? 'left' : 'right', `${a.hAng.toFixed(1)}°`);
   const above = a.vAng < 0;   // ojos por encima del eje de la cámara
   add('v', Math.abs(a.vAng) <= t.v * relax,
-    op ? `${above ? 'Sube' : 'Baja'} ${dn} hasta la altura de sus ojos.`
-      : lap ? (above ? 'Tus ojos están por encima de la cámara: baja el asiento o sube el portátil, sin inclinar la pantalla.' : 'Tus ojos están por debajo de la cámara: sube el asiento o baja el portátil, sin inclinar la pantalla.')
-        : `${above ? 'Sube' : 'Baja'} ${dn} hasta la altura de tus ojos.`, above ? 'up' : 'down', `${a.vAng.toFixed(1)}°`);
+    op ? Lg(`${above ? 'Sube' : 'Baja'} ${dn} hasta la altura de sus ojos.`, `${above ? 'Raise' : 'Lower'} ${dn} to the height of their eyes.`)
+      : lap ? (above ? Lg('Tus ojos están por encima de la cámara: baja el asiento o sube el portátil, sin inclinar la pantalla.', 'Your eyes are above the camera: lower your seat or raise the laptop, without tilting the screen.') : Lg('Tus ojos están por debajo de la cámara: sube el asiento o baja el portátil, sin inclinar la pantalla.', 'Your eyes are below the camera: raise your seat or lower the laptop, without tilting the screen.'))
+        : Lg(`${above ? 'Sube' : 'Baja'} ${dn} hasta la altura de tus ojos.`, `${above ? 'Raise' : 'Lower'} ${dn} to the height of your eyes.`), above ? 'up' : 'down', `${a.vAng.toFixed(1)}°`);
   const rr = a.roll > 0;
-  add('roll', Math.abs(a.roll) <= t.roll * relax, op ? `Pide que enderece la cabeza, hacia su hombro ${rr ? 'derecho' : 'izquierdo'}.` : `Endereza la cabeza: inclínala un poco hacia tu hombro ${rr ? 'derecho' : 'izquierdo'}.`, op ? (rr ? 'ccw' : 'cw') : (rr ? 'cw' : 'ccw'), `${a.roll.toFixed(1)}°`);
+  add('roll', Math.abs(a.roll) <= t.roll * relax, op ? Lg(`Pide que enderece la cabeza, hacia su hombro ${rr ? 'derecho' : 'izquierdo'}.`, `Ask them to straighten their head, towards their ${rr ? 'right' : 'left'} shoulder.`) : Lg(`Endereza la cabeza: inclínala un poco hacia tu hombro ${rr ? 'derecho' : 'izquierdo'}.`, `Straighten your head: tilt it a little towards your ${rr ? 'right' : 'left'} shoulder.`), op ? (rr ? 'ccw' : 'cw') : (rr ? 'cw' : 'ccw'), `${a.roll.toFixed(1)}°`);
   const yr = a.yaw > 0;
-  add('yaw', Math.abs(a.yaw) <= t.yaw * relax, op ? `Pide que gire la cabeza un poco hacia su ${yr ? 'derecha' : 'izquierda'}.` : `Gira la cabeza un poco hacia tu ${yr ? 'derecha' : 'izquierda'}.`, op ? (yr ? 'left' : 'right') : (yr ? 'right' : 'left'), `${a.yaw.toFixed(1)}°`);
+  add('yaw', Math.abs(a.yaw) <= t.yaw * relax, op ? Lg(`Pide que gire la cabeza un poco hacia su ${yr ? 'derecha' : 'izquierda'}.`, `Ask them to turn their head a little to their ${yr ? 'right' : 'left'}.`) : Lg(`Gira la cabeza un poco hacia tu ${yr ? 'derecha' : 'izquierda'}.`, `Turn your head a little to your ${yr ? 'right' : 'left'}.`), op ? (yr ? 'left' : 'right') : (yr ? 'right' : 'left'), `${a.yaw.toFixed(1)}°`);
   const pu = a.pitch > 0;
-  add('pitch', Math.abs(a.pitch) <= t.pitch * relax, op ? `Pide que ${pu ? 'baje' : 'suba'} ligeramente la barbilla.` : `${pu ? 'Baja' : 'Sube'} ligeramente la barbilla.`, pu ? 'down' : 'up', `${a.pitch.toFixed(1)}°`);
-  if (S.mode === 'card') add('card', live.cardOk, op ? 'Pide que apoye la tarjeta horizontal sobre la parte de arriba de la montura, sin tapar sus bordes.' : 'Apoya la tarjeta horizontal sobre la parte de arriba de la montura, sin tapar sus bordes.', 'card');
-  add('eyes', a.blink < 0.4, op ? 'Pide que abra bien los ojos.' : 'Abre bien los ojos.', 'eye');
-  add('still', !!live.stable, op ? `Sujeta ${dn} sin moverte y pide que no se mueva.` : 'Quédate quieto un momento.', 'still');
-  add('gaze', a.gazeOk, op ? 'Pide que mire al objetivo de la cámara.' : 'Mira a la cámara.', 'eye');
-  return L;
+  add('pitch', Math.abs(a.pitch) <= t.pitch * relax, op ? Lg(`Pide que ${pu ? 'baje' : 'suba'} ligeramente la barbilla.`, `Ask them to ${pu ? 'lower' : 'raise'} their chin slightly.`) : Lg(`${pu ? 'Baja' : 'Sube'} ligeramente la barbilla.`, `${pu ? 'Lower' : 'Raise'} your chin slightly.`), pu ? 'down' : 'up', `${a.pitch.toFixed(1)}°`);
+  if (S.mode === 'card') add('card', live.cardOk, op ? Lg('Pide que apoye la tarjeta horizontal sobre la parte de arriba de la montura, sin tapar sus bordes.', 'Ask them to rest the card flat on top of the frame, without covering its edges.') : Lg('Apoya la tarjeta horizontal sobre la parte de arriba de la montura, sin tapar sus bordes.', 'Rest the card flat on top of the frame, without covering its edges.'), 'card');
+  add('eyes', a.blink < 0.4, op ? Lg('Pide que abra bien los ojos.', 'Ask them to open their eyes wide.') : Lg('Abre bien los ojos.', 'Open your eyes wide.'), 'eye');
+  add('still', !!live.stable, op ? Lg(`Sujeta ${dn} sin moverte y pide que no se mueva.`, `Hold ${dn} still and ask them not to move.`) : Lg('Quédate quieto un momento.', 'Hold still for a moment.'), 'still');
+  add('gaze', a.gazeOk, op ? Lg('Pide que mire al objetivo de la cámara.', 'Ask them to look at the camera lens.') : Lg('Mira a la cámara.', 'Look at the camera.'), 'eye');
+  return out;
 }
-const CHECK_LABEL = { dev: 'Dispositivo vertical', lvl: 'Dispositivo sin girar', face: 'Cara detectada', dist: 'Distancia', h: 'Centrado frente a la cámara', v: 'Ojos a la altura de la cámara', roll: 'Cabeza sin ladear', yaw: 'Sin giro lateral', pitch: 'Sin inclinación arriba/abajo', card: 'Tarjeta sobre la montura', eyes: 'Ojos abiertos', still: 'Sin movimiento', gaze: 'Mirada al objetivo' };
-function renderChecks(L) {
+const CHECK_LABEL = { dev: ['Dispositivo vertical', 'Device upright'], lvl: ['Dispositivo sin girar', 'Device level'], face: ['Cara detectada', 'Face detected'], dist: ['Distancia', 'Distance'], h: ['Centrado frente a la cámara', 'Centred on the camera'], v: ['Ojos a la altura de la cámara', 'Eyes at camera height'], roll: ['Cabeza sin ladear', 'Head not tilted sideways'], yaw: ['Sin giro lateral', 'Head not turned'], pitch: ['Sin inclinación arriba/abajo', 'Head not tilted up/down'], card: ['Tarjeta sobre la montura', 'Card on the frame'], eyes: ['Ojos abiertos', 'Eyes open'], still: ['Sin movimiento', 'Still'], gaze: ['Mirada al objetivo', 'Looking at the lens'] };
+function renderChecks(list) {
   let html = '';
-  for (const c of L) html += `<li class="${c.ok ? 'ok' : 'bad'}"><span>${CHECK_LABEL[c.id]}</span><span><span class="val">${c.val ? c.val + ' ' : ''}</span><span class="st">${c.ok ? '✓' : '✗'}</span></span></li>`;
-  if (devNoun() === 'el portátil') html += `<li class="na"><span>Pantalla del portátil vertical (90°)</span><span class="st" title="No medible desde el navegador">ⓘ</span></li>`;
+  for (const c of list) html += `<li class="${c.ok ? 'ok' : 'bad'}"><span>${Lg(...CHECK_LABEL[c.id])}</span><span><span class="val">${c.val ? c.val + ' ' : ''}</span><span class="st">${c.ok ? '✓' : '✗'}</span></span></li>`;
+  if (devKind() === 'laptop') html += `<li class="na"><span>${Lg('Pantalla del portátil vertical (90°)', 'Laptop screen upright (90°)')}</span><span class="st" title="${Lg('No medible desde el navegador', 'Not measurable from the browser')}">ⓘ</span></li>`;
   $('checks').innerHTML = html;
-  $('checkDots').innerHTML = L.map(c => `<i class="${c.ok ? 'ok' : 'bad'}" title="${CHECK_LABEL[c.id]}"></i>`).join('');
+  $('checkDots').innerHTML = list.map(c => `<i class="${c.ok ? 'ok' : 'bad'}" title="${Lg(...CHECK_LABEL[c.id])}"></i>`).join('');
 }
 // Iconos de las indicaciones (SVG en línea, color del texto)
 function icon(kind) {
@@ -2630,13 +2632,13 @@ function showGuide(kind, text, ok) {
 function enterLook() {
   const op = S.who === 'operator';
   if (!op) $('guideCard').classList.add('look');
-  live.gKey = null; showGuide('eye', op ? 'Pide que mire al objetivo de la cámara' : 'Mira a la cámara', true);
+  live.gKey = null; showGuide('eye', op ? Lg('Pide que mire al objetivo de la cámara', 'Ask them to look at the camera lens') : Lg('Mira a la cámara', 'Look at the camera'), true);
   if (!op) { placeGuide(); $('camArrow').classList.remove('hidden'); }
 }
 function leaveLook() { $('guideCard').classList.remove('look'); $('camArrow').classList.add('hidden'); live.gKey = null; if (S.who === 'selfie') placeGuide(); }
-function guidance(L) {
+function guidance(list) {
   const now = performance.now(), op = S.who === 'operator';
-  const bad = L.find(c => c.id !== 'gaze' && !c.ok), gz = L.find(c => c.id === 'gaze');
+  const bad = list.find(c => c.id !== 'gaze' && !c.ok), gz = list.find(c => c.id === 'gaze');
   if (bad) {
     if (live.phase === 'look') leaveLook();
     live.phase = 'pos'; live.okSince = 0;
@@ -2646,9 +2648,9 @@ function guidance(L) {
   }
   if (!live.okSince) live.okSince = now;
   if (live.phase !== 'look') {
-    if (now - live.okSince < 400) { showGuide('check', op ? 'Muy bien: que no se mueva…' : 'Muy bien. No te muevas…', true); return; }
+    if (now - live.okSince < 400) { showGuide('check', op ? Lg('Muy bien: que no se mueva…', 'Good: they should not move…') : Lg('Muy bien. No te muevas…', 'Good. Hold still…'), true); return; }
     live.phase = 'look'; live.lookSince = now; live.gazeSince = 0; enterLook();
-    speech.say(op ? 'Mire al objetivo de la cámara, por favor.' : 'Ahora mira a la cámara.', true); beep(880, 0.08);
+    speech.say(op ? Lg('Mire al objetivo de la cámara, por favor.', 'Please look at the camera lens.') : Lg('Ahora mira a la cámara.', 'Now look at the camera.'), true); beep(880, 0.08);
   }
   if (gz && gz.ok) { if (!live.gazeSince) live.gazeSince = now; } else live.gazeSince = 0;
   const waited = now - live.lookSince;
@@ -2722,7 +2724,7 @@ async function captureBurst() {
   if (live.capturing) return;
   live.capturing = true;
   const video = $('video'), W = S.W, H = S.H, t0 = performance.now();
-  live.gKey = null; showGuide('still', S.who === 'operator' ? 'Capturando… que no se mueva' : 'Capturando… no te muevas', true);
+  live.gKey = null; showGuide('still', S.who === 'operator' ? Lg('Capturando… que no se mueva', 'Capturing… they should hold still') : Lg('Capturando… no te muevas', 'Capturing… hold still'), true);
   beep(1320, 0.18);
   const frames = [], f = focalFromDfov(S.fov.dfov, S.fov.ref, W, H);
   for (let i = 0; i < BURST_N; i++) {
@@ -2737,7 +2739,7 @@ async function captureBurst() {
     const g = makeGray(ctx.getImageData(bx0, by0, bx1 - bx0, by1 - by0), bx0, by0);
     frames.push({ cv, a, sharp: lapVar(g, bx0, by0, bx1 - 1, by1 - 1) });
   }
-  if (!frames.length) { live.capturing = false; live.gKey = null; showGuide('face', 'No se pudo capturar. Inténtalo de nuevo.', false); return; }
+  if (!frames.length) { live.capturing = false; live.gKey = null; showGuide('face', Lg('No se pudo capturar. Inténtalo de nuevo.', 'Could not capture. Please try again.'), false); return; }
   const tCap = performance.now() - t0;
   // referencia: entre los más nítidos, el mejor alineado
   const maxS = Math.max(...frames.map(q => q.sharp));
@@ -2745,12 +2747,12 @@ async function captureBurst() {
   const score = q => Math.abs(q.a.yaw) + Math.abs(q.a.roll) + 0.5 * Math.abs(q.a.pitch);
   (cand.length ? cand : frames).sort((p, q) => score(p) - score(q));
   const best = (cand.length ? cand : frames)[0];
-  live.gKey = null; showGuide('check', 'Procesando la ráfaga…', true);
+  live.gKey = null; showGuide('check', Lg('Procesando la ráfaga…', 'Processing the burst…'), true);
   await new Promise(r => setTimeout(r, 20));
   let st = null;
   try { st = stackBurst(frames, best, maxS); } catch (e) { console.warn('apilado', e); }
-  const info = { ...(st ? st.info : { n: 1, of: frames.length, up: 1, reason: 'error en el apilado' }), tCap, tProc: performance.now() - t0 - tCap, gazeUnconfirmed: !!live.gazeUnconfirmed };
-  speech.say('Foto tomada.', true);
+  const info = { ...(st ? st.info : { n: 1, of: frames.length, up: 1, reason: Lg('error en el apilado', 'stacking error') }), tCap, tProc: performance.now() - t0 - tCap, gazeUnconfirmed: !!live.gazeUnconfirmed };
+  speech.say(Lg('Foto tomada.', 'Photo taken.'), true);
   const pose = { yaw: best.a.yaw, pitch: best.a.pitch, roll: best.a.roll };
   const burst = { stack: st && st.cv, best: best.cv, info };
   await onCaptured(burst.stack || best.cv, pose, S.step, burst);
@@ -2790,7 +2792,7 @@ function stackBurst(frames, ref, maxS) {
     kept.push(G.rgba); maps.push(T);
   }
   const info = { n: kept.length, of: frames.length, up: 1, nccMin: nccs.length ? Math.min(...nccs) : 1 };
-  if (kept.length < 3) return { cv: null, info: { ...info, n: 1, reason: 'demasiado movimiento entre fotogramas' } };
+  if (kept.length < 3) return { cv: null, info: { ...info, n: 1, reason: Lg('demasiado movimiento entre fotogramas', 'too much movement between frames') } };
   const up = STACK_UP, out = stackRGBA(kept, maps, roi, up);
   const cv = document.createElement('canvas'); cv.width = W * up; cv.height = H * up;
   const ctx = cv.getContext('2d', { willReadFrequently: true });
@@ -2800,9 +2802,9 @@ function stackBurst(frames, ref, maxS) {
 }
 function burstNote(cap) {
   const b = cap.burst; if (!b) return null;
-  const i = b.info, t = `captura ${fmt(i.tCap / 1000, 1)} s + procesado ${fmt(i.tProc / 1000, 1)} s`;
-  if (cap.ss > 1) return `Imagen de medida: promedio registrado de ${i.n} de ${i.of} fotogramas, remuestreado ×${cap.ss} en la zona de las gafas (${t}).`;
-  return `Imagen de medida: mejor fotograma de la ráfaga${i.reason && b.stack == null ? ` (no se promedió: ${i.reason})` : ''} (${t}).`;
+  const i = b.info, t = Lg(`captura ${fmt(i.tCap / 1000, 1)} s + procesado ${fmt(i.tProc / 1000, 1)} s`, `capture ${fmt(i.tCap / 1000, 1)} s + processing ${fmt(i.tProc / 1000, 1)} s`);
+  if (cap.ss > 1) return Lg(`Imagen de medida: promedio registrado de ${i.n} de ${i.of} fotogramas, remuestreado ×${cap.ss} en la zona de las gafas (${t}).`, `Measurement image: registered average of ${i.n} of ${i.of} frames, resampled ×${cap.ss} in the glasses area (${t}).`);
+  return Lg(`Imagen de medida: mejor fotograma de la ráfaga${i.reason && b.stack == null ? ` (no se promedió: ${i.reason})` : ''} (${t}).`, `Measurement image: best frame of the burst${i.reason && b.stack == null ? ` (not averaged: ${i.reason})` : ''} (${t}).`);
 }
 async function onCaptured(cv, pose, kind, burst) {
   M.mode = S.mode; wiz.savedId = null;
@@ -2815,8 +2817,8 @@ async function onCaptured(cv, pose, kind, burst) {
     if (G) { stopCamera(); await reanalyzeG(); showMeasure('N'); return; }
     live.paused = true;
     $('between').classList.remove('hidden');
-    $('msg').textContent = 'Ponte las gafas y pulsa «Continuar».'; $('msg').className = 'ok';
-    speech.say('Primera foto lista. Ahora ponte las gafas y pulsa continuar.', true);
+    live.gKey = null; showGuide('check', Lg('Ponte las gafas y pulsa «Continuar».', 'Put your glasses on and tap “Continue”.'), true);
+    speech.say(Lg('Primera foto lista. Ahora ponte las gafas y pulsa continuar.', 'First photo done. Now put your glasses on and tap continue.'), true);
     return;
   }
   stopCamera();
@@ -2835,11 +2837,11 @@ async function reanalyzeG() {
 
 async function analyzeCapture(cv, pose, kind, extra = {}) {
   const W = cv.width, H = cv.height;
-  $('loadMsg').textContent = 'Analizando la foto…';
+  $('loadMsg').textContent = Lg('Analizando la foto…', 'Analysing the photo…');
   const lm = await getImageLandmarker();
   let res = null;
   try { res = lm.detect(cv); } catch (e) { console.warn(e); }
-  if (!res || !res.faceLandmarks || !res.faceLandmarks.length) { $('loadMsg').innerHTML = '<div class="errbox">No se detectó ninguna cara en la foto.</div>'; toast('No se detectó ninguna cara en la foto. Inténtalo de nuevo.'); return null; }
+  if (!res || !res.faceLandmarks || !res.faceLandmarks.length) { const m = Lg('No se detectó ninguna cara en la foto.', 'No face was detected in the photo.'); $('loadMsg').innerHTML = `<div class="errbox">${m}</div>`; toast(m); return null; }
   const f = focalFromDfov(S.fov.dfov, S.fov.ref, W, H);
   const a = analyzeFace(res, W, H, f); applyConv(a);
   const ctx = cv.getContext('2d', { willReadFrequently: true });
@@ -2847,10 +2849,10 @@ async function analyzeCapture(cv, pose, kind, extra = {}) {
   const rf = { od: refineIris(img, a.od.c, a.od.d / 2), os: refineIris(img, a.os.c, a.os.d / 2) };
   const iris = {};
   for (const e of ['od', 'os']) iris[e] = rf[e] ? { x: rf[e].x, y: rf[e].y, r: rf[e].r } : { x: a[e].c.x, y: a[e].c.y, r: a[e].d / 2 };
-  const cap = { id: kind, cv, W, H, f, ss: extra.ss || 1, burst: extra.burst || null, uploaded: !extra.burst, iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
+  const cap = { id: kind, cv, W, H, f, ss: extra.ss || 1, burst: extra.burst || null, uploaded: !extra.burst, alerts: [], iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
   const bn = burstNote(cap); if (bn) cap.notes.push(bn);
-  if (cap.burst && cap.burst.info.gazeUnconfirmed) cap.notes.push('No se pudo confirmar que la mirada estaba en la cámara: comprueba que los ojos miran al objetivo o repite la foto.');
-  if (!rf.od || !rf.os) cap.notes.push('El ajuste fino de algún iris no fue fiable: revisa su centro y su borde con la lupa.');
+  if (cap.burst && cap.burst.info.gazeUnconfirmed) cap.alerts.push(Lg('No se pudo confirmar que la mirada estaba en la cámara: comprueba que los ojos miran al objetivo o repite la foto.', 'Could not confirm that the gaze was on the camera: check that the eyes look at the lens, or retake the photo.'));
+  if (!rf.od || !rf.os) cap.alerts.push(Lg('El ajuste fino de algún iris no fue fiable: revisa su centro y su borde con la lupa.', 'The fine fit of an iris was not reliable: check its centre and edge with the magnifier.'));
   const eyeMid = { x: (iris.od.x + iris.os.x) / 2, y: (iris.od.y + iris.os.y) / 2 };
   if (kind === 'N') { cap.bridge = { x: a.bridge.x, y: eyeMid.y }; $('loadMsg').textContent = ''; return cap; }
   // --- foto con gafas: escala aproximada del plano de la montura
@@ -2863,7 +2865,7 @@ async function analyzeCapture(cv, pose, kind, extra = {}) {
       cap.card = { L: refineEdge(img, det.xl, ya, yb) || { x1: det.xl, y1: ya, x2: det.xl, y2: yb }, R: refineEdge(img, det.xr, ya, yb) || { x1: det.xr, y1: ya, x2: det.xr, y2: yb } };
     } else {
       cap.card = { L: { x1: eyeMid.x - wExp / 2, y1: ya, x2: eyeMid.x - wExp / 2, y2: yb }, R: { x1: eyeMid.x + wExp / 2, y1: ya, x2: eyeMid.x + wExp / 2, y2: yb } };
-      cap.notes.push('No encontré los bordes de la tarjeta automáticamente: arrastra las líneas azules hasta sus bordes laterales.');
+      cap.alerts.push(Lg('No encontré los bordes de la tarjeta automáticamente: arrastra las líneas azules hasta sus bordes laterales.', 'The card edges were not found automatically: drag the blue lines to its side edges.'));
     }
     mmpx = CARD_W / cardWidthPx(cap.card.L, cap.card.R).w;
   } else {
@@ -2896,8 +2898,8 @@ function outerDetect(cap, img, mmpx0) {
     cap.outerAuto[e] = !!ok;
   }
   cap.outer0 = { ...cap.outer };
-  if (!cap.outerAuto.od || !cap.outerAuto.os) cap.notes.push('No encontré con seguridad algún borde exterior de la montura: arrastra la línea azul claro hasta el borde exterior del aro, a la altura del centro de la lente.');
-  cap.notes.push('Comprueba las líneas azul claro: deben tocar el borde exterior del frente a la altura del centro de cada lente, igual que marcaste en la plantilla. De ellas sale la escala.');
+  if (!cap.outerAuto.od || !cap.outerAuto.os) cap.alerts.push(Lg('No encontré con seguridad algún borde exterior de la montura: arrastra la línea azul claro hasta el borde exterior del aro, a la altura del centro de la lente.', 'An outer edge of the frame was not found reliably: drag the light blue line to the outer edge of the rim, at the height of the lens centre.'));
+  cap.notes.push(Lg('Comprueba las líneas azul claro: deben tocar el borde exterior del frente a la altura del centro de cada lente, igual que marcaste en la plantilla. De ellas sale la escala.', 'Check the light blue lines: they must touch the outer edge of the front at the height of each lens centre, as marked on the template. The scale comes from them.'));
 }
 function frameDetect(cap, img, mmpx) {
   const c = { x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 };
@@ -2934,9 +2936,9 @@ function frameDetect(cap, img, mmpx) {
   const fa = classifyFrame(rim.od, rim.os, det.od, det.os);
   fa.pads = padAnalysis(img, cap, mmpx, fa, rim.od, rim.os);
   cap.frameAuto = fa;
-  if (cap.boxFlags.od === 'default' || cap.boxFlags.os === 'default') cap.notes.push('No pude delimitar el contorno de alguna lente (habitual en monturas al aire). He colocado un recuadro típico: ajusta los cuatro lados de cada recuadro naranja a los bordes de la lente.');
-  if (cap.boxFlags.od === 'bottom' || cap.boxFlags.os === 'bottom') cap.notes.push('El borde inferior de la lente no es visible (nylon o al aire): lo he estimado. Arrastra el lado inferior del recuadro naranja hasta el punto más bajo de la lente; las alturas dependen de ello.');
-  cap.notes.push('Comprueba el recuadro naranja de cada lente: sus lados deben tocar los puntos extremos del borde de la lente (borde interior del aro).');
+  if (cap.boxFlags.od === 'default' || cap.boxFlags.os === 'default') cap.alerts.push(Lg('No pude delimitar el contorno de alguna lente (habitual en monturas al aire). He colocado un recuadro típico: ajusta los cuatro lados de cada recuadro naranja a los bordes de la lente.', 'A lens outline could not be found (common with rimless frames). A typical box has been placed: adjust the four sides of each orange box to the lens edges.'));
+  if (cap.boxFlags.od === 'bottom' || cap.boxFlags.os === 'bottom') cap.alerts.push(Lg('El borde inferior de la lente no es visible (nylon o al aire): lo he estimado. Arrastra el lado inferior del recuadro naranja hasta el punto más bajo de la lente; las alturas dependen de ello.', 'The bottom edge of the lens is not visible (nylon or rimless): it has been estimated. Drag the bottom side of the orange box to the lowest point of the lens; the heights depend on it.'));
+  cap.notes.push(Lg('Comprueba el recuadro naranja de cada lente: sus lados deben tocar los puntos extremos del borde de la lente (borde interior del aro).', 'Check the orange box of each lens: its sides must touch the extreme points of the lens edge (inner edge of the rim).'));
 }
 
 // ---------- Pantalla de medición ----------
@@ -3011,12 +3013,12 @@ function showMeasure(which) {
   $('pOuterOffWrap').classList.toggle('hidden', !frame);
   $('lgCard').classList.toggle('hidden', M.mode !== 'card');
   $('lgOuter').classList.toggle('hidden', !frame);
-  $('calNote').textContent = frame ? 'Si mides con una cinta la distancia del objetivo de la cámara al frente de la montura (con las gafas puestas y en la posición de esta foto), la app calcula el FOV real de tu cámara y lo guarda.' : 'Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.';
-  $('vertexLbl').firstChild.textContent = iris ? 'Vértice previo si no se puede medir (mm)' : 'Vértice córnea → cara posterior (mm)';
+  $('calNote').textContent = frame ? Lg('Si mides con una cinta la distancia del objetivo de la cámara al frente de la montura (con las gafas puestas y en la posición de esta foto), la app calcula el FOV real de tu cámara y lo guarda.', 'If you measure with a tape the distance from the camera lens to the front of the frame (with the glasses on and in the position of this photo), the app computes the real FOV of your camera and saves it.') : Lg('Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.', 'If you measure with a tape the distance from the camera lens to the front face of the card in this same photo, the app computes the real FOV of your camera and saves it.');
+  $('vertexLbl').firstChild.textContent = iris ? Lg('Vértice previo si no se puede medir (mm)', 'Prior vertex if it cannot be measured (mm)') : Lg('Vértice córnea → cara posterior (mm)', 'Vertex cornea → back surface (mm)');
   const ord = { G: 0, N: 1, P: 2 }, tabName = c => c.id === 'N' ? Lg('Foto sin gafas', 'Without glasses') : c.id === 'P' ? Lg('Foto de perfil', 'Profile photo') : M.mode === 'card' ? Lg('Foto con gafas y tarjeta', 'With glasses and card') : Lg('Foto con gafas', 'With glasses');
   $('capTabs').innerHTML = M.caps.slice().sort((a, b) => ord[a.id] - ord[b.id]).map(c => `<button type="button" data-cap="${c.id}">${tabName(c)}</button>`).join('');
-  $('retakeGBtn').textContent = frame ? 'Repetir la foto' : 'Repetir foto con gafas';
-  if (iris && !M.caps.find(c => c.id === 'G')) $('capTabs').innerHTML += '<span class="note" style="align-self:center">Falta la foto con gafas</span>';
+  $('retakeGBtn').textContent = frame ? Lg('Repetir la foto', 'Retake the photo') : Lg('Repetir foto con gafas', 'Retake photo with glasses');
+  if (iris && !M.caps.find(c => c.id === 'G')) $('capTabs').innerHTML += `<span class="note" style="align-self:center">${Lg('Falta la foto con gafas', 'The photo with glasses is missing')}</span>`;
   sel = 'ic:od';
   syncFovUI(); setTabs(); layoutCanvas(); redraw(); recompute();
   $('rxWrap').open = iris;
@@ -3030,6 +3032,7 @@ function setTabs() {
   $('autoMsg').innerHTML = alerts.map(n => `<div class="warnbox" style="margin-top:6px">${n}</div>`).join('') + notes.map(n => `<div class="note" style="margin-top:6px">${n}</div>`).join('');
   $('autoMsg').parentElement.open = alerts.length > 0;
   $('autoSum').textContent = alerts.length ? (alerts.length === 1 ? Lg('Revisa este aviso', 'Check this warning') : Lg(`Revisa estos ${alerts.length} avisos`, `Check these ${alerts.length} warnings`)) : Lg('Notas de la detección automática', 'Notes from the automatic detection');
+  document.querySelector('#measurePanel .legend').classList.toggle('hidden', !!(cap && cap.prof));
   const hasAlt = !!(cap && cap.burst && cap.burst.stack);
   $('imgSelWrap').classList.toggle('hidden', !hasAlt);
   if (hasAlt) $('imgSel').value = cap.ss > 1 ? 'stack' : 'best';
@@ -3040,7 +3043,7 @@ function layoutCanvas() {
   c.width = Math.round(cw * dpr); c.height = Math.round(cw * v.h / v.w * dpr);
   c.style.height = (cw * v.h / v.w) + 'px';
   cap.k = c.width / v.w; cap.dpr = dpr;
-  $('zoomBtn').textContent = cap.full ? 'Ampliar la zona de las gafas' : 'Ver la foto completa';
+  $('zoomBtn').textContent = cap.full ? Lg('Ampliar la zona de las gafas', 'Zoom into the glasses') : Lg('Ver la foto completa', 'Show the whole photo');
 }
 // Zona visible en el editor: por defecto, ampliada alrededor de las gafas (y de la tarjeta, si la hay)
 function viewRect(cap) {
@@ -3150,7 +3153,7 @@ function drawScene(ctx, cap, ox, oy, k, cw, ch, isLoupe) {
   }
   if (!isLoupe) {
     ctx.font = `${13 * dpr}px system-ui`; ctx.fillStyle = '#fff';
-    for (const [e, lab] of [['od', 'OD'], ['os', 'OI']]) { const [x, y] = T(cap.iris[e]); ctx.fillText(lab, x - 9 * dpr, y + cap.iris[e].r * k + 16 * dpr); }
+    for (const [e, lab] of [['od', 'OD'], ['os', Lg('OI', 'OS')]]) { const [x, y] = T(cap.iris[e]); ctx.fillText(lab, x - 9 * dpr, y + cap.iris[e].r * k + 16 * dpr); }
   }
 }
 // Marcas de la foto de perfil: frente de la montura (T–B), vertical de referencia, córnea (C) y lente (P)
@@ -3214,7 +3217,7 @@ function setupMeasureEvents() {
   window.addEventListener('resize', () => { if (!$('measurePanel').classList.contains('hidden')) { layoutCanvas(); redraw(); } });
   $('capTabs').addEventListener('click', ev => { const b = ev.target.closest('button'); if (!b) return; view = b.dataset.cap; sel = 'ic:od'; setTabs(); layoutCanvas(); redraw(); });
 }
-const fmt = (v, d = 1) => v == null || !isFinite(v) ? '—' : v.toLocaleString('es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt = (v, d = 1) => v == null || !isFinite(v) ? '—' : v.toLocaleString(LANG === 'en' ? 'en-US' : 'es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
 const sgn = (v, d = 1) => v == null || !isFinite(v) ? '—' : (v > 0 ? '+' : '') + fmt(v, d);
 function recompute() {
   if (!M.caps.length) return;
@@ -3226,129 +3229,136 @@ function recompute() {
   const G = M.caps.find(c => c.id === 'G'), N = M.caps.find(c => c.id === 'N');
   const noRx = [p.rx.od.s, p.rx.od.c, p.rx.os.s, p.rx.os.c].every(v => !v);
   const tile = (k, label, cls = '') => `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(R[k])} <span class="u">± ${fmt(u[k])} mm</span></div></div>`;
+  const OI = Lg('OI', 'OS');
   let h = '';
-  if (M.mode === 'iris' && G && noRx) h += `<div class="warnbox" style="margin:0 0 10px"><b>Introduce la graduación de cada lente</b> en «Graduación de las gafas» (debajo): con ella se calcula el vértice real y se corrige el efecto prismático.</div>`;
+  if (M.mode === 'iris' && G && noRx) h += `<div class="warnbox" style="margin:0 0 10px">${Lg('<b>Introduce la graduación de cada lente</b> en «Graduación de las gafas» (debajo): con ella se calcula el vértice real y se corrige el efecto prismático.', '<b>Enter the prescription of each lens</b> in “Prescription of the glasses” (below): it is used to compute the real vertex and to correct the prismatic effect.')}</div>`;
   h += `<div class="tiles">`;
-  h += tile('pdFar', `DIP de lejos${M.mode === 'iris' ? ' (foto sin gafas)' : ''}`, 'main');
-  h += tile('monoOD', G ? 'Monocular OD' : 'Monocular OD (desde la nariz)') + tile('monoOS', G ? 'Monocular OI' : 'Monocular OI (desde la nariz)');
-  if (G) h += tile('hOD', 'Altura OD') + tile('hOS', 'Altura OI');
-  h += `<div class="tile"><div class="k">DIP de cerca a ${fmt(p.nearDist / 10, 0)} cm</div><div class="v">${fmt(R.pdNear)} <span class="u">mm</span></div></div>`;
-  if (R.DBL != null) h += tile('DBL', 'Puente DBL');
+  h += tile('pdFar', Lg(`DIP de lejos${M.mode === 'iris' ? ' (foto sin gafas)' : ''}`, `Distance PD${M.mode === 'iris' ? ' (photo without glasses)' : ''}`), 'main');
+  h += tile('monoOD', G ? Lg('Monocular OD', 'Monocular OD') : Lg('Monocular OD (desde la nariz)', 'Monocular OD (from the nose)')) + tile('monoOS', G ? Lg('Monocular OI', 'Monocular OS') : Lg('Monocular OI (desde la nariz)', 'Monocular OS (from the nose)'));
+  if (G) h += tile('hOD', Lg('Altura OD', 'Height OD')) + tile('hOS', Lg('Altura OI', 'Height OS'));
+  h += `<div class="tile"><div class="k">${Lg(`DIP de cerca a ${fmt(p.nearDist / 10, 0)} cm`, `Near PD at ${fmt(p.nearDist / 10, 0)} cm`)}</div><div class="v">${fmt(R.pdNear)} <span class="u">mm</span></div></div>`;
+  if (R.DBL != null) h += tile('DBL', Lg('Puente DBL', 'DBL bridge'));
   const pz = R.pers, ptile = (label, v, sd, unit) => `<div class="tile"><div class="k">${label}</div><div class="v">${fmt(v)} <span class="u">${sd != null ? `± ${fmt(sd)} ` : ''}${unit}</span></div></div>`;
   if (pz && pz.panto != null) h += ptile(Lg('Ángulo pantoscópico', 'Pantoscopic tilt'), pz.panto, pz.pantoSd, '°') + ptile(Lg('Distancia al vértice', 'Back vertex distance'), pz.bvd, pz.bvdSd, 'mm');
-  if (pz && pz.wrapOd != null) h += ptile(Lg('Galbe', 'Wrap angle') + ` (OD ${fmt(pz.wrapOd)} · ${Lg('OI', 'OS')} ${fmt(pz.wrapOs)})`, (pz.wrapOd + pz.wrapOs) / 2, 1, '°');
+  if (pz && pz.wrapOd != null) h += ptile(Lg('Galbe', 'Wrap angle') + ` (OD ${fmt(pz.wrapOd)} · ${OI} ${fmt(pz.wrapOs)})`, (pz.wrapOd + pz.wrapOs) / 2, 1, '°');
   h += `</div>`;
-  if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-top:8px">¿Las gafas tienen graduación? Introdúcela en «Graduación de las gafas» para corregir el efecto prismático.</div>`;
+  if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-top:8px">${Lg('¿Las gafas tienen graduación? Introdúcela en «Graduación de las gafas» para corregir el efecto prismático.', 'Do the glasses have a prescription? Enter it in “Prescription of the glasses” to correct the prismatic effect.')}</div>`;
   const F = R.frame || (R.G && R.G.frame);
   if (F) {
-    h += `<h3>Montura (boxing)</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr>`;
-    h += `<tr><td>Calibre A</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr>`;
-    h += `<tr><td>Altura B</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
-    h += `<tr><td>Diámetro efectivo ED</td><td>${fmt(F.od.ED)}${F.od.edEst ? '*' : ''}</td><td>${fmt(F.os.ED)}${F.os.edEst ? '*' : ''}</td></tr>`;
-    h += `<tr><td>Descentramiento H (+ nasal)</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr>`;
-    h += `<tr><td>Descentramiento V (+ arriba)</td><td>${sgn(F.od.decV)}</td><td>${sgn(F.os.decV)}</td></tr>`;
-    h += `<tr><td>Diámetro mínimo de lente</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
+    h += `<h3>${Lg('Montura (boxing)', 'Frame (boxing)')}</h3><table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr>`;
+    h += `<tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr>`;
+    h += `<tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
+    h += `<tr><td>${Lg('Diámetro efectivo ED', 'Effective diameter ED')}</td><td>${fmt(F.od.ED)}${F.od.edEst ? '*' : ''}</td><td>${fmt(F.os.ED)}${F.os.edEst ? '*' : ''}</td></tr>`;
+    h += `<tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr>`;
+    h += `<tr><td>${Lg('Descentramiento V (+ arriba)', 'Vertical decentration (+ up)')}</td><td>${sgn(F.od.decV)}</td><td>${sgn(F.os.decV)}</td></tr>`;
+    h += `<tr><td>${Lg('Diámetro mínimo de lente', 'Minimum lens blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
     const Am = (F.od.A + F.os.A) / 2;
-    h += `<tr><td>Marcado probable</td><td colspan="2">${Math.round(Am)}□${Math.round(R.DBL)}</td></tr>`;
+    h += `<tr><td>${Lg('Marcado probable', 'Probable marking')}</td><td colspan="2">${Math.round(Am)}□${Math.round(R.DBL)}</td></tr>`;
     h += `</table>`;
-    if (F.od.edEst || F.os.edEst) h += `<div class="note">* ED estimado a partir de A y B (contorno incompleto).</div>`;
+    if (F.od.edEst || F.os.edEst) h += `<div class="note">${Lg('* ED estimado a partir de A y B (contorno incompleto).', '* ED estimated from A and B (incomplete outline).')}</div>`;
   }
-  for (const fl of R.flags) h += `<div class="errbox">${fl}</div>`;
+  for (const fl of (LANG === 'en' ? R.flagsEn : R.flags)) h += `<div class="errbox">${fl}</div>`;
   $('results').innerHTML = h;
   // detalles técnicos
   let d = '';
-  if (M.mode === 'iris' && G) d += `<table class="kv"><tr><td>Monoculares ajustadas a la DIP sin gafas</td><td>${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}</td></tr>${N ? `<tr><td>Monoculares anatómicas (nariz, sin gafas)</td><td>${fmt(R.monoNoseOD)} / ${fmt(R.monoNoseOS)}</td></tr>` : ''}</table>`;
-  if (F) d += `<h3>Montura</h3><table class="kv"><tr><td>Distancia entre centros (A + DBL)</td><td>${fmt(R.DNC)}</td></tr><tr><td>Incertidumbre de A</td><td>± ${fmt(Math.max(u.A_od || 0, u.A_os || 0))} mm</td></tr>${M.mode === 'frame' && p.tpl ? `<tr><td>Medido en la plantilla</td><td>ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)} / ${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}</td></tr>` : ''}</table>`;
+  if (M.mode === 'iris' && G) d += `<table class="kv"><tr><td>${Lg('Monoculares ajustadas a la DIP sin gafas', 'Monoculars adjusted to the PD without glasses')}</td><td>${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}</td></tr>${N ? `<tr><td>${Lg('Monoculares anatómicas (nariz, sin gafas)', 'Anatomical monoculars (nose, without glasses)')}</td><td>${fmt(R.monoNoseOD)} / ${fmt(R.monoNoseOS)}</td></tr>` : ''}</table>`;
+  if (F) d += `<h3>${Lg('Montura', 'Frame')}</h3><table class="kv"><tr><td>${Lg('Distancia entre centros (A + DBL)', 'Distance between centres (A + DBL)')}</td><td>${fmt(R.DNC)}</td></tr><tr><td>${Lg('Incertidumbre de A', 'Uncertainty of A')}</td><td>± ${fmt(Math.max(u.A_od || 0, u.A_os || 0))} mm</td></tr>${M.mode === 'frame' && p.tpl ? `<tr><td>${Lg('Medido en la plantilla', 'Measured on the template')}</td><td>${Lg('ancho', 'width')} ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)} / ${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}</td></tr>` : ''}</table>`;
   if (M.mode === 'iris' && R.eyes) {
-    d += `<h3>Afinado por el cambio de tamaño del iris</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr>`;
-    d += `<tr><td>Potencia horizontal de la lente</td><td>${sgn(R.eyes.od.F, 2)} D</td><td>${sgn(R.eyes.os.F, 2)} D</td></tr>`;
-    d += `<tr><td>Aumento aparente del iris</td><td>${fmt((R.eyes.od.Aobs - 1) * 100, 1)} %</td><td>${fmt((R.eyes.os.Aobs - 1) * 100, 1)} %</td></tr>`;
-    const ve = e => R.eyes[e].ok ? `${fmt(R.eyes[e].v)} ± ${fmt(R.eyes[e].sd)}` : `<span class="note">${R.eyes[e].reason}</span>`;
-    d += `<tr><td>Vértice deducido</td><td>${ve('od')}</td><td>${ve('os')}</td></tr>`;
-    d += `<tr><td>Vértice usado (combinado)</td><td colspan="2">${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm${R.vertexMeasured ? '' : ' <span class="note">(valor previo)</span>'}</td></tr>`;
-    d += `<tr><td>Cambio de distancia entre fotos</td><td colspan="2">${sgn((R.k - 1) * 100, 1)} % <span class="note">(± ${fmt(R.kSd * 100, 1)})</span></td></tr>`;
-    d += `<tr><td>Distancia foto 1 / foto 2</td><td colspan="2">${fmt(R.ZN / 10)} / ${fmt(R.Z2 / 10)} cm</td></tr>`;
-    if (R.G) d += `<tr><td>DIP con gafas (comprobación)</td><td colspan="2">${fmt(R.pdFarG)} mm</td></tr>`;
+    const why = r => Lg(r, { 'graduación baja': 'low power', 'fuera de rango': 'out of range', 'resultado no plausible': 'implausible result' }[r] || r);
+    d += `<h3>${Lg('Afinado por el cambio de tamaño del iris', 'Refinement from the change in iris size')}</h3><table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr>`;
+    d += `<tr><td>${Lg('Potencia horizontal de la lente', 'Horizontal power of the lens')}</td><td>${sgn(R.eyes.od.F, 2)} D</td><td>${sgn(R.eyes.os.F, 2)} D</td></tr>`;
+    d += `<tr><td>${Lg('Aumento aparente del iris', 'Apparent iris magnification')}</td><td>${fmt((R.eyes.od.Aobs - 1) * 100, 1)} %</td><td>${fmt((R.eyes.os.Aobs - 1) * 100, 1)} %</td></tr>`;
+    const ve = e => R.eyes[e].ok ? `${fmt(R.eyes[e].v)} ± ${fmt(R.eyes[e].sd)}` : `<span class="note">${why(R.eyes[e].reason)}</span>`;
+    d += `<tr><td>${Lg('Vértice deducido', 'Derived vertex')}</td><td>${ve('od')}</td><td>${ve('os')}</td></tr>`;
+    d += `<tr><td>${Lg('Vértice usado (combinado)', 'Vertex used (combined)')}</td><td colspan="2">${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm${R.vertexMeasured ? '' : ` <span class="note">(${Lg('valor previo', 'prior value')})</span>`}</td></tr>`;
+    d += `<tr><td>${Lg('Cambio de distancia entre fotos', 'Distance change between photos')}</td><td colspan="2">${sgn((R.k - 1) * 100, 1)} % <span class="note">(± ${fmt(R.kSd * 100, 1)})</span></td></tr>`;
+    d += `<tr><td>${Lg('Distancia foto 1 / foto 2', 'Distance photo 1 / photo 2')}</td><td colspan="2">${fmt(R.ZN / 10)} / ${fmt(R.Z2 / 10)} cm</td></tr>`;
+    if (R.G) d += `<tr><td>${Lg('DIP con gafas (comprobación)', 'PD with glasses (check)')}</td><td colspan="2">${fmt(R.pdFarG)} mm</td></tr>`;
     d += `</table>`;
   }
-  d += `<h3>Geometría</h3><table class="kv">`;
+  d += `<h3>${Lg('Geometría', 'Geometry')}</h3><table class="kv">`;
   const rg = R.G || R.N;
   if (rg) {
-    d += `<tr><td>Distancia cámara → plano de medida</td><td>${fmt(rg.Z / 10)} cm <span class="note">± ${fmt((u.Z || 0) / 10)}</span></td></tr>`;
-    d += `<tr><td>Corrección por convergencia</td><td>+${fmt(rg.pdFar - rg.pdMeasured, 2)} mm</td></tr>`;
-    d += `<tr><td>Escala en el plano de medida</td><td>${fmt(rg.s, 3)} mm/px</td></tr>`;
+    d += `<tr><td>${Lg('Distancia cámara → plano de medida', 'Distance camera → measurement plane')}</td><td>${fmt(rg.Z / 10)} cm <span class="note">± ${fmt((u.Z || 0) / 10)}</span></td></tr>`;
+    d += `<tr><td>${Lg('Corrección por convergencia', 'Convergence correction')}</td><td>+${fmt(rg.pdFar - rg.pdMeasured, 2)} mm</td></tr>`;
+    d += `<tr><td>${Lg('Escala en el plano de medida', 'Scale at the measurement plane')}</td><td>${fmt(rg.s, 3)} mm/px</td></tr>`;
   }
-  if (R.cardPx) d += `<tr><td>Tarjeta en la imagen</td><td>${fmt(R.cardPx, 1)} px · ${fmt(R.cardTilt, 1)}°</td></tr>`;
+  if (R.cardPx) d += `<tr><td>${Lg('Tarjeta en la imagen', 'Card in the image')}</td><td>${fmt(R.cardPx, 1)} px · ${fmt(R.cardTilt, 1)}°</td></tr>`;
   if (R.scale) {
     const sc = R.scale;
-    if (sc.outer) d += `<tr><td>Escala por el ancho exterior</td><td>${fmt(sc.outer.z / 10)} cm <span class="note">(bordes ${fmt(sc.outer.off, 1)} mm detrás del plano de la lente)</span></td></tr>`;
-    if (sc.box) d += `<tr><td>Escala por los centros de las lentes (A + DBL)</td><td>${fmt(sc.box.z / 10)} cm</td></tr>`;
-    if (sc.disc != null) d += `<tr><td>Diferencia entre las dos referencias</td><td>${sgn(sc.disc * 100, 1)} %</td></tr>`;
+    if (sc.outer) d += `<tr><td>${Lg('Escala por el ancho exterior', 'Scale from the outer width')}</td><td>${fmt(sc.outer.z / 10)} cm <span class="note">(${Lg(`bordes ${fmt(sc.outer.off, 1)} mm detrás del plano de la lente`, `edges ${fmt(sc.outer.off, 1)} mm behind the lens plane`)})</span></td></tr>`;
+    if (sc.box) d += `<tr><td>${Lg('Escala por los centros de las lentes (A + DBL)', 'Scale from the lens centres (A + DBL)')}</td><td>${fmt(sc.box.z / 10)} cm</td></tr>`;
+    if (sc.disc != null) d += `<tr><td>${Lg('Diferencia entre las dos referencias', 'Difference between the two references')}</td><td>${sgn(sc.disc * 100, 1)} %</td></tr>`;
   }
-  if (G && G.ss > 1) d += `<tr><td>Imagen de medida</td><td>promedio de ${G.burst.info.n} fotogramas, ×${G.ss}</td></tr>`;
-  if (G) d += `<tr><td>Postura (foto con gafas)</td><td>giro ${fmt(G.pose.yaw)}° · cabeceo ${fmt(G.pose.pitch)}°</td></tr>`;
-  d += `<tr><td>FOV</td><td style="font-weight:400">${fmt(S.fov.dfov)}° · ${S.fov.src}</td></tr>`;
+  if (G && G.ss > 1) d += `<tr><td>${Lg('Imagen de medida', 'Measurement image')}</td><td>${Lg(`promedio de ${G.burst.info.n} fotogramas, ×${G.ss}`, `average of ${G.burst.info.n} frames, ×${G.ss}`)}</td></tr>`;
+  if (G) d += `<tr><td>${Lg('Postura (foto con gafas)', 'Head pose (photo with glasses)')}</td><td>${Lg('giro', 'yaw')} ${fmt(G.pose.yaw)}° · ${Lg('cabeceo', 'pitch')} ${fmt(G.pose.pitch)}°</td></tr>`;
+  d += `<tr><td>FOV</td><td style="font-weight:400">${fmt(S.fov.dfov)}° · ${Lg(S.fov.src, S.fov.srcEn || S.fov.src)}</td></tr>`;
   d += `</table>`;
-  if (M.mode === 'iris') d += `<div class="warnbox">La escala absoluta del método iris depende del blanco‑blanco (${p.hvidUser ? 'introducido por ti' : 'valor medio 11,7 ± 0,45 mm'}). ${p.hvidUser ? '' : 'Si conoces el de esta persona, introdúcelo: es lo que más mejora la precisión.'}</div>`;
-  if (M.mode === 'frame') d += `<div class="warnbox">La escala sale de las medidas de la plantilla: su precisión depende de la calibración de la pantalla y de lo bien marcados que estén los bordes, en la plantilla y en la foto.</div>`;
-  if ((S.fov.kind || 'est') === 'est') d += `<div class="warnbox">El FOV de la cámara es estimado; afecta sobre todo a la corrección de convergencia (incluido en el ±).</div>`;
+  if (M.mode === 'iris') d += `<div class="warnbox">${Lg(`La escala absoluta del método iris depende del blanco‑blanco (${p.hvidUser ? 'introducido por ti' : 'valor medio 11,7 ± 0,45 mm'}). ${p.hvidUser ? '' : 'Si conoces el de esta persona, introdúcelo: es lo que más mejora la precisión.'}`, `The absolute scale of the iris method depends on the white-to-white diameter (${p.hvidUser ? 'entered by you' : 'mean value 11.7 ± 0.45 mm'}). ${p.hvidUser ? '' : 'If you know this person’s value, enter it: it is what improves precision the most.'}`)}</div>`;
+  if (M.mode === 'frame') d += `<div class="warnbox">${Lg('La escala sale de las medidas de la plantilla: su precisión depende de la calibración de la pantalla y de lo bien marcados que estén los bordes, en la plantilla y en la foto.', 'The scale comes from the template measurements: its precision depends on the screen calibration and on how well the edges are marked, on the template and in the photo.')}</div>`;
+  if ((S.fov.kind || 'est') === 'est') d += `<div class="warnbox">${Lg('El FOV de la cámara es estimado; afecta sobre todo a la corrección de convergencia (incluido en el ±).', 'The camera FOV is estimated; it mainly affects the convergence correction (included in the ±).')}</div>`;
   $('techDetails').innerHTML = d;
   renderFrameType(R, p);
-  const L = R.lens;
-  $('lensAutoNote').textContent = L ? `Curva base usada: OD ${fmt(L.od.F1, 2)} D${L.od.baseAuto ? ' (estimada, regla de Vogel)' : ''}, OI ${fmt(L.os.F1, 2)} D${L.os.baseAuto ? ' (estimada)' : ''} · Espesor: OD ${fmt(L.od.t, 1)} mm${L.od.tAuto ? ' (est.)' : ''}, OI ${fmt(L.os.t, 1)} mm${L.os.tAuto ? ' (est.)' : ''}` : '';
+  const ln = R.lens;
+  $('lensAutoNote').textContent = ln ? Lg(`Curva base usada: OD ${fmt(ln.od.F1, 2)} D${ln.od.baseAuto ? ' (estimada, regla de Vogel)' : ''}, OI ${fmt(ln.os.F1, 2)} D${ln.os.baseAuto ? ' (estimada)' : ''} · Espesor: OD ${fmt(ln.od.t, 1)} mm${ln.od.tAuto ? ' (est.)' : ''}, OI ${fmt(ln.os.t, 1)} mm${ln.os.tAuto ? ' (est.)' : ''}`, `Base curve used: OD ${fmt(ln.od.F1, 2)} D${ln.od.baseAuto ? ' (estimated, Vogel’s rule)' : ''}, OS ${fmt(ln.os.F1, 2)} D${ln.os.baseAuto ? ' (estimated)' : ''} · Thickness: OD ${fmt(ln.od.t, 1)} mm${ln.od.tAuto ? ' (est.)' : ''}, OS ${fmt(ln.os.t, 1)} mm${ln.os.tAuto ? ' (est.)' : ''}`) : '';
   buildCopy(R, u, p);
 }
+const CONF_EN = { alta: 'high', media: 'medium', baja: 'low' };
+const REASON_EN = { 'zona nasal no visible': 'nasal area not visible', 'el acetato continúa por los flancos de la nariz (puente apoyado)': 'the acetate continues along the sides of the nose (saddle bridge)', 'estructuras pequeñas y brillos en el flanco nasal': 'small structures and highlights on the side of the nose', 'habitual en este tipo de montaje': 'usual for this mounting type', 'sin estructuras visibles en la zona nasal': 'no structures visible in the nasal area', 'no se encuentra un aro continuo alrededor de las lentes': 'no continuous rim found around the lenses' };
+const mountLabel = mt => Lg(MOUNT_LABEL[mt], MOUNT_LABEL_EN[mt]), bevelLabel = mt => Lg(BEVEL_LABEL[mt], BEVEL_LABEL_EN[mt]), matLabel = m => m ? Lg(MATERIAL_LABEL[m], MATERIAL_LABEL_EN[m]) : '';
 function renderFrameType(R, p) {
   const G = M.caps.find(c => c.id === 'G');
   if (!G || !G.frameAuto) { $('frameType').innerHTML = ''; return; }
   const fa = G.frameAuto, mt = R.mounting, padsAuto = fa.pads && fa.pads.pads;
   const padSel = $('padSel').value, pads = padSel === 'auto' ? padsAuto : padSel === 'yes';
+  const conf = c => Lg(c, CONF_EN[c] || c), why = r => Lg(r, REASON_EN[r] || r);
   let h = `<table class="kv" style="margin-top:6px">`;
-  h += `<tr><td>Montaje</td><td>${MOUNT_LABEL[mt]}${p.mounting === 'auto' ? ` <span class="note">(confianza ${fa.conf})</span>` : ' <span class="note">(manual)</span>'}</td></tr>`;
-  if ($('matSel').value) h += `<tr><td>Material</td><td>${MATERIAL_LABEL[$('matSel').value]}</td></tr>`;
-  h += `<tr><td>Tipo de bisel / canto</td><td>${BEVEL_LABEL[mt]}</td></tr>`;
-  h += `<tr><td>Plaquetas</td><td>${pads == null ? '—' : pads ? 'Sí' : 'No'}${padSel === 'auto' && fa.pads ? ` <span class="note">(confianza ${fa.pads.conf}: ${fa.pads.reason})</span>` : ' <span class="note">(manual)</span>'}</td></tr>`;
+  h += `<tr><td>${Lg('Montaje', 'Mounting')}</td><td>${mountLabel(mt)}${p.mounting === 'auto' ? ` <span class="note">(${Lg('confianza', 'confidence')} ${conf(fa.conf)})</span>` : ` <span class="note">(${Lg('manual', 'manual')})</span>`}</td></tr>`;
+  if ($('matSel').value) h += `<tr><td>Material</td><td>${matLabel($('matSel').value)}</td></tr>`;
+  h += `<tr><td>${Lg('Tipo de bisel / canto', 'Bevel / edge type')}</td><td>${bevelLabel(mt)}</td></tr>`;
+  h += `<tr><td>${Lg('Plaquetas', 'Nose pads')}</td><td>${pads == null ? '—' : pads ? Lg('Sí', 'Yes') : 'No'}${padSel === 'auto' && fa.pads ? ` <span class="note">(${Lg('confianza', 'confidence')} ${conf(fa.pads.conf)}: ${why(fa.pads.reason)})</span>` : ` <span class="note">(${Lg('manual', 'manual')})</span>`}</td></tr>`;
   const m = fa.metrics || {};
-  if (m.cT != null) h += `<tr><td>Contraste del aro sup. / inf.</td><td>${fmt(m.cT, 0)} / ${fmt(m.cB, 0)} <span class="note">(umbral ${fmt(m.T, 0)})</span></td></tr><tr><td>Grosor visible del aro</td><td>${fmt(m.wT, 1)} mm (sup.) · ${fmt(m.wS, 1)} mm (lados)</td></tr>`;
-  h += `</table><div class="note">Clasificación automática por análisis de imagen: compruébala y corrígela con los selectores si hace falta.</div>`;
+  if (m.cT != null) h += `<tr><td>${Lg('Contraste del aro sup. / inf.', 'Rim contrast top / bottom')}</td><td>${fmt(m.cT, 0)} / ${fmt(m.cB, 0)} <span class="note">(${Lg('umbral', 'threshold')} ${fmt(m.T, 0)})</span></td></tr><tr><td>${Lg('Grosor visible del aro', 'Visible rim width')}</td><td>${fmt(m.wT, 1)} mm (${Lg('sup.', 'top')}) · ${fmt(m.wS, 1)} mm (${Lg('lados', 'sides')})</td></tr>`;
+  h += `</table><div class="note">${Lg('Clasificación automática por análisis de imagen: compruébala y corrígela con los selectores si hace falta.', 'Automatic classification by image analysis: check it and correct it with the selectors if needed.')}</div>`;
   $('frameType').innerHTML = h;
 }
 function buildCopy(R, u, p) {
-  const F = R.frame || (R.G && R.G.frame), mt = R.mounting;
+  const F = R.frame || (R.G && R.G.frame), mt = R.mounting, OI = Lg('OI', 'OS');
   const G = M.caps.find(c => c.id === 'G'), padSel = $('padSel').value;
   const pads = G && G.frameAuto ? (padSel === 'auto' ? G.frameAuto.pads.pads : padSel === 'yes') : null;
-  const t = [`Medidor DIP — ${new Date().toLocaleString('es-ES')} — método ${M.mode === 'iris' ? 'iris (2 fotos)' : M.mode === 'frame' ? 'montura (plantilla)' : 'tarjeta'}`,
-  `DIP lejos: ${fmt(R.pdFar)} ± ${fmt(u.pdFar)} mm`,
-  `Mono OD/OI lejos: ${fmt(R.monoOD)} / ${fmt(R.monoOS)} mm (± ${fmt(u.monoOD)} / ${fmt(u.monoOS)})${M.mode === 'iris' && R.monoAdjOD ? ` · ajustadas: ${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}` : ''}`];
-  if (R.hOD != null) t.push(`Altura OD/OI: ${fmt(R.hOD)} / ${fmt(R.hOS)} mm (± ${fmt(u.hOD)} / ${fmt(u.hOS)})`);
-  t.push(`DIP cerca ${fmt(p.nearDist / 10, 0)} cm: ${fmt(R.pdNear)} mm`);
+  const meth = M.mode === 'iris' ? Lg('iris (2 fotos)', 'iris (2 photos)') : M.mode === 'frame' ? Lg('montura (plantilla)', 'frame (template)') : Lg('tarjeta', 'card');
+  const t = [Lg(`Medidor DIP — ${new Date().toLocaleString('es-ES')} — método ${meth}`, `DipFx — ${new Date().toLocaleString('en-US')} — method ${meth}`),
+  Lg(`DIP lejos: ${fmt(R.pdFar)} ± ${fmt(u.pdFar)} mm`, `Distance PD: ${fmt(R.pdFar)} ± ${fmt(u.pdFar)} mm`),
+  Lg(`Mono OD/OI lejos: ${fmt(R.monoOD)} / ${fmt(R.monoOS)} mm (± ${fmt(u.monoOD)} / ${fmt(u.monoOS)})${M.mode === 'iris' && R.monoAdjOD ? ` · ajustadas: ${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}` : ''}`, `Mono OD/OS distance: ${fmt(R.monoOD)} / ${fmt(R.monoOS)} mm (± ${fmt(u.monoOD)} / ${fmt(u.monoOS)})${M.mode === 'iris' && R.monoAdjOD ? ` · adjusted: ${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}` : ''}`)];
+  if (R.hOD != null) t.push(Lg(`Altura OD/OI: ${fmt(R.hOD)} / ${fmt(R.hOS)} mm (± ${fmt(u.hOD)} / ${fmt(u.hOS)})`, `Height OD/OS: ${fmt(R.hOD)} / ${fmt(R.hOS)} mm (± ${fmt(u.hOD)} / ${fmt(u.hOS)})`));
+  t.push(Lg(`DIP cerca ${fmt(p.nearDist / 10, 0)} cm: ${fmt(R.pdNear)} mm`, `Near PD ${fmt(p.nearDist / 10, 0)} cm: ${fmt(R.pdNear)} mm`));
   if (F) {
-    t.push(`Montura: A ${fmt(F.od.A)}/${fmt(F.os.A)} · B ${fmt(F.od.B)}/${fmt(F.os.B)} · DBL ${fmt(R.DBL)} · ED ${fmt(F.od.ED)}/${fmt(F.os.ED)} · DNC ${fmt(R.DNC)}`);
-    t.push(`Descentramiento H (+nasal) ${sgn(F.od.decH)}/${sgn(F.os.decH)} · V ${sgn(F.od.decV)}/${sgn(F.os.decV)} · Ø mín. ${fmt(F.od.MBS, 0)}/${fmt(F.os.MBS, 0)}`);
-    t.push(`Tipo: ${MOUNT_LABEL[mt]}${$('matSel').value ? ` · ${MATERIAL_LABEL[$('matSel').value]}` : ''} · ${BEVEL_LABEL[mt]} · plaquetas: ${pads == null ? '—' : pads ? 'sí' : 'no'}`);
+    t.push(`${Lg('Montura', 'Frame')}: A ${fmt(F.od.A)}/${fmt(F.os.A)} · B ${fmt(F.od.B)}/${fmt(F.os.B)} · DBL ${fmt(R.DBL)} · ED ${fmt(F.od.ED)}/${fmt(F.os.ED)} · DNC ${fmt(R.DNC)}`);
+    t.push(Lg(`Descentramiento H (+nasal) ${sgn(F.od.decH)}/${sgn(F.os.decH)} · V ${sgn(F.od.decV)}/${sgn(F.os.decV)} · Ø mín. ${fmt(F.od.MBS, 0)}/${fmt(F.os.MBS, 0)}`, `Decentration H (+nasal) ${sgn(F.od.decH)}/${sgn(F.os.decH)} · V ${sgn(F.od.decV)}/${sgn(F.os.decV)} · min. blank Ø ${fmt(F.od.MBS, 0)}/${fmt(F.os.MBS, 0)}`));
+    t.push(`${Lg('Tipo', 'Type')}: ${mountLabel(mt)}${$('matSel').value ? ` · ${matLabel($('matSel').value)}` : ''} · ${bevelLabel(mt)} · ${Lg('plaquetas', 'nose pads')}: ${pads == null ? '—' : pads ? Lg('sí', 'yes') : 'no'}`);
   }
-  if (M.mode === 'frame' && p.tpl) t.push(`Plantilla: ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)}/${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}${R.scale && R.scale.disc != null ? ` · diferencia entre referencias ${sgn(R.scale.disc * 100, 1)} %` : ''}`);
-  if (G && G.burst) t.push(`Imagen: ${G.ss > 1 ? `promedio de ${G.burst.info.n}/${G.burst.info.of} fotogramas ×${G.ss}` : 'mejor fotograma'}`);
+  if (M.mode === 'frame' && p.tpl) t.push(`${Lg('Plantilla: ancho', 'Template: width')} ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)}/${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}${R.scale && R.scale.disc != null ? ` · ${Lg('diferencia entre referencias', 'difference between references')} ${sgn(R.scale.disc * 100, 1)} %` : ''}`);
+  if (G && G.burst) t.push(`${Lg('Imagen', 'Image')}: ${G.ss > 1 ? Lg(`promedio de ${G.burst.info.n}/${G.burst.info.of} fotogramas ×${G.ss}`, `average of ${G.burst.info.n}/${G.burst.info.of} frames ×${G.ss}`) : Lg('mejor fotograma', 'best frame')}`);
   if (R.pers) { const z = R.pers; t.push(Lg(`Personalización: panto ${z.panto != null ? `${fmt(z.panto)}° ± ${fmt(z.pantoSd)}` : '—'} · vértice ${z.bvd != null ? `${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm` : '—'} · galbe ${z.wrapOd != null ? `OD ${fmt(z.wrapOd)}° / OI ${fmt(z.wrapOs)}°` : '—'}`, `Personalisation: pantoscopic tilt ${z.panto != null ? `${fmt(z.panto)}° ± ${fmt(z.pantoSd)}` : '—'} · vertex ${z.bvd != null ? `${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm` : '—'} · wrap ${z.wrapOd != null ? `OD ${fmt(z.wrapOd)}° / OS ${fmt(z.wrapOs)}°` : '—'}`)); }
-  if (M.mode === 'iris' && R.eyes) t.push(`Vértice: ${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm (OD ${R.eyes.od.ok ? fmt(R.eyes.od.v) : '—'}, OI ${R.eyes.os.ok ? fmt(R.eyes.os.v) : '—'}) · blanco-blanco ${p.hvid.od}/${p.hvid.os} mm`);
-  t.push(`Rx OD ${p.rx.od.s} ${p.rx.od.c} x ${p.rx.od.a} · OI ${p.rx.os.s} ${p.rx.os.c} x ${p.rx.os.a} · n ${p.index}`);
-  t.push(`Cámara: ${S.camLabel || 'fotos importadas'} · FOV ${fmt(S.fov.dfov)}° (${S.fov.src})`);
+  if (M.mode === 'iris' && R.eyes) t.push(Lg(`Vértice: ${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm (OD ${R.eyes.od.ok ? fmt(R.eyes.od.v) : '—'}, OI ${R.eyes.os.ok ? fmt(R.eyes.os.v) : '—'}) · blanco-blanco ${p.hvid.od}/${p.hvid.os} mm`, `Vertex: ${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm (OD ${R.eyes.od.ok ? fmt(R.eyes.od.v) : '—'}, OS ${R.eyes.os.ok ? fmt(R.eyes.os.v) : '—'}) · white-to-white ${p.hvid.od}/${p.hvid.os} mm`));
+  t.push(`Rx OD ${p.rx.od.s} ${p.rx.od.c} x ${p.rx.od.a} · ${OI} ${p.rx.os.s} ${p.rx.os.c} x ${p.rx.os.a} · n ${p.index}`);
+  t.push(`${Lg('Cámara', 'Camera')}: ${S.camLabel || Lg('fotos importadas', 'imported photos')} · FOV ${fmt(S.fov.dfov)}° (${Lg(S.fov.src, S.fov.srcEn || S.fov.src)})`);
   $('copyArea').value = t.join('\n');
 }
 
 // ---------- Vistas y asistente de medida ----------
-const METHOD_NAME = { frame: 'montura en la plantilla', card: 'tarjeta sobre la montura', iris: 'iris (2 fotos)' };
+const METHOD_NAME = { frame: ['montura en la plantilla', 'frame on the template'], card: ['tarjeta sobre la montura', 'card on the frame'], iris: ['iris (2 fotos)', 'iris (2 photos)'] };
 const METHOD_DESC = {
-  frame: 'Primero se mide la montura sobre una plantilla a escala real en la pantalla y después se hace una foto con las gafas puestas. No hace falta ninguna tarjeta.',
-  card: 'Una foto con las gafas puestas y una tarjeta estándar (85,60 mm) apoyada sobre la montura. La referencia más limpia en la imagen.',
-  iris: 'Una foto sin gafas y otra con gafas. La escala sale del tamaño del iris (blanco‑blanco): menos preciso, salvo que se conozca el de la persona.',
+  frame: ['Primero se mide la montura sobre una plantilla a escala real en la pantalla y después se hace una foto con las gafas puestas. No hace falta ninguna tarjeta.', 'First the frame is measured on a real-size template on the screen, then a photo is taken with the glasses on. No card is needed.'],
+  card: ['Una foto con las gafas puestas y una tarjeta estándar (85,60 mm) apoyada sobre la montura. La referencia más limpia en la imagen.', 'One photo with the glasses on and a standard card (85.60 mm) resting on top of the frame. The cleanest reference in the image.'],
+  iris: ['Una foto sin gafas y otra con gafas. La escala sale del tamaño del iris (blanco‑blanco): menos preciso, salvo que se conozca el de la persona.', 'One photo without glasses and another with glasses. The scale comes from the iris size (white-to-white): less precise, unless the person’s value is known.'],
 };
 const STEP_LABEL = { person: ['Persona', 'Person'], frame: ['Montura', 'Frame'], wrap: ['Galbe', 'Wrap'], photo: ['Foto', 'Photo'], profile: ['Perfil', 'Profile'], review: ['Revisar y guardar', 'Review and save'] };
 const VIEWS = ['people', 'person', 'record', 'wizard', 'settings'];
 const wiz = { person: null, step: null, savedId: null };
 const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-const fdate = iso => { try { return new Date(iso).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return iso; } };
+const fdate = iso => { try { return new Date(iso).toLocaleString(Lg('es-ES', 'en-US'), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return iso; } };
 function toast(t) { const el = $('toast'); el.textContent = t; el.classList.remove('hidden'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add('hidden'), 2800); }
 function go(v) {
   for (const x of VIEWS) $('view' + x[0].toUpperCase() + x.slice(1)).classList.toggle('hidden', x !== v);
@@ -3386,7 +3396,7 @@ function showStep(st) {
 }
 function renderWho() {
   const p = wiz.person && peopleCache.find(q => q.id === wiz.person);
-  $('wizWho').innerHTML = wiz.step === 'person' ? '' : p ? `Midiendo a <b>${esc(p.name)}</b>${p.ref ? ` <span class="note">(${esc(p.ref)})</span>` : ''}` : 'Sin persona asignada: la eliges al guardar.';
+  $('wizWho').innerHTML = wiz.step === 'person' ? '' : p ? `${Lg('Midiendo a', 'Measuring')} <b>${esc(p.name)}</b>${p.ref ? ` <span class="note">(${esc(p.ref)})</span>` : ''}` : Lg('Sin persona asignada: la eliges al guardar.', 'No person assigned: you choose when saving.');
 }
 function resetMeasureInputs() {
   for (const id of ['rxOdS', 'rxOdC', 'rxOdA', 'rxOsS', 'rxOsC', 'rxOsA']) $(id).value = '0';
@@ -3439,7 +3449,7 @@ const DB = {
 };
 let peopleCache = [];
 async function loadPeople() {
-  try { peopleCache = (await DB.all('people')) || []; } catch (e) { console.warn(e); toast('No se puede acceder al almacenamiento del navegador (¿modo privado?). Las medidas no se podrán guardar.'); peopleCache = []; }
+  try { peopleCache = (await DB.all('people')) || []; } catch (e) { console.warn(e); toast(Lg('No se puede acceder al almacenamiento del navegador (¿modo privado?). Las medidas no se podrán guardar.', 'The browser storage is not available (private mode?). Measurements cannot be saved.')); peopleCache = []; }
   peopleCache.sort((a, b) => a.name.localeCompare(b.name, 'es'));
   return peopleCache;
 }
@@ -3462,8 +3472,8 @@ async function renderPeople() {
 async function renderStepPerson() {
   const ppl = peopleCache.length ? peopleCache : await loadPeople(), q = $('stepPersonSearch').value.trim();
   const list = ppl.filter(p => matches(p, q)).slice(0, 60);
-  $('stepPersonList').innerHTML = list.length ? list.map(p => `<button class="pitem" type="button" data-pick="${p.id}"><span><b>${esc(p.name)}</b>${p.ref ? ` <span class="m">· ${esc(p.ref)}</span>` : ''}</span><span class="m">Elegir →</span></button>`).join('')
-    : `<div class="note" style="padding:8px 2px">${ppl.length ? 'Nadie coincide con la búsqueda.' : 'Todavía no hay personas guardadas: crea la primera.'}</div>`;
+  $('stepPersonList').innerHTML = list.length ? list.map(p => `<button class="pitem" type="button" data-pick="${p.id}"><span><b>${esc(p.name)}</b>${p.ref ? ` <span class="m">· ${esc(p.ref)}</span>` : ''}</span><span class="m">${Lg('Elegir →', 'Choose →')}</span></button>`).join('')
+    : `<div class="note" style="padding:8px 2px">${ppl.length ? Lg('Nadie coincide con la búsqueda.', 'Nobody matches the search.') : Lg('Todavía no hay personas guardadas: crea la primera.', 'No people saved yet: create the first one.')}</div>`;
 }
 async function renderPerson(id) {
   await loadPeople();
@@ -3471,39 +3481,39 @@ async function renderPerson(id) {
   S.personView = id; go('person');
   $('personName').textContent = p.name;
   const age = p.birth ? Math.floor((Date.now() - new Date(p.birth)) / 31557600000) : null;
-  $('personInfo').innerHTML = [p.ref && `Ref.: <b>${esc(p.ref)}</b>`, p.birth && `Nacimiento: ${new Date(p.birth).toLocaleDateString('es-ES')}${age != null && age >= 0 ? ` (${age} años)` : ''}`, p.notes && esc(p.notes)].filter(Boolean).map(t => `<span>${t}</span>`).join('');
+  $('personInfo').innerHTML = [p.ref && `Ref.: <b>${esc(p.ref)}</b>`, p.birth && `${Lg('Nacimiento', 'Born')}: ${new Date(p.birth).toLocaleDateString(Lg('es-ES', 'en-US'))}${age != null && age >= 0 ? ` (${age} ${Lg('años', 'years')})` : ''}`, p.notes && esc(p.notes)].filter(Boolean).map(t => `<span>${t}</span>`).join('');
   const ms = ((await DB.byPerson(id)) || []).sort((a, b) => b.date.localeCompare(a.date));
-  const st = summarizeHistory(ms), lab = { pdFar: 'DIP de lejos', monoOD: 'Monocular OD', monoOS: 'Monocular OI' };
-  $('personStats').innerHTML = ms.length ? Object.keys(lab).filter(k => st[k]).map(k => `<div class="stat"><div class="k">${lab[k]}${st[k].n > 1 ? ` · media de ${st[k].n}` : ''}</div><div class="v">${fmt(st[k].mean)} mm</div>${st[k].n > 1 ? `<div class="note">dispersión ± ${fmt(st[k].sd, 2)} · ${fmt(st[k].min)}–${fmt(st[k].max)}</div>` : '<div class="note">una medida</div>'}</div>`).join('') : '';
-  $('personMeasures').querySelector('tbody').innerHTML = ms.map(m => `<tr class="click" data-rec="${m.id}"><td>${fdate(m.date)}</td><td class="opt">${esc(m.frameName) || '<span class="note">—</span>'}</td><td class="opt">${METHOD_LABEL[m.method] || ''}</td><td class="num"><b>${fmt(m.values.pdFar)}</b></td><td class="num">${fmt(m.values.monoOD)} / ${fmt(m.values.monoOS)}</td><td class="num">${m.values.hOD != null ? `${fmt(m.values.hOD)} / ${fmt(m.values.hOS)}` : '—'}</td></tr>`).join('');
+  const st = summarizeHistory(ms), lab = { pdFar: Lg('DIP de lejos', 'Distance PD'), monoOD: 'Monocular OD', monoOS: Lg('Monocular OI', 'Monocular OS') };
+  $('personStats').innerHTML = ms.length ? Object.keys(lab).filter(k => st[k]).map(k => `<div class="stat"><div class="k">${lab[k]}${st[k].n > 1 ? ` · ${Lg('media de', 'mean of')} ${st[k].n}` : ''}</div><div class="v">${fmt(st[k].mean)} mm</div>${st[k].n > 1 ? `<div class="note">${Lg('dispersión', 'spread')} ± ${fmt(st[k].sd, 2)} · ${fmt(st[k].min)}–${fmt(st[k].max)}</div>` : `<div class="note">${Lg('una medida', 'one measurement')}</div>`}</div>`).join('') : '';
+  $('personMeasures').querySelector('tbody').innerHTML = ms.map(m => `<tr class="click" data-rec="${m.id}"><td>${fdate(m.date)}</td><td class="opt">${esc(m.frameName) || '<span class="note">—</span>'}</td><td class="opt">${Lg(METHOD_LABEL[m.method], METHOD_LABEL_EN[m.method]) || ''}</td><td class="num"><b>${fmt(m.values.pdFar)}</b></td><td class="num">${fmt(m.values.monoOD)} / ${fmt(m.values.monoOS)}</td><td class="num">${m.values.hOD != null ? `${fmt(m.values.hOD)} / ${fmt(m.values.hOS)}` : '—'}</td></tr>`).join('');
   $('personEmpty').classList.toggle('hidden', ms.length > 0);
   $('personMeasures').classList.toggle('hidden', !ms.length);
 }
 let pfCb = null, pfEdit = null;
 function openPersonModal(person, cb) {
   pfEdit = person || null; pfCb = cb || null;
-  $('pfTitle').textContent = person ? 'Editar persona' : 'Nueva persona';
+  $('pfTitle').textContent = person ? Lg('Editar persona', 'Edit person') : Lg('Nueva persona', 'New person');
   $('pfName').value = person ? person.name : ''; $('pfRef').value = person ? person.ref || '' : '';
   $('pfBirth').value = person ? person.birth || '' : ''; $('pfNotes').value = person ? person.notes || '' : '';
   $('pfMsg').innerHTML = ''; $('personModal').classList.remove('hidden'); setTimeout(() => $('pfName').focus(), 30);
 }
 async function savePersonModal() {
   const name = $('pfName').value.trim();
-  if (!name) { $('pfMsg').innerHTML = '<div class="errbox">Escribe el nombre.</div>'; return; }
+  if (!name) { $('pfMsg').innerHTML = `<div class="errbox">${Lg('Escribe el nombre.', 'Type the name.')}</div>`; return; }
   const now = new Date().toISOString();
   const o = { ...(pfEdit || {}), id: pfEdit ? pfEdit.id : uid(), name, ref: $('pfRef').value.trim(), birth: $('pfBirth').value, notes: $('pfNotes').value.trim(), created: pfEdit ? pfEdit.created : now, updated: now };
-  try { await DB.put('people', o); } catch (e) { $('pfMsg').innerHTML = `<div class="errbox">No se pudo guardar: ${esc(e.message || e)}</div>`; return; }
+  try { await DB.put('people', o); } catch (e) { $('pfMsg').innerHTML = `<div class="errbox">${Lg('No se pudo guardar', 'Could not save')}: ${esc(e.message || e)}</div>`; return; }
   $('personModal').classList.add('hidden'); await loadPeople();
-  toast(pfEdit ? 'Datos actualizados' : `${name} añadido`);
+  toast(pfEdit ? Lg('Datos actualizados', 'Details updated') : Lg(`${name} añadido`, `${name} added`));
   const cb = pfCb; pfCb = null; if (cb) cb(o);
 }
 
 // ---------- Guardar la medida ----------
 async function fillSavePerson() {
   const ppl = await loadPeople();
-  $('savePerson').innerHTML = `<option value="">— Elige una persona —</option>` + ppl.map(p => `<option value="${p.id}">${esc(p.name)}${p.ref ? ` · ${esc(p.ref)}` : ''}</option>`).join('') + `<option value="__new">+ Nueva persona…</option>`;
+  $('savePerson').innerHTML = `<option value="">${Lg('— Elige una persona —', '— Choose a person —')}</option>` + ppl.map(p => `<option value="${p.id}">${esc(p.name)}${p.ref ? ` · ${esc(p.ref)}` : ''}</option>`).join('') + `<option value="__new">${Lg('+ Nueva persona…', '+ New person…')}</option>`;
   $('savePerson').value = wiz.person || '';
-  $('saveBtn').textContent = wiz.savedId ? 'Actualizar la medida guardada' : 'Guardar medida';
+  $('saveBtn').textContent = wiz.savedId ? Lg('Actualizar la medida guardada', 'Update the saved measurement') : Lg('Guardar medida', 'Save measurement');
 }
 function snapshotBlob() {
   const cap = M.caps.find(c => c.id === 'G') || M.caps[0]; if (!cap) return Promise.resolve(null);
@@ -3516,8 +3526,8 @@ function snapshotBlob() {
 }
 async function saveMeasure() {
   const pid = $('savePerson').value;
-  if (!pid || pid === '__new') { $('saveMsg').innerHTML = '<div class="errbox">Elige a qué persona pertenece la medida.</div>'; return; }
-  if (!lastRes || !isFinite(lastRes.R.pdFar)) { $('saveMsg').innerHTML = '<div class="errbox">No hay una medida válida que guardar.</div>'; return; }
+  if (!pid || pid === '__new') { $('saveMsg').innerHTML = `<div class="errbox">${Lg('Elige a qué persona pertenece la medida.', 'Choose which person the measurement belongs to.')}</div>`; return; }
+  if (!lastRes || !isFinite(lastRes.R.pdFar)) { $('saveMsg').innerHTML = `<div class="errbox">${Lg('No hay una medida válida que guardar.', 'There is no valid measurement to save.')}</div>`; return; }
   const { R, u, p } = lastRes, G = M.caps.find(c => c.id === 'G'), padSel = $('padSel').value;
   const pads = G && G.frameAuto ? (padSel === 'auto' ? G.frameAuto.pads.pads : padSel === 'yes') : null;
   let image = null;
@@ -3526,10 +3536,10 @@ async function saveMeasure() {
     id: wiz.savedId || uid(), personId: pid, frameName: $('saveFrameName').value.trim(), notes: $('saveNotes').value.trim(), pads, material: $('matSel').value,
     camera: { label: S.camLabel || Lg('fotos subidas', 'uploaded photos'), dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value, pers: R.pers || null,
   });
-  try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">No se pudo guardar: ${esc(e.message || e)}</div>`; return; }
+  try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">${Lg('No se pudo guardar', 'Could not save')}: ${esc(e.message || e)}</div>`; return; }
   const was = wiz.savedId; wiz.savedId = rec.id; wiz.person = pid;
   const name = (peopleCache.find(q => q.id === pid) || {}).name || '';
-  toast(was ? 'Medida actualizada' : `Medida guardada en la ficha de ${name}`);
+  toast(was ? Lg('Medida actualizada', 'Measurement updated') : Lg(`Medida guardada en la ficha de ${name}`, `Measurement saved to ${name}’s record`));
   renderPerson(pid);
 }
 
@@ -3540,20 +3550,20 @@ async function renderRecord(id) {
   const p = peopleCache.find(q => q.id === m.personId) || (await loadPeople()).find(q => q.id === m.personId) || {};
   S.recView = m; go('record');
   if (recUrl) { URL.revokeObjectURL(recUrl); recUrl = null; }
-  const V = m.values, U = m.unc || {}, t = (k, label, cls = '') => V[k] == null ? '' : `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(V[k])} <span class="u">${U[k] != null ? `± ${fmt(U[k])} ` : ''}mm</span></div></div>`;
-  let h = `<div class="viewHead" style="margin-bottom:6px"><h1>${esc(p.name || 'Medida')}</h1></div><div class="pinfo"><span>${fdate(m.date)}</span><span>Método: ${METHOD_LABEL[m.method] || ''}</span>${m.frameName ? `<span>Montura: <b>${esc(m.frameName)}</b></span>` : ''}</div>`;
+  const V = m.values, U = m.unc || {}, OI = Lg('OI', 'OS'), t = (k, label, cls = '') => V[k] == null ? '' : `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(V[k])} <span class="u">${U[k] != null ? `± ${fmt(U[k])} ` : ''}mm</span></div></div>`;
+  let h = `<div class="viewHead" style="margin-bottom:6px"><h1>${esc(p.name || Lg('Medida', 'Measurement'))}</h1></div><div class="pinfo"><span>${fdate(m.date)}</span><span>${Lg('Método', 'Method')}: ${Lg(METHOD_LABEL[m.method], METHOD_LABEL_EN[m.method]) || ''}</span>${m.frameName ? `<span>${Lg('Montura', 'Frame')}: <b>${esc(m.frameName)}</b></span>` : ''}</div>`;
   h += `<div class="grid2" style="margin-top:14px"><div>`;
-  if (m.image instanceof Blob) { recUrl = URL.createObjectURL(m.image); h += `<img class="recImg" src="${recUrl}" alt="Foto de la medida">`; }
-  else h += `<div class="empty" style="border:1px dashed var(--line);border-radius:12px">Sin foto guardada</div>`;
-  if (m.notes) h += `<p><b>Notas:</b> ${esc(m.notes)}</p>`;
-  h += `</div><div class="res"><div class="tiles">${t('pdFar', 'DIP de lejos', 'main')}${t('monoOD', 'Monocular OD')}${t('monoOS', 'Monocular OI')}${t('hOD', 'Altura OD')}${t('hOS', 'Altura OI')}${t('pdNear', `DIP de cerca a ${fmt((m.params.nearDist || 400) / 10, 0)} cm`)}${t('DBL', 'Puente DBL')}</div>`;
+  if (m.image instanceof Blob) { recUrl = URL.createObjectURL(m.image); h += `<img class="recImg" src="${recUrl}" alt="${Lg('Foto de la medida', 'Measurement photo')}">`; }
+  else h += `<div class="empty" style="border:1px dashed var(--line);border-radius:12px">${Lg('Sin foto guardada', 'No photo saved')}</div>`;
+  if (m.notes) h += `<p><b>${Lg('Notas', 'Notes')}:</b> ${esc(m.notes)}</p>`;
+  h += `</div><div class="res"><div class="tiles">${t('pdFar', Lg('DIP de lejos', 'Distance PD'), 'main')}${t('monoOD', 'Monocular OD')}${t('monoOS', Lg('Monocular OI', 'Monocular OS'))}${t('hOD', Lg('Altura OD', 'Height OD'))}${t('hOS', Lg('Altura OI', 'Height OS'))}${t('pdNear', Lg(`DIP de cerca a ${fmt((m.params.nearDist || 400) / 10, 0)} cm`, `Near PD at ${fmt((m.params.nearDist || 400) / 10, 0)} cm`))}${t('DBL', Lg('Puente DBL', 'DBL bridge'))}</div>`;
   if (m.frame) {
     const F = m.frame;
-    h += `<h3>Montura (boxing)</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr><tr><td>Calibre A</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr><tr><td>Altura B</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr><tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>Descentramiento H (+ nasal)</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>Diámetro mínimo</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr></table>`;
-    if (m.mounting) h += `<div class="note" style="margin-top:6px">${MOUNT_LABEL[m.mounting] || ''}${m.material ? ` · ${MATERIAL_LABEL[m.material]}` : ''}${m.pads != null ? ` · plaquetas: ${m.pads ? 'sí' : 'no'}` : ''}</div>`;
+    h += `<h3>${Lg('Montura (boxing)', 'Frame (boxing)')}</h3><table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr><tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr><tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr><tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>${Lg('Diámetro mínimo', 'Minimum blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr></table>`;
+    if (m.mounting) h += `<div class="note" style="margin-top:6px">${mountLabel(m.mounting) || ''}${m.material ? ` · ${matLabel(m.material)}` : ''}${m.pads != null ? ` · ${Lg('plaquetas', 'nose pads')}: ${m.pads ? Lg('sí', 'yes') : 'no'}` : ''}</div>`;
   }
-  const rx = m.params.rx, rxs = e => !rx[e].s && !rx[e].c ? '<span class="note">sin graduación introducida</span>' : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
-  h += `<h3>Graduación y parámetros</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>OI</td><td>${rxs('os')}</td></tr><tr><td>Vértice</td><td>${fmt(m.values.vertex)} mm${m.vertexMeasured ? ' (medido)' : ''}</td></tr>${m.params.tpl ? `<tr><td>Plantilla</td><td>ancho ${fmt(m.params.tpl.W)}${m.params.tpl.DBL ? ` · A ${fmt(m.params.tpl.Aod)}/${fmt(m.params.tpl.Aos)} · DBL ${fmt(m.params.tpl.DBL)}` : ''}</td></tr>` : ''}${m.camera ? `<tr><td>Cámara</td><td style="font-weight:400">${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
+  const rx = m.params.rx, rxs = e => !rx[e].s && !rx[e].c ? `<span class="note">${Lg('sin graduación introducida', 'no prescription entered')}</span>` : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
+  h += `<h3>${Lg('Graduación y parámetros', 'Prescription and parameters')}</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>${OI}</td><td>${rxs('os')}</td></tr><tr><td>${Lg('Vértice', 'Vertex')}</td><td>${fmt(m.values.vertex)} mm${m.vertexMeasured ? Lg(' (medido)', ' (measured)') : ''}</td></tr>${m.params.tpl ? `<tr><td>${Lg('Plantilla', 'Template')}</td><td>${Lg('ancho', 'width')} ${fmt(m.params.tpl.W)}${m.params.tpl.DBL ? ` · A ${fmt(m.params.tpl.Aod)}/${fmt(m.params.tpl.Aos)} · DBL ${fmt(m.params.tpl.DBL)}` : ''}</td></tr>` : ''}${m.camera ? `<tr><td>${Lg('Cámara', 'Camera')}</td><td style="font-weight:400">${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
   if (m.pers) {
     const z = m.pers;
     h += `<h3>${Lg('Personalización', 'Personalisation')}</h3><table class="kv">${z.panto != null ? `<tr><td>${Lg('Ángulo pantoscópico', 'Pantoscopic tilt')}</td><td>${fmt(z.panto)}° ± ${fmt(z.pantoSd)}</td></tr><tr><td>${Lg('Distancia al vértice', 'Back vertex distance')}</td><td>${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm</td></tr>` : ''}${z.wrapOd != null ? `<tr><td>${Lg('Galbe', 'Wrap angle')}</td><td>OD ${fmt(z.wrapOd)}° · ${Lg('OI', 'OS')} ${fmt(z.wrapOs)}°</td></tr>` : ''}</table>`;
@@ -3572,20 +3582,20 @@ async function exportJson() {
   const measures = [];
   for (const m of ms) measures.push({ ...m, image: withImg && m.image instanceof Blob ? await blobToDataURL(m.image) : null });
   download(`dipfx-copia-${today()}.json`, new Blob([JSON.stringify({ app: 'dipfx', version: 1, exported: new Date().toISOString(), people, measures })], { type: 'application/json' }));
-  $('dataMsg').innerHTML = `<div class="okbox">Copia de ${people.length} personas y ${measures.length} medidas descargada.</div>`;
+  $('dataMsg').innerHTML = `<div class="okbox">${Lg(`Copia de ${people.length} personas y ${measures.length} medidas descargada.`, `Backup of ${people.length} people and ${measures.length} measurements downloaded.`)}</div>`;
 }
 async function exportCsv() {
   const people = await loadPeople(), ms = await loadMeasures();
-  download(`dipfx-medidas-${today()}.csv`, new Blob(['﻿' + recordsToCSV(people, ms)], { type: 'text/csv;charset=utf-8' }));
-  $('dataMsg').innerHTML = `<div class="okbox">${ms.length} medidas exportadas (se abre con Excel o similar).</div>`;
+  download(Lg(`dipfx-medidas-${today()}.csv`, `dipfx-measurements-${today()}.csv`), new Blob(['﻿' + recordsToCSV(people, ms, LANG)], { type: 'text/csv;charset=utf-8' }));
+  $('dataMsg').innerHTML = `<div class="okbox">${Lg(`${ms.length} medidas exportadas (se abre con Excel o similar).`, `${ms.length} measurements exported (open with Excel or similar).`)}</div>`;
 }
 async function importJson(file) {
-  let o; try { o = JSON.parse(await file.text()); } catch { $('dataMsg').innerHTML = '<div class="errbox">El archivo no es un JSON válido.</div>'; return; }
+  let o; try { o = JSON.parse(await file.text()); } catch { $('dataMsg').innerHTML = `<div class="errbox">${Lg('El archivo no es un JSON válido.', 'The file is not valid JSON.')}</div>`; return; }
   const r = normalizeImport(o);
-  if (!r.ok) { $('dataMsg').innerHTML = `<div class="errbox">${r.error}</div>`; return; }
+  if (!r.ok) { $('dataMsg').innerHTML = `<div class="errbox">${Lg(r.error, 'The file is not a DipFx backup.')}</div>`; return; }
   for (const p of r.people) await DB.put('people', p);
   for (const m of r.measures) { const im = typeof m.image === 'string' && m.image.startsWith('data:') ? await (await fetch(m.image)).blob() : null; await DB.put('measures', { ...m, image: im }); }
-  $('dataMsg').innerHTML = `<div class="okbox">Importadas ${r.people.length} personas y ${r.measures.length} medidas${r.skipped ? ` (${r.skipped} entradas incompletas descartadas)` : ''}.</div>`;
+  $('dataMsg').innerHTML = `<div class="okbox">${Lg(`Importadas ${r.people.length} personas y ${r.measures.length} medidas${r.skipped ? ` (${r.skipped} entradas incompletas descartadas)` : ''}.`, `Imported ${r.people.length} people and ${r.measures.length} measurements${r.skipped ? ` (${r.skipped} incomplete entries skipped)` : ''}.`)}</div>`;
   await renderPeople();
 }
 // Preferencias (método, exigencia, voz)
@@ -3597,6 +3607,7 @@ function loadPrefs() {
   if (typeof p.voice === 'boolean') { S.voice = p.voice; $('voiceChk').checked = p.voice; }
   if (p.who) setWho(p.who);
   if (typeof p.pers === 'boolean') { S.pers = p.pers; $('persChk').checked = p.pers; }
+  if (p.lang) LANG = p.lang === 'en' ? 'en' : 'es';
 }
 function setupAppEvents() {
   document.addEventListener('click', ev => {
@@ -3607,6 +3618,7 @@ function setupAppEvents() {
   });
   $('peopleSearch').addEventListener('input', renderPeople);
   $('persChk').addEventListener('change', e => { S.pers = e.target.checked; savePrefs(); });
+  $('langSel').addEventListener('change', e => { applyLang(e.target.value); savePrefs(); });
   $('profStart').addEventListener('click', startProfile);
   $('profSkip').addEventListener('click', () => { wiz.profDone = true; showMeasure('G'); });
   $('profBack').addEventListener('click', () => startCamera('G'));
@@ -3614,7 +3626,7 @@ function setupAppEvents() {
   $('whoSeg').addEventListener('click', e => { const b = e.target.closest('button[data-who]'); if (b) { setWho(b.dataset.who); savePrefs(); } });
   $('whoSel').addEventListener('change', e => { setWho(e.target.value); savePrefs(); });
   $('camPosBtn').addEventListener('click', () => openCamModal(null));
-  $('camOk').addEventListener('click', () => { const first = !camPos(); setCamPos(camTmp); $('camModal').classList.add('hidden'); if (first && camModalCb) toast('Posición de la cámara guardada en Ajustes → Cámara'); const cb = camModalCb; camModalCb = null; if (cb) cb(); });
+  $('camOk').addEventListener('click', () => { const first = !camPos(); setCamPos(camTmp); $('camModal').classList.add('hidden'); if (first && camModalCb) toast(Lg('Posición de la cámara guardada en Ajustes → Cámara', 'Camera position saved in Settings → Camera')); const cb = camModalCb; camModalCb = null; if (cb) cb(); });
   $('camCancel').addEventListener('click', () => { $('camModal').classList.add('hidden'); camModalCb = null; });
   $('capFs').addEventListener('click', () => { if (document.fullscreenElement) fsExit(); else fsEnter(); });
   const reorient = () => {
@@ -3633,9 +3645,9 @@ function setupAppEvents() {
   $('personDelBtn').addEventListener('click', async () => {
     const p = peopleCache.find(q => q.id === S.personView); if (!p) return;
     const ms = (await DB.byPerson(p.id)) || [];
-    if (!confirm(`¿Borrar a ${p.name} y sus ${ms.length} medidas? No se puede deshacer.`)) return;
+    if (!confirm(Lg(`¿Borrar a ${p.name} y sus ${ms.length} medidas? No se puede deshacer.`, `Delete ${p.name} and their ${ms.length} measurements? This cannot be undone.`))) return;
     for (const m of ms) await DB.del('measures', m.id);
-    await DB.del('people', p.id); toast(`${p.name} borrado`); go('people'); renderPeople();
+    await DB.del('people', p.id); toast(Lg(`${p.name} borrado`, `${p.name} deleted`)); go('people'); renderPeople();
   });
   $('pfSave').addEventListener('click', savePersonModal);
   $('pfCancel').addEventListener('click', () => { $('personModal').classList.add('hidden'); if ($('savePerson').value === '__new') $('savePerson').value = wiz.person || ''; pfCb = null; });
@@ -3643,40 +3655,336 @@ function setupAppEvents() {
   $('savePerson').addEventListener('change', e => { if (e.target.value === '__new') openPersonModal(null, p => { wiz.person = p.id; fillSavePerson(); renderWho(); }); });
   $('saveBtn').addEventListener('click', saveMeasure);
   $('recordBack').addEventListener('click', () => S.recView && S.recView.personId ? renderPerson(S.recView.personId) : go('people'));
-  $('recordCopy').addEventListener('click', async () => { const t = S.recView && S.recView.text || ''; try { await navigator.clipboard.writeText(t); toast('Resultados copiados'); } catch { toast('No se pudo copiar'); } });
+  $('recordCopy').addEventListener('click', async () => { const t = S.recView && S.recView.text || ''; try { await navigator.clipboard.writeText(t); toast(Lg('Resultados copiados', 'Results copied')); } catch { toast(Lg('No se pudo copiar', 'Could not copy')); } });
   $('recordDel').addEventListener('click', async () => {
-    const m = S.recView; if (!m || !confirm('¿Borrar esta medida? No se puede deshacer.')) return;
-    await DB.del('measures', m.id); toast('Medida borrada'); renderPerson(m.personId);
+    const m = S.recView; if (!m || !confirm(Lg('¿Borrar esta medida? No se puede deshacer.', 'Delete this measurement? This cannot be undone.'))) return;
+    await DB.del('measures', m.id); toast(Lg('Medida borrada', 'Measurement deleted')); renderPerson(m.personId);
   });
   $('exportJson').addEventListener('click', exportJson);
   $('exportCsv').addEventListener('click', exportCsv);
   $('importFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; });
   $('wipeBtn').addEventListener('click', async () => {
-    if (!confirm('¿Borrar TODAS las personas y medidas de este navegador? No se puede deshacer. Haz antes una copia de seguridad.')) return;
+    if (!confirm(Lg('¿Borrar TODAS las personas y medidas de este navegador? No se puede deshacer. Haz antes una copia de seguridad.', 'Delete ALL people and measurements in this browser? This cannot be undone. Make a backup first.'))) return;
     await DB.clear('measures'); await DB.clear('people'); await loadPeople();
-    $('dataMsg').innerHTML = '<div class="okbox">Datos borrados.</div>';
+    $('dataMsg').innerHTML = `<div class="okbox">${Lg('Datos borrados.', 'Data deleted.')}</div>`;
   });
+}
+
+// ---------- Idioma: textos fijos del HTML (por nodo de texto) y vistas generadas ----------
+// Los textos fijos se traducen por su contenido en español; al volver al español se restaura el original.
+const I18N_EN = {
+"Medidas de centrado con la cámara": "Centration measurements with your camera",
+"Personas": "People",
+"Ajustes": "Settings",
+"+ Nueva medida": "+ New measurement",
+"Buscar por nombre o referencia": "Search by name or reference",
+"Nueva persona": "New person",
+"Nombre": "Name",
+"Referencia": "Reference",
+"Medidas": "Measurements",
+"Última medida": "Last measurement",
+"DIP": "PD",
+"Aún no hay personas guardadas": "No people saved yet",
+"Pulsa «+ Nueva medida» para medir a alguien. Al terminar, la medida se guarda en su ficha.": "Tap “+ New measurement” to measure someone. When you finish, the measurement is saved to their record.",
+"Las personas y sus medidas se guardan solo en este navegador, en este dispositivo: no se envían a ningún servidor. Si borras los datos del navegador, se pierden. Haz copias de seguridad desde Ajustes → Datos.": "People and their measurements are stored only in this browser, on this device: nothing is sent to any server. If you clear the browser data, they are lost. Make backups from Settings → Data.",
+"← Personas": "← People",
+"Editar": "Edit",
+"Fecha": "Date",
+"Montura": "Frame",
+"Método": "Method",
+"Mono OD / OI": "Mono OD / OS",
+"Altura OD / OI": "Height OD / OS",
+"Sin medidas todavía": "No measurements yet",
+"Pulsa «+ Nueva medida».": "Tap “+ New measurement”.",
+"Borrar persona y sus medidas": "Delete person and measurements",
+"← Volver": "← Back",
+"Copiar resultados": "Copy results",
+"Borrar esta medida": "Delete this measurement",
+"¿A quién vas a medir?": "Who are you measuring?",
+"Elige una persona guardada o crea una nueva. Todas sus medidas quedarán en su ficha.": "Choose a saved person or create a new one. All their measurements are kept in their record.",
+"+ Nueva persona": "+ New person",
+"¿Quién hace la foto?": "Who takes the photo?",
+"La propia persona": "The person themselves",
+"Selfie: se mira a sí misma en la pantalla": "Selfie: they see themselves on the screen",
+"Otra persona (óptico)": "Someone else (optician)",
+"Con una tablet o un móvil, usando la cámara trasera": "With a tablet or phone, using the rear camera",
+"Medir sin asignar ahora (se elige al guardar)": "Measure without assigning now (choose when saving)",
+"Paso 2 · Montura": "Step 2 · Frame",
+"Mide la montura sobre la pantalla": "Measure the frame on the screen",
+"Pantalla completa": "Full screen",
+"Abre las varillas y": "Open the temples and",
+"apoya la montura en la base del teclado": "rest the frame on the keyboard base",
+", con el frente contra la pantalla y las varillas hacia ti. La lente derecha queda a tu derecha.": ", with the front against the screen and the temples towards you. The right lens is on your right.",
+"Centra el puente en la línea discontinua y arrastra la": "Centre the bridge on the dashed line and drag the",
+"línea horizontal ⇕": "horizontal line ⇕",
+"hasta el centro de las lentes.": "to the centre of the lenses.",
+"Lleva las líneas": "Move the",
+"azules": "blue",
+"a los": "lines to the",
+"bordes exteriores": "outer edges",
+"y las": "and the",
+"naranjas": "orange ones",
+"al": "to the",
+"borde interior del aro": "inner edge of the rim",
+". Míralas de frente, con un ojo cerrado. Las flechas del teclado afinan 0,1 mm.": ". Look at them straight on, with one eye closed. The arrow keys fine-tune by 0.1 mm.",
+"Tipo de montaje": "Mounting type",
+"No lo sé (detectar)": "I don’t know (detect)",
+"Aro completo": "Full rim",
+"Ranurado (nylon)": "Semi-rimless (nylon)",
+"Al aire (taladrado)": "Rimless (drilled)",
+"Material": "Material",
+"No lo sé": "I don’t know",
+"Pasta (acetato)": "Plastic (acetate)",
+"Inyectado (TR90 / nylon)": "Injected (TR90 / nylon)",
+"Metal": "Metal",
+"Titanio": "Titanium",
+"Mixta (pasta y metal)": "Combination (plastic and metal)",
+"Plaquetas": "Nose pads",
+"Con plaquetas": "With nose pads",
+"Sin plaquetas": "Without nose pads",
+"Marcar también cada lente": "Also mark each lens",
+"Escribir las medidas a mano (regla o trazador)": "Type the measurements (ruler or tracer)",
+"Ancho exterior (mm)": "Outer width (mm)",
+"A lente derecha · OD (mm)": "A right lens · OD (mm)",
+"Puente DBL (mm)": "Bridge DBL (mm)",
+"A lente izquierda · OI (mm)": "A left lens · OS (mm)",
+"← Atrás": "← Back",
+"Siguiente: la foto →": "Next: the photo →",
+"Mide el galbe de la montura": "Measure the frame wrap angle",
+"Lleva cada punto al": "Move each point to the",
+"extremo de cada lente": "end of each lens",
+"en el borde del frente:": "on the edge of the front:",
+"temporal": "temporal",
+"(junto a la bisagra) y": "(next to the hinge) and",
+"nasal": "nasal",
+"(junto al puente).": "(next to the bridge).",
+"Míralos de frente, con un ojo cerrado. El galbe es un ángulo:": "Look at them straight on, with one eye closed. The wrap is an angle:",
+"no depende de la calibración": "it does not depend on the calibration",
+"de la pantalla.": "of the screen.",
+"Omitir este paso": "Skip this step",
+"Siguiente →": "Next →",
+"Foto de perfil": "Profile photo",
+"Para medir el ángulo pantoscópico y la distancia al vértice, con las gafas puestas.": "To measure the pantoscopic tilt and the back vertex distance, with the glasses on.",
+"Empezar la foto de perfil": "Start the profile photo",
+"Activando la cámara…": "Starting the camera…",
+"Nivel del dispositivo": "Device level",
+"Mira aquí": "Look here",
+"Foto 1 (sin gafas) lista ✓": "Photo 1 (without glasses) done ✓",
+"Ahora con las gafas puestas. Pulsa «Continuar» y colócate a la misma distancia: la app indicará si acercarse o alejarse.": "Now with the glasses on. Tap “Continue” and keep the same distance: the app will say whether to move closer or further away.",
+"Continuar con gafas": "Continue with glasses",
+"Comprobaciones": "Checks",
+"Capturar ya": "Capture now",
+"Revisa los marcadores": "Check the markers",
+"Comprueba que cada marca está en su sitio. Si alguna no lo está, arrástrala; con un clic y las flechas del teclado la afinas (0,25 px; con Mayús, 2 px).": "Make sure every marker is in place. If one is not, drag it; click it and use the arrow keys to fine-tune (0.25 px; with Shift, 2 px).",
+"Iris / pupila": "Iris / pupil",
+"Tarjeta": "Card",
+"Borde exterior de la montura": "Outer edge of the frame",
+"Contorno de la lente": "Lens outline",
+"Centro (puente / nariz)": "Centre (bridge / nose)",
+"Imagen de medida": "Measurement image",
+"Promedio de la ráfaga": "Burst average",
+"Mejor fotograma": "Best frame",
+"Ver la foto completa": "Show the whole photo",
+"Notas de la detección automática": "Notes from the automatic detection",
+"Resultados": "Results",
+"Guardar en la ficha de": "Save to the record of",
+"Montura (marca, modelo; opcional)": "Frame (brand, model; optional)",
+"p. ej. Acetato negro 52□18": "e.g. Black acetate 52□18",
+"Notas (opcional)": "Notes (optional)",
+"Guardar también la foto con las marcas": "Also save the photo with the markers",
+"Guardar medida": "Save measurement",
+"Repetir foto sin gafas": "Retake photo without glasses",
+"Repetir la foto": "Retake the photo",
+"Copiar": "Copy",
+"Personalización: panto, vértice y galbe": "Personalisation: pantoscopic tilt, vertex and wrap",
+"Altura exterior de la montura (mm)": "Outer height of the frame (mm)",
+"Galbe OD (°)": "Wrap OD (°)",
+"Galbe OI (°)": "Wrap OS (°)",
+"Graduación de las gafas": "Prescription of the glasses",
+"· corrige el efecto prismático; imprescindible en el método iris": "· corrects the prismatic effect; essential for the iris method",
+"Esf": "Sph",
+"Cil": "Cyl",
+"Eje": "Axis",
+"Curva base (D)": "Base curve (D)",
+"Espesor c. (mm)": "Centre thick. (mm)",
+"OD": "OD",
+"auto": "auto",
+"OI": "OS",
+"Índice": "Index",
+"Blanco‑blanco OD (mm)": "White-to-white OD (mm)",
+"Blanco‑blanco OI (mm)": "White-to-white OS (mm)",
+"Tipo de montura": "Frame type",
+"Montaje": "Mounting",
+"Automático": "Automatic",
+"Aro completo de pasta (acetato)": "Full-rim plastic (acetate)",
+"Aro completo metálico": "Full-rim metal",
+"Ranurado / semi‑aro (nylon)": "Semi-rimless / grooved (nylon)",
+"No indicado": "Not specified",
+"Medidas de la plantilla": "Template measurements",
+"A OD (mm)": "A OD (mm)",
+"DBL (mm)": "DBL (mm)",
+"A OI (mm)": "A OS (mm)",
+"Parámetros avanzados": "Advanced parameters",
+"Vértice córnea → cara posterior (mm)": "Vertex cornea → back surface (mm)",
+"Tarjeta delante del plano de la lente (mm)": "Card in front of the lens plane (mm)",
+"Bordes exteriores detrás del plano de la lente (mm)": "Outer edges behind the lens plane (mm)",
+"auto (galbe)": "auto (wrap)",
+"Profundidad de ranura/bisel (mm)": "Groove/bevel depth (mm)",
+"Ángulo pantoscópico (°)": "Pantoscopic tilt (°)",
+"Galbe (°)": "Wrap angle (°)",
+"Distancia de cerca (mm)": "Near distance (mm)",
+"FOV diagonal usado (°)": "Diagonal FOV used (°)",
+"Calibrar la cámara con una distancia medida (opcional)": "Calibrate the camera with a measured distance (optional)",
+"Distancia medida (mm)": "Measured distance (mm)",
+"p. ej. 400": "e.g. 400",
+"Calibrar": "Calibrate",
+"Detalles técnicos": "Technical details",
+"Pantalla": "Screen",
+"La plantilla de la montura se dibuja a tamaño real. Calibra la pantalla una vez con una regla.": "The frame template is drawn at real size. Calibrate the screen once with a ruler.",
+"Calibrar pantalla": "Calibrate screen",
+"Método de medida": "Measurement method",
+"Montura medida en la plantilla (recomendado)": "Frame measured on the template (recommended)",
+"Tarjeta sobre la montura": "Card on top of the frame",
+"Iris: foto sin gafas y con gafas": "Iris: photo without and with glasses",
+"Captura": "Capture",
+"Exigencia de alineación": "Alignment strictness",
+"Estricta": "Strict",
+"Normal": "Normal",
+"Flexible": "Relaxed",
+"La propia persona (selfie)": "The person themselves (selfie)",
+"Otra persona (óptico), con la cámara trasera": "Someone else (optician), with the rear camera",
+"Guía por voz (la persona mira a la cámara y no puede leer la pantalla)": "Voice guidance (the person looks at the camera and cannot read the screen)",
+"Cómo hacer una buena captura": "How to get a good capture",
+"Desactiva el encuadre automático": "Turn off automatic framing",
+": Center Stage (Mac/iPad), «Encuadre automático» de Windows Studio Effects o el software del fabricante.": ": Center Stage (Mac/iPad), “Automatic framing” in Windows Studio Effects, or the manufacturer’s software.",
+"vertical (90°)": "upright (90°)",
+"y cámara a la altura de los ojos; la app dice si subir o bajar. Distancia 35–45 cm, luz frontal suave y sin reflejos en las lentes.": "and camera at eye level; the app says whether to go up or down. Distance 35–45 cm, soft frontal light and no reflections on the lenses.",
+"Mirar": "Look",
+"al objetivo de la cámara": "at the camera lens",
+", no a la pantalla: así la app corrige la convergencia.": ", not at the screen: this lets the app correct for convergence.",
+"Método tarjeta": "Card method",
+": con las gafas puestas, apoya una tarjeta estándar horizontal y plana sobre la parte superior de la montura, sujeta por el borde superior.": ": with the glasses on, rest a standard card flat and horizontal on top of the frame, holding it by its top edge.",
+"Método iris": "Iris method",
+": una foto": ": one photo",
+"sin gafas": "without glasses",
+"y otra": "and another",
+"con gafas": "with glasses",
+"a la misma distancia. Introduce después la graduación de cada lente y, si lo conoces, el blanco‑blanco.": "at the same distance. Then enter the prescription of each lens and, if known, the white-to-white diameter.",
+"Medidas de personalización": "Personalisation measurements",
+"Para lentes freeform personalizadas:": "For personalised freeform lenses:",
+"ángulo pantoscópico": "pantoscopic tilt",
+"y": "and",
+"distancia al vértice": "back vertex distance",
+"con una foto de perfil, y": "with a profile photo, and",
+"galbe": "wrap angle",
+"con una plantilla. Añaden dos pasos a cada medida, que se pueden omitir.": "with a template. They add two steps to each measurement, which can be skipped.",
+"Medir panto, vértice y galbe": "Measure pantoscopic tilt, vertex and wrap",
+"Idioma · Language": "Idioma · Language",
+"Español": "Español",
+"English": "English",
+"Cámara": "Camera",
+"(se listan tras dar permiso)": "(listed after granting permission)",
+"FOV diagonal (°)": "Diagonal FOV (°)",
+"Referido a": "Referred to",
+"Origen del FOV:": "FOV source:",
+"genérico": "generic",
+"Guardar FOV": "Save FOV",
+"Posición de la cámara respecto a la pantalla:": "Camera position relative to the screen:",
+"Sirve para poner las indicaciones de la foto selfie junto a ella. Si no está indicada, se pregunta en la primera medida.": "Used to place the selfie instructions next to it. If it is not set, you will be asked on the first measurement.",
+"Cambiar": "Change",
+"Dispositivo detectado": "Detected device",
+"Detectando…": "Detecting…",
+"Datos": "Data",
+"Todo se guarda solo en este navegador. Exporta una copia de seguridad de vez en cuando, o para pasar los datos a otro equipo.": "Everything is stored only in this browser. Export a backup from time to time, or to move the data to another device.",
+"Copia de seguridad (JSON)": "Backup (JSON)",
+"Exportar medidas (CSV)": "Export measurements (CSV)",
+"Incluir las fotos en la copia de seguridad": "Include the photos in the backup",
+"Importar una copia de seguridad": "Import a backup",
+"Borrar todos los datos": "Delete all data",
+"Analizar fotos ya hechas": "Analyse existing photos",
+"Para revisar fotos hechas con esta misma cámara, sin recortar. Útil para depurar.": "To review photos taken with this same camera, uncropped. Useful for debugging.",
+"Foto SIN gafas": "Photo WITHOUT glasses",
+"Foto CON gafas": "Photo WITH glasses",
+"Calibra la pantalla": "Calibrate the screen",
+"· solo una vez en este equipo": "· only once on this device",
+"La plantilla de la montura se dibuja a tamaño real, pero el navegador no sabe cuánto mide un píxel de tu pantalla. Apoya una regla sobre la pantalla y ajusta la barra hasta que mida exactamente la longitud indicada.": "The frame template is drawn at real size, but the browser does not know how big a pixel of your screen is. Hold a ruler against the screen and adjust the bar until it measures exactly the stated length.",
+"Regla: 100 mm": "Ruler: 100 mm",
+"Regla: 50 mm (pantallas pequeñas)": "Ruler: 50 mm (small screens)",
+"Tarjeta ID‑1: ancho 85,60 mm": "ID-1 card: width 85.60 mm",
+"Otra longitud…": "Other length…",
+"Longitud (mm)": "Length (mm)",
+"Acortar 0,25 px": "Shorten 0.25 px",
+"Alargar 0,25 px": "Lengthen 0.25 px",
+"Mira cada extremo de la barra de frente, con un ojo cerrado, para evitar el paralaje. También puedes arrastrar la barra o usar las flechas ← → (0,25 px; con Mayús, 2 px).": "Look at each end of the bar straight on, with one eye closed, to avoid parallax. You can also drag the bar or use the arrow keys ← → (0.25 px; with Shift, 2 px).",
+"Ahora no": "Not now",
+"Guardar calibración": "Save calibration",
+"¿Dónde está la cámara?": "Where is the camera?",
+"Toca el punto del borde de la pantalla más cercano a la cámara, tal como tienes ahora el dispositivo. Las indicaciones para la foto se mostrarán junto a ella. Solo se pregunta una vez: queda guardado en Ajustes → Cámara, donde puedes cambiarlo.": "Tap the point on the edge of the screen closest to the camera, with the device as you are holding it now. The photo instructions will be shown next to it. You are only asked once: it is saved in Settings → Camera, where you can change it.",
+"Cancelar": "Cancel",
+"Continuar": "Continue",
+"Nombre y apellidos *": "Full name *",
+"Referencia (nº de cliente, historia…)": "Reference (client no., record…)",
+"Fecha de nacimiento": "Date of birth",
+"Notas": "Notes",
+"Guardar": "Save"
+};
+const I18N_TXT = new WeakMap(), I18N_ATTR = new WeakMap();
+function translateStatic() {
+  const en = LANG === 'en', tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+    const par = n.parentElement; if (!par || par.closest('script,style,svg,textarea')) continue;
+    if (en) {
+      if (I18N_TXT.has(n)) continue;
+      const raw = n.nodeValue, key = raw.replace(/\s+/g, ' ').trim(), tr = key && I18N_EN[key];
+      if (tr && tr !== key) { I18N_TXT.set(n, raw); n.nodeValue = raw.match(/^\s*/)[0] + tr + raw.match(/\s*$/)[0]; }
+    } else if (I18N_TXT.has(n)) { n.nodeValue = I18N_TXT.get(n); I18N_TXT.delete(n); }
+  }
+  for (const el of document.querySelectorAll('[placeholder],[title],[aria-label]')) for (const a of ['placeholder', 'title', 'aria-label']) {
+    if (!el.hasAttribute(a)) continue;
+    const saved = I18N_ATTR.get(el) || {};
+    if (en) { const v = el.getAttribute(a), tr = I18N_EN[v]; if (tr && saved[a] == null) { saved[a] = v; el.setAttribute(a, tr); I18N_ATTR.set(el, saved); } }
+    else if (saved[a] != null) { el.setAttribute(a, saved[a]); delete saved[a]; }
+  }
+}
+function applyLang(lang) {
+  LANG = lang === 'en' ? 'en' : 'es';
+  document.documentElement.lang = LANG; $('langSel').value = LANG;
+  translateStatic();
+  setModeUI(); renderScrStatus(); renderCamStatus(); renderDevInfo(); syncFovUI();
+  if (S.view === 'people') renderPeople();
+  if (S.view === 'person' && S.personView) renderPerson(S.personView);
+  if (S.view === 'record' && S.recView) renderRecord(S.recView.id);
+  if (S.view === 'wizard' && wiz.step) {
+    if (wiz.step === 'person') { showStep('person'); renderStepPerson(); }
+    else if (wiz.step === 'frame') { showStep('frame'); tplWarn(); tplDraw(); $('tplKicker').textContent = `${Lg('Paso', 'Step')} ${wizSteps().indexOf('frame') + 1} ${Lg('de', 'of')} ${wizSteps().length} · ${Lg('Montura', 'Frame')}`; }
+    else if (wiz.step === 'wrap') openWrap();
+    else if (wiz.step === 'profile') openProfile();
+    else if (wiz.step === 'review' && M.caps.length) showMeasure(view);
+    else showStep(wiz.step);
+  }
+  if (!$('scrPanel').classList.contains('hidden')) scrSync();
+  if (!$('camModal').classList.contains('hidden')) openCamModal(camModalCb);
 }
 
 // ---------- Eventos ----------
 function readFovUI() {
   const d = parseFloat($('fovIn').value), ref = parseFloat($('refSel').value);
-  if (isFinite(d) && d > 20 && d < 170 && (Math.abs(d - S.fov.dfov) > 0.05 || Math.abs(ref - S.fov.ref) > 0.01)) Object.assign(S.fov, { dfov: d, ref, src: 'Introducido manualmente', kind: 'manual' });
+  if (isFinite(d) && d > 20 && d < 170 && (Math.abs(d - S.fov.dfov) > 0.05 || Math.abs(ref - S.fov.ref) > 0.01)) Object.assign(S.fov, { dfov: d, ref, src: 'Introducido manualmente', srcEn: 'Entered manually', kind: 'manual' });
   for (const c of M.caps) c.f = focalFromDfov(S.fov.dfov, S.fov.ref, c.W, c.H);
   syncFovUI(); renderDevInfo();
 }
 $('fovIn').addEventListener('change', () => { readFovUI(); recompute(); });
 $('refSel').addEventListener('change', () => { readFovUI(); recompute(); });
 $('saveFovBtn').addEventListener('click', () => {
-  readFovUI(); store.set(fovKey(), { dfov: S.fov.dfov, ref: S.fov.ref, src: S.fov.src, kind: S.fov.kind });
-  $('saveFovBtn').textContent = 'Guardado ✓'; setTimeout(() => $('saveFovBtn').textContent = 'Guardar FOV para esta cámara', 1500);
+  readFovUI(); store.set(fovKey(), { dfov: S.fov.dfov, ref: S.fov.ref, src: S.fov.src, srcEn: S.fov.srcEn, kind: S.fov.kind });
+  $('saveFovBtn').textContent = Lg('Guardado ✓', 'Saved ✓'); setTimeout(() => $('saveFovBtn').textContent = Lg('Guardar FOV', 'Save FOV'), 1500);
 });
 $('modeSel').addEventListener('change', e => { S.mode = e.target.value; M = { mode: S.mode, caps: [] }; pending.N = pending.G = null; setModeUI(); savePrefs(); });
 $('tolSel').addEventListener('change', e => { S.tolKey = e.target.value; savePrefs(); });
 $('voiceChk').addEventListener('change', e => { S.voice = e.target.checked; savePrefs(); if (!S.voice) try { speechSynthesis.cancel(); } catch { } });
 $('camSel').addEventListener('change', e => { S.deviceId = e.target.value; S.camManual = true; if (live.running) startCamera(S.step); });
 $('newMeasureBtn').addEventListener('click', () => startMeasure(null));
-$('contBtn').addEventListener('click', () => { S.step = 'G'; $('between').classList.add('hidden'); $('stepTitle').textContent = stepText(); resetLive(); speech.say('Segunda foto, con gafas.', true); });
+$('contBtn').addEventListener('click', () => { S.step = 'G'; $('between').classList.add('hidden'); $('stepTitle').textContent = stepText(); resetLive(); speech.say(Lg('Segunda foto, con gafas.', 'Second photo, with glasses.'), true); });
 $('stopBtn').addEventListener('click', () => {
   if (live.kind === 'profile') { stopCamera(); live.kind = null; $('livePanel').classList.add('hidden'); $('manualBtn').textContent = Lg('Capturar ya', 'Capture now'); fsExit(); openProfile(); return; }
   stopCamera();
@@ -3709,7 +4017,7 @@ for (const id of ['pOuterOff', 'pVertex', 'pCardOff', 'pGroove', 'pPanto', 'pWra
 for (const id of ['pIndex', 'mountSel', 'padSel', 'matSel']) $(id).addEventListener('change', recompute);
 $('pFov').addEventListener('change', () => {
   const d = parseFloat($('pFov').value); if (!(d > 20 && d < 170)) return;
-  Object.assign(S.fov, { dfov: d, src: 'Introducido manualmente', kind: 'manual' });
+  Object.assign(S.fov, { dfov: d, src: 'Introducido manualmente', srcEn: 'Entered manually', kind: 'manual' });
   for (const c of M.caps) c.f = focalFromDfov(d, S.fov.ref, c.W, c.H);
   syncFovUI(); recompute();
 });
@@ -3717,18 +4025,18 @@ $('calBtn').addEventListener('click', () => {
   const Zm = parseFloat($('calZ').value), G = M.caps.find(c => c.id === 'G');
   if (M.mode === 'frame') {
     const Z = lastRes && lastRes.R && lastRes.R.Z;
-    if (!G || !Z || !(Zm > 150 && Zm < 1500)) { $('autoMsg').innerHTML = '<div class="errbox">Introduce una distancia entre 150 y 1500 mm.</div>' + $('autoMsg').innerHTML; return; }
+    if (!G || !Z || !(Zm > 150 && Zm < 1500)) { $('autoMsg').innerHTML = `<div class="errbox">${Lg('Introduce una distancia entre 150 y 1500 mm.', 'Enter a distance between 150 and 1500 mm.')}</div>` + $('autoMsg').innerHTML; return; }
     const d = dfovFromFocal(G.f * Zm / Z, S.fov.ref, G.W, G.H);   // la distancia escala con la focal
-    Object.assign(S.fov, { dfov: d, src: `Calibrado por ti (${new Date().toLocaleDateString('es-ES')})`, kind: 'cal' });
+    Object.assign(S.fov, { dfov: d, src: `Calibrado por ti (${new Date().toLocaleDateString('es-ES')})`, srcEn: `Calibrated by you (${new Date().toLocaleDateString('en-US')})`, kind: 'cal' });
     for (const c of M.caps) c.f = focalFromDfov(d, S.fov.ref, c.W, c.H);
-    store.set(fovKey(), { dfov: d, ref: S.fov.ref, src: S.fov.src, kind: 'cal' });
+    store.set(fovKey(), { dfov: d, ref: S.fov.ref, src: S.fov.src, srcEn: S.fov.srcEn, kind: 'cal' });
     syncFovUI(); recompute(); return;
   }
-  if (!G || !G.card || !(Zm > 150 && Zm < 1500)) { $('autoMsg').innerHTML = '<div class="errbox">Introduce una distancia entre 150 y 1500 mm (método tarjeta).</div>' + $('autoMsg').innerHTML; return; }
+  if (!G || !G.card || !(Zm > 150 && Zm < 1500)) { $('autoMsg').innerHTML = `<div class="errbox">${Lg('Introduce una distancia entre 150 y 1500 mm (método tarjeta).', 'Enter a distance between 150 and 1500 mm (card method).')}</div>` + $('autoMsg').innerHTML; return; }
   const f = cardWidthPx(G.card.L, G.card.R).w * Zm / CARD_W, d = dfovFromFocal(f, S.fov.ref, G.W, G.H);
-  Object.assign(S.fov, { dfov: d, src: `Calibrado por ti (${new Date().toLocaleDateString('es-ES')})`, kind: 'cal' });
+  Object.assign(S.fov, { dfov: d, src: `Calibrado por ti (${new Date().toLocaleDateString('es-ES')})`, srcEn: `Calibrated by you (${new Date().toLocaleDateString('en-US')})`, kind: 'cal' });
   for (const c of M.caps) c.f = focalFromDfov(d, S.fov.ref, c.W, c.H);
-  store.set(fovKey(), { dfov: d, ref: S.fov.ref, src: S.fov.src, kind: 'cal' });
+  store.set(fovKey(), { dfov: d, ref: S.fov.ref, src: S.fov.src, srcEn: S.fov.srcEn, kind: 'cal' });
   syncFovUI(); recompute();
 });
 async function fileToCanvas(file) {
@@ -3749,7 +4057,7 @@ async function processFiles() {
     if (pending.N) { S.step = 'N'; const cap = await analyzeCapture(pending.N, null, 'N'); pending.N = null; if (cap) { M.caps = M.caps.filter(c => c.id !== 'N'); M.caps.push(cap); } }
     if (pending.G && M.caps.find(c => c.id === 'N')) { const cap = await analyzeCapture(pending.G, null, 'G'); pending.G = null; if (cap) { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); } }
     else if (M.caps.find(c => c.id === 'G') && M.caps.find(c => c.id === 'N')) await reanalyzeG();
-    if (!M.caps.find(c => c.id === 'N')) { $('loadMsg').innerHTML = '<div class="warnbox">Carga también la foto SIN gafas.</div>'; return; }
+    if (!M.caps.find(c => c.id === 'N')) { $('loadMsg').innerHTML = `<div class="warnbox">${Lg('Carga también la foto SIN gafas.', 'Also load the photo WITHOUT glasses.')}</div>`; return; }
   } else if (pending.G) {
     if (S.mode === 'frame' && !S.tpl) { const sv = store.get(TPL_KEY); if (sv && sv.lines) { const t = tplFromLines(sv.lines); S.tpl = sv.inner === false ? { W: t.W } : t; } }
     const cap = await analyzeCapture(pending.G, null, 'G'); pending.G = null; if (cap) M.caps = [cap];
@@ -3757,8 +4065,9 @@ async function processFiles() {
   }
   if (M.caps.length) showMeasure(M.caps.find(c => c.id === 'G') ? 'G' : 'N');
 }
-$('fileN').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.N = await fileToCanvas(f); processFiles(); });
-$('fileG').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.G = await fileToCanvas(f); processFiles(); });
+// se vacía el selector tras leer el archivo, para que volver a elegir la misma foto la analice de nuevo
+$('fileN').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.N = await fileToCanvas(f); e.target.value = ''; processFiles(); });
+$('fileG').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.G = await fileToCanvas(f); e.target.value = ''; processFiles(); });
 
 setupMeasureEvents();
 setupScrEvents();
@@ -3766,12 +4075,14 @@ setupTplEvents();
 setupAppEvents();
 setupWrapEvents();
 setWho('selfie');
+LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
 loadPrefs();
 renderCamStatus();
 setModeUI();
 detectDevice();
 renderScrStatus();
-go('people'); renderPeople();
+go('people');
+applyLang(LANG);
 if (scrCal().reason === 'none') openScr(true);
 window.addEventListener('resize', () => {
   if (!$('scrPanel').classList.contains('hidden')) scrSync();

@@ -40,6 +40,8 @@ npm run serve          # http://localhost:8000  (la cámara exige https o localh
 
 0. La primera vez, **calibra la pantalla** con una regla (se guarda en el navegador; se puede repetir en Ajustes → Pantalla).
 1. Pulsa **«+ Nueva medida»** y elige o crea la persona. El asistente te lleva paso a paso: montura → foto → revisar y guardar. Cada medida queda en la ficha de la persona (sección **Personas**), con su histórico. Los datos se guardan solo en este navegador: haz copias en Ajustes → Datos.
+   - Con **Ajustes → Medidas de personalización** se añaden el galbe (plantilla) y el ángulo pantoscópico y la distancia al vértice (foto de perfil).
+   - La interfaz está en español e inglés (Ajustes → Idioma).
 2. El método se elige en Ajustes:
    - **Montura** (por defecto): mide la montura sobre la plantilla de la pantalla y haz una foto con las gafas puestas. No necesita tarjeta.
    - **Tarjeta**: una foto con gafas y una tarjeta estándar apoyada sobre la montura. La referencia más limpia en la imagen.

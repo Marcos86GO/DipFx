@@ -24,7 +24,7 @@ async def page_with_camera(p,video,query=''):
     args=['--use-fake-ui-for-media-stream','--use-fake-device-for-media-stream',f'--use-file-for-fake-video-capture={os.path.join(OUT,video)}']
     kw={'args':args}
     if os.environ.get('CHROME_PATH'): kw['executable_path']=os.environ['CHROME_PATH']
-    b=await p.chromium.launch(**kw); pg=await b.new_page(viewport={'width':1400,'height':1000}); errs=[]
+    b=await p.chromium.launch(**kw); pg=await b.new_page(viewport={'width':1400,'height':1000},locale='es-ES'); errs=[]
     pg.on('pageerror',lambda e:errs.append(str(e)))
     async def route(r):
         if 'vision_bundle.mjs' in r.request.url: await r.fulfill(status=200,content_type='application/javascript',body=FAKE)
@@ -206,6 +206,35 @@ async def main():
         await pg.click('#saveBtn'); await pg.wait_for_selector('#viewPerson:not(.hidden)')
         check('medida iris guardada en una persona nueva',await pg.locator('#personMeasures tbody tr').count(),1,0)
         await pg.screenshot(path=os.path.join(OUT,'e2e_iris.png'),full_page=True)
+        print('Interfaz en inglés:')
+        await pg.click('nav [data-view=settings]'); await pg.select_option('#langSel','en'); await pg.wait_for_timeout(300)
+        nav=await pg.inner_text('header.top'); ok='People' in nav and 'Settings' in nav and '+ New measurement' in nav and 'Measurement method' in await pg.inner_text('#viewSettings')
+        print(f"  {'OK ' if ok else 'FALLO'} menús y ajustes traducidos"); 
+        if not ok: fails.append('inglés: menús')
+        await pg.click('nav [data-view=people]'); await pg.wait_for_timeout(300)
+        ok='Name' in await pg.text_content('#peopleTable thead'); print(f"  {'OK ' if ok else 'FALLO'} lista de personas en inglés")
+        if not ok: fails.append('inglés: personas')
+        await pg.click('nav [data-view=settings]')
+        await pg.set_input_files('#fileN',os.path.join(OUT,'iris_N.png')); await pg.wait_for_timeout(1500)
+        await pg.set_input_files('#fileG',os.path.join(OUT,'iris_G.png'))
+        try: await pg.wait_for_selector('#viewWizard #measurePanel:not(.hidden)',state='visible',timeout=15000)
+        except Exception: print('  ERR', errs, await pg.evaluate('document.querySelector(".view:not(.hidden)").id'), await pg.inner_text('#loadMsg')); raise
+        await pg.wait_for_timeout(800)
+        for sel,val in (('#rxOdS','-5'),('#rxOsS','-4')): await pg.fill(sel,val); await pg.dispatch_event(sel,'input')
+        await pg.wait_for_timeout(400); t=await pg.input_value('#copyArea'); res=await pg.inner_text('#results')
+        m=re.search(r'Distance PD: (\d+\.\d)',t); ok=m and abs(float(m.group(1))-64.0)<=0.2 and 'Distance PD' in res and 'Height OS' in res
+        print(f"  {'OK ' if ok else 'FALLO'} resultados y texto copiado en inglés ({m.group(0) if m else t[:60]})")
+        if not ok: fails.append('inglés: resultados')
+        async with pg.expect_download() as dl:
+            await pg.click('nav [data-view=settings]'); await pg.click('#exportCsv')
+        csv=open(await (await dl.value).path(),encoding='utf-8-sig').read().splitlines()
+        ok=csv[0].startswith('Person,Reference,Date,Method') and ',64.' in csv[1]; print(f"  {'OK ' if ok else 'FALLO'} CSV en inglés ({csv[0][:40]}…)")
+        if not ok: fails.append('inglés: CSV'); print(csv[:2])
+        await pg.select_option('#langSel','es'); await pg.wait_for_timeout(300)
+        ok='Personas' in await pg.inner_text('header.top') and 'Método de medida' in await pg.inner_text('#viewSettings')
+        print(f"  {'OK ' if ok else 'FALLO'} vuelta al español"); 
+        if not ok: fails.append('vuelta al español')
+        await pg.screenshot(path=os.path.join(OUT,'e2e_ajustes_es.png'),full_page=True)
         if errs: fails.append('errores JS'); print('Errores JS:',errs)
         await b.close()
 asyncio.run(main())
