@@ -1,5 +1,6 @@
 # Genera fotos sintéticas para las pruebas extremo a extremo:
 #  - card_G.png / card.y4m: gafas metálicas + tarjeta (método tarjeta, Rx 0, vértice 12, plano de lente a 420 mm)
+#  - frame_G.png / frame.y4m: misma escena con gafas de pasta y sin tarjeta (método montura; ancho exterior 131 mm)
 #  - iris_N.png: sin gafas, limbo a 430 mm;  iris_G.png: gafas de pasta, Rx OD -5 / OI -4, vértice 13, 1,5 % más cerca
 # Verdad: DIP 64 (31,5/32,5), A 52, B 38, DBL 18, alturas 22 (al borde interior; +0,5 de ranura en aro completo)
 import numpy as np, json, math, os, subprocess, shutil
@@ -73,6 +74,12 @@ img=draw_frame(img,ZL,'metal')
 sc=Zc/f; x0,x1=cx-42.8/sc,cx+42.8/sc; y0,y1=cy-72/sc,cy-17.6/sc
 img=paint(img,cover(lambda X,Y:(X>=x0)&(X<=x1)&(Y>=y0)&(Y<=y1)),246)
 img=marker(img,128); save(img,P('card_G.png')); truth['card']={'eyes':eyes}
+# ---- método montura: misma escena (mismos ojos, Rx 0, vértice 12, plano de lente a 420 mm), montura de pasta
+# de 4,5 mm de aro y sin tarjeta. Ancho exterior a la altura del centro de las cajas = DBL + 2A + 2·4,5 = 131 mm.
+img=base()
+for e in XR: img=draw_eye(img,*eyes[e])
+img=draw_frame(img,ZL,'acetate')
+img=marker(img,128); save(img,P('frame_G.png'))
 # ---- IRIS mode N (no glasses) Z limbus 430
 ZN=430.; img=base(); eN={}
 for e in XR:
@@ -115,7 +122,8 @@ export const FaceLandmarker={createFromOptions:async()=>({detectForVideo:()=>R.c
 """
 open(P('fake_vision.mjs'),'w').write(js)
 if shutil.which('ffmpeg'):
-    subprocess.run(['ffmpeg','-y','-loglevel','error','-loop','1','-i',P('card_G.png'),'-t','8','-r','10','-pix_fmt','yuv420p',P('card.y4m')],check=True)
+    for n in ('card','frame'):
+        subprocess.run(['ffmpeg','-y','-loglevel','error','-loop','1','-i',P(n+'_G.png'),'-t','8','-r','10','-pix_fmt','yuv420p',P(n+'.y4m')],check=True)
 else:
-    print('Aviso: sin ffmpeg no se genera card.y4m (cámara simulada para la prueba en vivo)')
+    print('Aviso: sin ffmpeg no se generan card.y4m ni frame.y4m (cámara simulada para las pruebas en vivo)')
 print('Fixtures e2e en', OUT)

@@ -38,8 +38,10 @@ La captura es guiada: solo se dispara cuando la cabeza está recta y los ojos a 
 npm run serve          # http://localhost:8000  (la cámara exige https o localhost)
 ```
 
+0. La primera vez, **calibra la pantalla** con una regla (se guarda en el navegador; se puede repetir desde «Calibrar pantalla»).
 1. Elige el método:
-   - **Tarjeta**: una foto con gafas y una tarjeta estándar apoyada sobre la montura. Es el más preciso.
+   - **Montura** (por defecto): mide la montura sobre la plantilla de la pantalla y haz una foto con las gafas puestas. No necesita tarjeta.
+   - **Tarjeta**: una foto con gafas y una tarjeta estándar apoyada sobre la montura. La referencia más limpia en la imagen.
    - **Iris**: una foto sin gafas y otra con gafas. Después introduce la graduación y, si lo conoces, tu blanco‑blanco.
 2. Desactiva el encuadre automático de la cámara (Center Stage, Windows Studio Effects).
 3. Sigue las indicaciones de voz y de pantalla, y mira al objetivo de la cámara.

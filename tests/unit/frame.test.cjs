@@ -32,3 +32,23 @@ for (const kind of Object.keys(EXPECT)) {
     if (kind in PADS) assert.equal(C.padAnalysis(img, cap, s, fa, rim.od, rim.os).pads, PADS[kind]);
   });
 }
+// Borde exterior del aro a la altura del centro de la caja (método montura). El fixture pinta el aro en los píxeles
+// con 0 ≤ d < grosor, así que, medido desde el borde interior de la verdad, el escalón exterior queda a
+// round(grosor/s) − 0,5 px: 22,5 px (4,5 mm) en pasta y 5,5 px (1,1 mm) en metal.
+const RIM = { acetate: 4.5, metal: 1.1 };
+for (const kind of Object.keys(RIM)) {
+  test(`borde exterior del aro: ${kind}`, { skip: !have && 'faltan fixtures (python3 tests/fixtures/gen_frames.py)' }, () => {
+    const meta = JSON.parse(fs.readFileSync(path.join(OUT, `fr_${kind}.json`)));
+    const buf = fs.readFileSync(path.join(OUT, `fr_${kind}.gray`)), g = new Float32Array(buf.length);
+    for (let i = 0; i < buf.length; i++) g[i] = buf[i];
+    const img = { g, w: meta.W, h: meta.H, ox: 0, oy: 0 }, s = meta.s;
+    for (const e of ['od', 'os']) {
+      const b = meta.truth[e].box, y = (b[1] + b[3]) / 2, od = e === 'od';
+      for (const expectMm of [undefined, RIM[kind] + 1]) {
+        const r = C.detectOuterEdge(img, { x: od ? b[0] : b[2], y }, { x: od ? -1 : 1, y: 0 }, s, { expectMm });
+        assert.ok(r, `${e}: sin borde`);
+        assert.ok(Math.abs(r.mm - RIM[kind]) < 0.15, `${e}: ${r.mm.toFixed(2)} mm (esperado ${RIM[kind]})`);
+      }
+    }
+  });
+}

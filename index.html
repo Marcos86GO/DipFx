@@ -73,6 +73,13 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
 .rxgrid{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));gap:4px 6px;align-items:center;font-size:12.5px;color:var(--mut)}
 .rxgrid input{font:inherit;font-size:14px;color:var(--ink);padding:4px 6px;border:1px solid var(--line);border-radius:6px;width:100%}
 .rxgrid b{color:var(--ink)}
+.tplWrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+#tplCv,#scrCv{display:block;width:100%;touch-action:none;outline:none}
+#tplCv{cursor:ew-resize}
+.tplNums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
+@media(max-width:640px){.tplNums{grid-template-columns:repeat(2,minmax(0,1fr))}}
+ol.steps{margin:4px 0 10px;padding-left:20px;font-size:14px}
+ol.steps li{margin:3px 0}
 </style>
 </head>
 <body>
@@ -83,6 +90,27 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
 </header>
 <main>
 
+<!-- 0. CALIBRACIÓN DE LA PANTALLA (primera vez; editable desde el panel 1) -->
+<section class="panel hidden" id="scrPanel">
+  <h2>Calibrar la pantalla <span class="note" style="font-weight:400">· solo hace falta una vez en este equipo</span></h2>
+  <div class="note">La plantilla de la montura se dibuja a tamaño real, y el navegador no sabe cuánto mide un píxel de tu pantalla. Apoya una regla sobre la pantalla y ajusta la barra con el deslizador o los botones hasta que mida exactamente la longitud indicada. El valor se guarda en este navegador y puedes cambiarlo cuando quieras desde «Calibrar pantalla».</div>
+  <div class="row">
+    <label class="f">Referencia<select id="scrRef">
+      <option value="100">Regla: 100 mm</option><option value="50">Regla: 50 mm (pantallas pequeñas)</option><option value="85.6">Tarjeta ID‑1: ancho 85,60 mm</option><option value="custom">Otra longitud…</option>
+    </select></label>
+    <label class="f hidden" id="scrCustomWrap">Longitud (mm)<input id="scrCustom" type="number" step="1" min="20" max="400" value="150"></label>
+  </div>
+  <div class="tplWrap" style="margin-top:10px"><canvas id="scrCv" tabindex="0"></canvas></div>
+  <div class="row" style="align-items:center">
+    <button id="scrMinus" type="button" title="Acortar 0,25 px">−</button>
+    <input id="scrRange" type="range" min="100" max="900" step="0.25" style="flex:1 1 200px">
+    <button id="scrPlus" type="button" title="Alargar 0,25 px">+</button>
+  </div>
+  <div class="note" id="scrVal" style="margin-top:4px"></div>
+  <div class="note" style="margin-top:4px">Mira cada extremo de la barra justo de frente (con un ojo cerrado) para que no haya paralaje. Con la barra seleccionada, las flechas ← → la ajustan en pasos de 0,25 px (con Mayús, 2 px).</div>
+  <div class="row"><button class="pri" id="scrSave" type="button">Guardar calibración</button><button id="scrSkip" type="button">Ahora no</button></div>
+</section>
+
 <!-- 1. DISPOSITIVO -->
 <section class="panel" id="setupPanel">
   <h2>1 · Dispositivo, cámara y método</h2>
@@ -92,6 +120,7 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
       <div id="camWarn"></div>
     </div>
     <div>
+      <div class="row" style="align-items:center;margin-top:0"><span class="note" style="flex:1 1 auto">Pantalla: <span id="scrStatus">—</span></span><button id="scrOpen" type="button">Calibrar pantalla</button></div>
       <div class="row"><label class="f">Cámara<select id="camSel"><option value="">(se listan tras dar permiso)</option></select></label></div>
       <div class="row">
         <label class="f">FOV diagonal (°)<input id="fovIn" type="number" step="0.1" min="30" max="140" value="75"></label>
@@ -101,6 +130,7 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
       <div class="row"><button id="saveFovBtn" type="button">Guardar FOV para esta cámara</button></div>
       <div class="row" style="margin-top:12px">
         <label class="f">Método<select id="modeSel">
+          <option value="frame" selected>Montura medida en la plantilla · 1 foto con gafas</option>
           <option value="card">Tarjeta sobre la montura · 1 foto con gafas</option>
           <option value="iris">Iris · 2 fotos: sin gafas y con gafas</option>
         </select></label>
@@ -111,7 +141,7 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
         </select></label>
         <label class="f" style="flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;color:var(--ink)"><input type="checkbox" id="voiceChk" checked style="width:auto"> Guía por voz</label>
       </div>
-      <div class="row" style="margin-top:14px"><button class="pri" id="startBtn" type="button">Iniciar cámara</button></div>
+      <div class="row" style="margin-top:14px"><button class="pri" id="startBtn" type="button">Empezar: medir la montura</button></div>
       <div class="note" style="margin-top:12px">O analiza fotos ya hechas con esta misma cámara (sin recortar):</div>
       <div class="row">
         <label class="f" id="fileNWrap">Foto SIN gafas<input type="file" id="fileN" accept="image/*"></label>
@@ -126,12 +156,36 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
       <li><b>Desactiva el encuadre automático</b>: Center Stage (Mac/iPad), «Encuadre automático» de Windows Studio Effects o el software del fabricante.</li>
       <li>Pantalla <b>vertical (90°)</b> y cámara a la altura de los ojos; la app te dirá si subir o bajar. Distancia 35–45 cm, luz frontal suave y sin reflejos en las lentes.</li>
       <li>Mira <b>al objetivo de la cámara</b>, no a la pantalla: así el punto de fijación es conocido y la app corrige la convergencia.</li>
+      <li><b>Método montura</b>: primero mide la montura sobre la plantilla de la pantalla (ancho exterior y, mejor, también cada lente). Luego, con las gafas puestas, la app hace una ráfaga y combina los fotogramas. La escala sale de la propia montura: no hace falta ninguna tarjeta.</li>
       <li><b>Método tarjeta</b>: con las gafas puestas, apoya una tarjeta estándar horizontal y plana con su borde inferior sobre la parte superior de la montura. Sujétala por el borde superior sin tapar los laterales.</li>
       <li><b>Método iris</b>: primero una foto <b>sin gafas</b> y luego otra <b>con gafas</b> a la misma distancia (la app te guía para igualarla). Pon expresión neutra en ambas. Introduce después la graduación de cada lente: el cambio de tamaño del iris a través de cada lente permite calcular el vértice real y afinar todo.</li>
       <li>Si conoces tu diámetro blanco‑blanco (topógrafo, biómetro), introdúcelo: es la escala del método iris.</li>
       <li>Tras la captura, revisa con la lupa las pupilas, el recuadro de cada lente (naranja) y, en su caso, la tarjeta.</li>
     </ol>
   </details>
+</section>
+
+<!-- 1b. PLANTILLA DE LA MONTURA (método montura) -->
+<section class="panel hidden" id="tplPanel">
+  <h2>Paso 1 de 3 · Medir la montura sobre la plantilla</h2>
+  <ol class="steps">
+    <li>Abre las varillas y apoya con suavidad el <b>frente de la montura contra la pantalla</b>, con las varillas hacia ti (como si fueras a ponértela). La lente derecha queda a tu derecha.</li>
+    <li>Coloca la montura de modo que la <b>línea horizontal</b> pase por el centro de las dos lentes y el <b>puente</b> quede sobre la línea discontinua vertical.</li>
+    <li>Arrastra las líneas <b style="color:#0b63c9">azules</b> hasta los <b>bordes exteriores</b> del frente, a la altura de la línea horizontal. Si puedes, arrastra también las <b style="color:#c46a00">naranjas</b> hasta el <b>borde interior del aro</b> de cada lente (lados nasal y temporal): dan una segunda referencia de escala.</li>
+    <li>Mira cada línea <b>justo de frente, con un ojo cerrado</b>. Selecciona una línea y afínala con las flechas (0,1 mm; con Mayús, 1 mm).</li>
+  </ol>
+  <div id="tplWarn"></div>
+  <div class="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
+  <div class="row"><label class="f" style="flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;color:var(--ink)"><input type="checkbox" id="tplInner" checked style="width:auto"> Marcar también el borde interior de cada lente (recomendado)</label></div>
+  <div class="note" style="margin-top:8px">También puedes escribir las medidas si las has tomado con una regla o un trazador:</div>
+  <div class="tplNums">
+    <label class="f">Ancho exterior (mm)<input id="tW" type="number" step="0.1"></label>
+    <label class="f tplIn">A lente derecha · OD (mm)<input id="tAod" type="number" step="0.1"></label>
+    <label class="f tplIn">Puente DBL (mm)<input id="tDBL" type="number" step="0.1"></label>
+    <label class="f tplIn">A lente izquierda · OI (mm)<input id="tAos" type="number" step="0.1"></label>
+  </div>
+  <div class="row" style="margin-top:12px"><button class="pri" id="tplOk" type="button">Confirmar y pasar a la foto</button><button id="tplCancel" type="button">Cancelar</button></div>
+  <div id="tplMsg"></div>
 </section>
 
 <!-- 2. CAPTURA -->
@@ -175,9 +229,10 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
         <canvas id="loupe" width="210" height="210" class="hidden"></canvas>
       </div>
       <div class="legend">
-        <span style="--c:#22d36b">Iris / pupila</span><span style="--c:#25b8ff">Tarjeta</span><span style="--c:#ffae00">Recuadro de la lente (boxing)</span><span style="--c:#ff4fd8">Centro (puente / nariz)</span>
+        <span style="--c:#22d36b">Iris / pupila</span><span style="--c:#25b8ff" id="lgCard">Tarjeta</span><span style="--c:#00e5ff" id="lgOuter">Borde exterior de la montura</span><span style="--c:#ffae00">Recuadro de la lente (boxing)</span><span style="--c:#ff4fd8">Centro (puente / nariz)</span>
       </div>
-      <div class="note" style="margin-top:6px">Arrastra los marcadores para corregirlos: centro del iris, su borde (radio), cada lado del recuadro de cada lente y, en su caso, los bordes de la tarjeta. Haz clic en uno y afínalo con las flechas del teclado (0,25 px; con Mayús, 2 px).</div>
+      <div class="row" id="imgSelWrap" style="margin-top:6px"><label class="f">Imagen de medida<select id="imgSel"><option value="stack">Promedio de la ráfaga</option><option value="best">Mejor fotograma</option></select></label></div>
+      <div class="note" style="margin-top:6px">Arrastra los marcadores para corregirlos: centro del iris, su borde (radio), cada lado del recuadro de cada lente y, en su caso, los bordes exteriores de la montura o de la tarjeta. Haz clic en uno y afínalo con las flechas del teclado (0,25 px; con Mayús, 2 px).</div>
       <div id="autoMsg"></div>
     </div>
     <div class="res">
@@ -194,6 +249,15 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
         <label class="f">Plaquetas<select id="padSel"><option value="auto">Automático</option><option value="yes">Con plaquetas</option><option value="no">Sin plaquetas</option></select></label>
       </div>
       <div id="frameType"></div>
+      <div id="tplMeasWrap">
+        <h3>Medidas de la plantilla</h3>
+        <div class="tplNums">
+          <label class="f">Ancho exterior (mm)<input id="mW" type="number" step="0.1"></label>
+          <label class="f">A OD (mm)<input id="mAod" type="number" step="0.1"></label>
+          <label class="f">DBL (mm)<input id="mDBL" type="number" step="0.1"></label>
+          <label class="f">A OI (mm)<input id="mAos" type="number" step="0.1"></label>
+        </div>
+      </div>
       <h3>Graduación de las gafas</h3>
       <div class="rxgrid">
         <span></span><span>Esf</span><span>Cil</span><span>Eje</span><span>Curva base (D)</span><span>Espesor c. (mm)</span>
@@ -208,7 +272,8 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
         <summary>Más parámetros</summary>
         <div class="row">
           <label class="f" id="vertexLbl">Vértice córnea → cara posterior (mm)<input id="pVertex" type="number" step="0.5" value="12"></label>
-          <label class="f">Tarjeta delante del plano de la lente (mm)<input id="pCardOff" type="number" step="0.5" value="1.5"></label>
+          <label class="f" id="pCardOffWrap">Tarjeta delante del plano de la lente (mm)<input id="pCardOff" type="number" step="0.5" value="1.5"></label>
+          <label class="f" id="pOuterOffWrap">Bordes exteriores detrás del plano de la lente (mm)<input id="pOuterOff" type="number" step="0.5" placeholder="auto (galbe)"></label>
         </div>
         <div class="row">
           <label class="f">Profundidad de ranura/bisel (mm)<input id="pGroove" type="number" step="0.1" value="0.5"></label>
@@ -222,7 +287,7 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
       </details>
       <details id="calWrap">
         <summary>Calibrar la cámara con una distancia medida (opcional)</summary>
-        <div class="note" style="margin-top:6px">Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.</div>
+        <div class="note" style="margin-top:6px" id="calNote">Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.</div>
         <div class="row"><label class="f">Distancia medida (mm)<input id="calZ" type="number" step="1" placeholder="p. ej. 400"></label><button id="calBtn" type="button">Calibrar</button></div>
       </details>
       <div class="row" style="margin-top:14px">
@@ -738,6 +803,167 @@ function padAnalysis(img, cap, mmpx, fa, rimOD, rimOS) {
 }
 function rotRel(q, c, ang) { const dx = q.x - c.x, dy = q.y - c.y, cs = Math.cos(ang), sn = Math.sin(ang); return { x: dx * cs - dy * sn, y: dx * sn + dy * cs }; }
 
+// ---------- Método montura: plantilla a escala real en la pantalla ----------
+// Líneas de la plantilla en mm (x hacia la derecha de la pantalla, 0 = centro). La montura se apoya con el frente
+// contra la pantalla y las varillas hacia el usuario, así que la lente derecha (OD) queda a la derecha.
+// oL/oR: bordes exteriores; tL/nL: lados temporal y nasal de la lente izquierda (OI); nR/tR: los de la derecha (OD).
+function tplFromLines(L) {
+  const r = { W: L.oR - L.oL };
+  if (L.tL != null && L.nL != null && L.nR != null && L.tR != null) { r.Aos = L.nL - L.tL; r.DBL = L.nR - L.nL; r.Aod = L.tR - L.nR; }
+  return r;
+}
+// Distancia entre centros de las cajas (A + DBL) según la plantilla, o null si no se marcaron las lentes
+function tplDNC(t) { return t && t.Aod > 0 && t.Aos > 0 && t.DBL > 0 ? t.DBL + (t.Aod + t.Aos) / 2 : null; }
+// Borde exterior del aro a lo largo de 'dir' (vector unitario hacia fuera), partiendo del borde interior p.
+// Busca el primer gran borde de polaridad contraria a la del borde interior (aro → piel o fondo).
+// opt.expectMm: distancia esperada al borde exterior (de la plantilla); opt.maxMm: alcance de la búsqueda.
+function detectOuterEdge(img, p, dir, mmpx, opt = {}) {
+  const maxMm = opt.maxMm || 14, step = 0.5, hb = Math.max(1, 0.25 / mmpx);
+  const nx = -dir.y, ny = dir.x, band = Math.max(2, 1.2 / mmpx);
+  const s0 = -1.0 / mmpx, s1 = maxMm / mmpx, n = Math.floor((s1 - s0) / step) + 1;
+  const prof = new Float32Array(n), ok = new Uint8Array(n);
+  for (let i = 0; i < n; i++) {
+    const s = s0 + i * step; let acc = 0, c = 0;
+    for (let b = -band; b <= band + 1e-9; b += 1) { const v = bilinear(img, p.x + dir.x * s + nx * b, p.y + dir.y * s + ny * b); if (isFinite(v)) { acc += v; c++; } }
+    if (c) { prof[i] = acc / c; ok[i] = 1; }
+  }
+  const k = Math.max(1, Math.round(hb / step)), d = new Float32Array(n);
+  for (let i = k; i < n - k; i++) if (ok[i - k] && ok[i + k]) d[i] = prof[i + k] - prof[i - k];
+  const iOf = mm => Math.round((mm / mmpx - s0) / step);
+  let pin = 0, best = 0;
+  for (let i = Math.max(k, iOf(-0.7)); i <= Math.min(n - k - 1, iOf(0.7)); i++) if (Math.abs(d[i]) > best) { best = Math.abs(d[i]); pin = Math.sign(d[i]); }
+  const ab = Array.from(d, Math.abs), noise = median(ab.slice(iOf(0.4)).filter(v => v > 0)) + 0.5;
+  let bi = -1, bs = 0;
+  for (let i = Math.max(k + 1, iOf(0.4)); i < n - k - 1; i++) {
+    if (!(ab[i] >= ab[i - 1] && ab[i] > ab[i + 1])) continue;
+    if (pin && Math.sign(d[i]) !== -pin) continue;
+    const mm = (s0 + i * step) * mmpx;
+    let w = 1 - 0.3 * mm / maxMm;
+    if (opt.expectMm != null && isFinite(opt.expectMm)) w *= 0.35 + 0.65 * Math.exp(-0.5 * ((mm - opt.expectMm) / 1.5) ** 2);
+    if (ab[i] * w > bs) { bs = ab[i] * w; bi = i; }
+  }
+  if (bi < 0) return null;
+  // centroide del pico (la derivada de un escalón es una meseta: el máximo local no es fiable)
+  const half = 0.5 * ab[bi], sg = Math.sign(d[bi]);
+  let i0 = bi, i1 = bi;
+  while (i0 > 0 && ab[i0 - 1] > half && Math.sign(d[i0 - 1]) === sg) i0--;
+  while (i1 < n - 1 && ab[i1 + 1] > half && Math.sign(d[i1 + 1]) === sg) i1++;
+  let sw = 0, si = 0;
+  for (let i = i0; i <= i1; i++) { const w = ab[i] - half; sw += w; si += w * i; }
+  const s = s0 + (sw > 0 ? si / sw : bi) * step;
+  return { s, mm: s * mmpx, x: p.x + dir.x * s, y: p.y + dir.y * s, conf: ab[bi] / noise, pol: Math.sign(d[bi]) };
+}
+// Distancia cámara → plano de la lente a partir de las medidas de la plantilla (método montura).
+// Dos referencias independientes, combinadas por la inversa de la varianza:
+//  · ancho exterior W (bordes exteriores 'outer', que quedan 'off' mm por detrás del plano de la lente por el galbe);
+//  · distancia entre centros de las cajas A + DBL (en el plano de la lente; no depende de la ranura).
+function frameScaleZ(cap, tpl, p = {}) {
+  if (!tpl || !cap || !cap.box) return null;
+  const ss = cap.ss || 1, f = cap.f, b = cap.box, est = [];
+  const dncPx = Math.abs((b.os.n + b.os.t) / 2 - (b.od.n + b.od.t) / 2), dncMm = tplDNC(tpl);
+  if (tpl.W > 0 && cap.outer) {
+    const wPx = Math.abs(cap.outer.os - cap.outer.od);
+    if (wPx > 0) {
+      const dnc = dncMm || dncPx * tpl.W / wPx, userOff = p.outerOff !== '' && p.outerOff != null && isFinite(+p.outerOff);
+      const off = userOff ? +p.outerOff : Math.max(0, (tpl.W - dnc) / 2) * Math.sin(Math.abs(+p.wrap || 0) * DEG);
+      const z = f * tpl.W / wPx - off;
+      est.push({ k: 'outer', z, rel: Math.hypot(0.5 / tpl.W, 1.0 * ss / wPx, 1.5 / z), off, wPx });
+    }
+  }
+  if (dncMm && dncPx > 0) { const z = f * dncMm / dncPx; est.push({ k: 'box', z, rel: Math.hypot(0.5 / dncMm, 0.7 * ss / dncPx), dncPx, dncMm }); }
+  if (!est.length) return null;
+  let sw = 0, sz = 0;
+  for (const e of est) { const w = 1 / e.rel ** 2; sw += w; sz += w * e.z; }
+  const ZL = sz / sw, outer = est.find(e => e.k === 'outer') || null, box = est.find(e => e.k === 'box') || null;
+  let disc = null, flag = false;
+  if (outer && box) { disc = (outer.z - box.z) / ZL; flag = Math.abs(disc) > 2.5 * Math.hypot(outer.rel, box.rel); }
+  return { ZL, rel: 1 / Math.sqrt(sw), outer, box, disc, flag };
+}
+
+// ---------- Ráfaga: registro subpíxel y apilado de fotogramas ----------
+// Correlación normalizada entre la plantilla T (en rect) e I desplazada (dx, dy); muestreo cada 'st' px.
+// T e I son imágenes en gris {g, w, h, ox, oy} en coordenadas globales.
+function nccAt(T, I, rect, dx, dy, st = 1) {
+  let sT = 0, sI = 0, sTT = 0, sII = 0, sTI = 0, n = 0;
+  for (let y = rect.y0; y <= rect.y1; y += st) for (let x = rect.x0; x <= rect.x1; x += st) {
+    const t = T.g[(y - T.oy) * T.w + (x - T.ox)], v = bilinear(I, x + dx, y + dy);
+    if (!isFinite(v) || !isFinite(t)) continue;
+    sT += t; sI += v; sTT += t * t; sII += v * v; sTI += t * v; n++;
+  }
+  if (n < 20) return -1;
+  const cov = sTI - sT * sI / n, vT = sTT - sT * sT / n, vI = sII - sI * sI / n;
+  return vT > 0 && vI > 0 ? cov / Math.sqrt(vT * vI) : -1;
+}
+// Desplazamiento d tal que I(x + d) ≈ T(x) en rect: búsqueda entera por NCC (±R px alrededor de init)
+// y refinado subpíxel por Lucas–Kanade (traslación, con compensación del brillo medio).
+function registerShift(T, I, rect, init = { x: 0, y: 0 }, R = 3) {
+  const ix = Math.round(init.x), iy = Math.round(init.y);
+  let bx = ix, by = iy, bn = -2;
+  for (let dy = -R; dy <= R; dy++) for (let dx = -R; dx <= R; dx++) { const c = nccAt(T, I, rect, ix + dx, iy + dy, 2); if (c > bn) { bn = c; bx = ix + dx; by = iy + dy; } }
+  const np = Math.max(0, rect.x1 - rect.x0 - 1) * Math.max(0, rect.y1 - rect.y0 - 1), P = new Float64Array(np * 5);
+  let H11 = 0, H12 = 0, H22 = 0, mT = 0, k = 0;
+  for (let y = rect.y0 + 1; y < rect.y1; y++) for (let x = rect.x0 + 1; x < rect.x1; x++) {
+    const i = (y - T.oy) * T.w + (x - T.ox), gx = (T.g[i + 1] - T.g[i - 1]) / 2, gy = (T.g[i + T.w] - T.g[i - T.w]) / 2;
+    P[5 * k] = x; P[5 * k + 1] = y; P[5 * k + 2] = gx; P[5 * k + 3] = gy; P[5 * k + 4] = T.g[i]; k++;
+    H11 += gx * gx; H12 += gx * gy; H22 += gy * gy; mT += T.g[i];
+  }
+  mT /= Math.max(1, np);
+  const det = H11 * H22 - H12 * H12, vals = new Float64Array(np);
+  let d = { x: bx, y: by };
+  if (np > 20 && det > 1e-6) {
+    for (let it = 0; it < 10; it++) {
+      let mI = 0, c = 0;
+      for (let q = 0; q < np; q++) { const v = bilinear(I, P[5 * q] + d.x, P[5 * q + 1] + d.y); vals[q] = v; if (isFinite(v)) { mI += v; c++; } }
+      if (c < 0.9 * np) break;
+      mI /= c;
+      let b1 = 0, b2 = 0;
+      for (let q = 0; q < np; q++) { const v = vals[q]; if (!isFinite(v)) continue; const e = (v - mI) - (P[5 * q + 4] - mT); b1 += P[5 * q + 2] * e; b2 += P[5 * q + 3] * e; }
+      const ddx = -(H22 * b1 - H12 * b2) / det, ddy = -(H11 * b2 - H12 * b1) / det;
+      d = { x: d.x + ddx, y: d.y + ddy };
+      if (Math.hypot(d.x - bx, d.y - by) > 2) { d = { x: bx, y: by }; break; }
+      if (Math.hypot(ddx, ddy) < 0.004) break;
+    }
+  }
+  return { x: d.x, y: d.y, ncc: nccAt(T, I, rect, d.x, d.y, 1) };
+}
+// Semejanza z' = a·z + b (complejos) que lleva c1 → c1 + d1 y c2 → c2 + d2
+function similarity2(c1, d1, c2, d2) {
+  const zx = c2.x - c1.x, zy = c2.y - c1.y, wx = c2.x + d2.x - c1.x - d1.x, wy = c2.y + d2.y - c1.y - d1.y, den = zx * zx + zy * zy;
+  const ar = (wx * zx + wy * zy) / den, ai = (wy * zx - wx * zy) / den;
+  return { ar, ai, br: c1.x + d1.x - (ar * c1.x - ai * c1.y), bi: c1.y + d1.y - (ar * c1.y + ai * c1.x) };
+}
+const SIM_ID = { ar: 1, ai: 0, br: 0, bi: 0 };
+// Apila fotogramas RGBA registrados. frames[k] = {data, w, h, ox, oy}: recortes en coordenadas globales;
+// maps[k]: semejanza de la imagen de referencia al fotograma k; roi = {x0, y0, x1, y1} en la referencia;
+// up: remuestreo. El píxel de salida j está en la coordenada (j + 0,5)/up − 0,5 (convenio: píxel i = coordenada i).
+function stackRGBA(frames, maps, roi, up = 1) {
+  const jx0 = roi.x0 * up, jy0 = roi.y0 * up, w = (roi.x1 - roi.x0 + 1) * up, h = (roi.y1 - roi.y0 + 1) * up;
+  const out = new Uint8ClampedArray(w * h * 4);
+  for (let jy = 0; jy < h; jy++) {
+    const y = (jy0 + jy + 0.5) / up - 0.5;
+    for (let jx = 0; jx < w; jx++) {
+      const x = (jx0 + jx + 0.5) / up - 0.5;
+      let r = 0, g = 0, b = 0, n = 0;
+      for (let k = 0; k < frames.length; k++) {
+        const F = frames[k], T = maps[k];
+        const X = T.ar * x - T.ai * y + T.br - F.ox, Y = T.ar * y + T.ai * x + T.bi - F.oy;
+        const x0 = Math.floor(X), y0 = Math.floor(Y);
+        if (x0 < 0 || y0 < 0 || x0 >= F.w - 1 || y0 >= F.h - 1) continue;
+        const fx = X - x0, fy = Y - y0, i = (y0 * F.w + x0) * 4, j = i + F.w * 4, D = F.data;
+        const w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+        r += D[i] * w00 + D[i + 4] * w10 + D[j] * w01 + D[j + 4] * w11;
+        g += D[i + 1] * w00 + D[i + 5] * w10 + D[j + 1] * w01 + D[j + 5] * w11;
+        b += D[i + 2] * w00 + D[i + 6] * w10 + D[j + 2] * w01 + D[j + 6] * w11;
+        n++;
+      }
+      const o = (jy * w + jx) * 4;
+      if (n) { out[o] = r / n; out[o + 1] = g / n; out[o + 2] = b / n; }
+      out[o + 3] = 255;
+    }
+  }
+  return { data: out, w, h, ox: jx0, oy: jy0 };
+}
+
 // ---------- Medición de una captura ----------
 const ZERO_LENS = { h: 0, v: 0, F1: 0, t: 0, n: 1.5 };
 function grooveEdges(mounting, g) {
@@ -819,12 +1045,24 @@ function solveAll(M, p) {
     R.cardTilt = cardWidthPx(G.card.L, G.card.R).tiltDeg;
     return R;
   }
+  if (M.mode === 'frame') {
+    if (!G) return R;
+    const sc = frameScaleZ(G, p.tpl, p);
+    if (!sc) { R.flags.push('Faltan las medidas de la montura en la plantilla (ancho exterior o A y DBL).'); return R; }
+    const v = +p.vertex || 12;
+    const geo = { ZL: sc.ZL, rf: { od: v + lens.od.t / 2 + CR, os: v + lens.os.t / 2 + CR }, lens };
+    const r = measureCap(G, geo, p, mounting);
+    Object.assign(R, r, { G: r, scale: sc, vertex: v, vertexMeasured: false });
+    if (sc.flag) R.flags.push(`Las dos referencias de escala discrepan un ${(sc.disc * 100).toFixed(1).replace('.', ',')} %: revisa los bordes exteriores (líneas azules), los lados nasal y temporal de los recuadros y las medidas de la plantilla.`);
+    return R;
+  }
   if (!N) return R;
   const Zi = N.f * (hv.od / (2 * N.iris.od.r) + hv.os / (2 * N.iris.os.r)) / 2;   // cámara → plano del limbo
   const rN = measureCap(N, { ZL: Zi, rf: { od: CR - E_L, os: CR - E_L }, lens: { od: ZERO_LENS, os: ZERO_LENS } }, p, mounting);
   Object.assign(R, { N: rN, ZN: Zi, pdFar: rN.pdFar, pdNear: rN.pdNear, monoNoseOD: rN.monoOD, monoNoseOS: rN.monoOS, monoOD: rN.monoOD, monoOS: rN.monoOS });
   if (!G) return R;
-  const ks = featureScale(N.lmk, G.lmk), k = ks.k * (p.kMul || 1);
+  // k en unidades angulares: las dos fotos pueden tener distinto remuestreo (ráfaga apilada ×2 o foto suelta)
+  const ks = featureScale(N.lmk, G.lmk), k = ks.k * (N.f / G.f) * (p.kMul || 1);
   const Z2 = Zi / k;
   const eyes = {};
   for (const e of ['od', 'os']) {
@@ -857,7 +1095,7 @@ function flatKeys(R) {
 }
 function cloneM(M) {
   const J = x => x == null ? x : JSON.parse(JSON.stringify(x));
-  return { ...M, caps: M.caps.map(c => ({ ...c, iris: J(c.iris), box: J(c.box), card: J(c.card), bridge: J(c.bridge) })) };
+  return { ...M, caps: M.caps.map(c => ({ ...c, iris: J(c.iris), box: J(c.box), card: J(c.card), bridge: J(c.bridge), outer: J(c.outer) })) };
 }
 function solveWithUnc(M, p, sf) {
   const base = solveAll(M, p), b = flatKeys(base);
@@ -865,18 +1103,24 @@ function solveWithUnc(M, p, sf) {
   const mod = (fn, pp) => { const m2 = cloneM(M); fn(m2); runs.push(flatKeys(solveAll(m2, pp || p))); };
   mod(m => m.caps.forEach(c => c.f *= 1 + sf));
   for (const ci in M.caps) {
-    const cap = M.caps[ci];
+    const cap = M.caps[ci], ss = cap.ss || 1;   // errores de localización expresados en píxeles de la cámara
     for (const e of ['od', 'os']) {
-      mod(m => { m.caps[ci].iris[e].x += 0.4; m.caps[ci].iris[e].y += 0.4; });
-      if (M.mode === 'iris') mod(m => { m.caps[ci].iris[e].r += 0.2; });
-      if (cap.box) for (const k of ['n', 't', 'top', 'bot']) mod(m => { m.caps[ci].box[e][k] += 0.7; });
+      mod(m => { m.caps[ci].iris[e].x += 0.4 * ss; m.caps[ci].iris[e].y += 0.4 * ss; });
+      if (M.mode === 'iris') mod(m => { m.caps[ci].iris[e].r += 0.2 * ss; });
+      if (cap.box) for (const k of ['n', 't', 'top', 'bot']) mod(m => { m.caps[ci].box[e][k] += 0.7 * ss; });
+      if (cap.outer && M.mode === 'frame') mod(m => { m.caps[ci].outer[e] += 0.7 * ss; });
     }
-    if (cap.card) mod(m => { m.caps[ci].card.R = shiftLine(m.caps[ci].card.R, 0.7); });
-    if (cap.bridge) mod(m => { m.caps[ci].bridge.x += 0.7; });
+    if (cap.card) mod(m => { m.caps[ci].card.R = shiftLine(m.caps[ci].card.R, 0.7 * ss); });
+    if (cap.bridge) mod(m => { m.caps[ci].bridge.x += 0.7 * ss; });
   }
   mod(() => { }, { ...p, vertex: (+p.vertex || 12) + 2.5 });
   if (M.mode === 'card') mod(() => { }, { ...p, cardOffset: (+p.cardOffset || 0) + 1.5 });
-  else {
+  else if (M.mode === 'frame') {
+    const t = p.tpl || {};
+    if (t.W > 0) mod(() => { }, { ...p, tpl: { ...t, W: t.W + 0.5 } });
+    if (tplDNC(t)) mod(() => { }, { ...p, tpl: { ...t, DBL: t.DBL + 0.5 } });
+    if (base.scale && base.scale.outer) mod(() => { }, { ...p, outerOff: base.scale.outer.off + 1.5 });
+  } else {
     const hvSd = p.hvidUser ? 0.1 : 0.45;
     mod(() => { }, { ...p, hvid: { od: (+p.hvid.od || 11.7) + hvSd, os: (+p.hvid.os || 11.7) + hvSd } });
     if (base.kSd) mod(() => { }, { ...p, kMul: 1 + base.kSd });
@@ -930,12 +1174,15 @@ const SF = { spec: 0.04, est5: 0.06, est: 0.15, cal: 0.03, manual: 0.05 };
 
 const S = {
   stream: null, track: null, W: 0, H: 0, camLabel: '', deviceId: '',
-  fov: { ...GENERIC_FOV }, mode: 'card', step: 'G', tolKey: 'normal', voice: true,
+  fov: { ...GENERIC_FOV }, mode: 'frame', step: 'G', tolKey: 'normal', voice: true,
   lmV: null, lmI: null, tilt: null, isMobile: false,
+  tpl: null,   // medidas de la montura en la plantilla {W, Aod, Aos, DBL} (mm)
 };
+const BURST_N = 8;     // fotogramas por ráfaga
+const STACK_UP = 2;    // remuestreo del promedio en la zona de las gafas
 const conv = { yawAgree: 0, yawDis: 0, yawFlip: false, pitchFlip: false, ps: [] };
 const live = { running: false, paused: false, lastT: -1, frame: 0, sm: null, hist: [], cardHist: [], cardLines: null, cardOk: false, okSince: 0, cdStart: 0, cdLast: -1, capturing: false, offCv: null };
-let M = { mode: 'card', caps: [] };   // modelo de medición
+let M = { mode: 'frame', caps: [] };   // modelo de medición
 let view = 'G', sel = null, drag = null, lastRes = null;
 const pending = { N: null, G: null };
 
@@ -1023,7 +1270,8 @@ function syncFovUI() {
 function setModeUI() {
   const iris = S.mode === 'iris';
   $('fileNWrap').classList.toggle('hidden', !iris);
-  $('fileGLabel').textContent = iris ? 'Foto CON gafas' : 'Foto CON gafas y tarjeta';
+  $('fileGLabel').textContent = S.mode === 'card' ? 'Foto CON gafas y tarjeta' : 'Foto CON gafas';
+  $('startBtn').textContent = S.mode === 'frame' ? 'Empezar: medir la montura' : 'Iniciar cámara';
 }
 
 // ---------- MediaPipe ----------
@@ -1100,8 +1348,196 @@ function smoothA(a) {
   for (const k of keys) a[k] = live.sm[k];
 }
 
+// ---------- Calibración de la pantalla (px CSS por mm) ----------
+const SCR_KEY = 'dipapp.screen', TPL_KEY = 'dipapp.tpl', CSS_PX_MM = 96 / 25.4;
+const scr = { lenPx: 0, drag: null };
+function scrNow() { return { sw: screen.width, sh: screen.height, dpr: +(window.devicePixelRatio || 1).toFixed(3) }; }
+// Estado de la calibración: se invalida si cambian la resolución de la pantalla o el zoom del navegador (devicePixelRatio)
+function scrCal() {
+  const s = store.get(SCR_KEY);
+  if (!s || !(s.pxPerMm > 0)) return { ok: false, reason: 'none', pxPerMm: CSS_PX_MM };
+  const n = scrNow(), same = s.sw === n.sw && s.sh === n.sh && Math.abs(s.dpr - n.dpr) < 0.01;
+  return { ok: same, reason: same ? '' : 'changed', pxPerMm: s.pxPerMm, s };
+}
+function renderScrStatus() {
+  const c = scrCal();
+  $('scrStatus').innerHTML = c.reason === 'none' ? '<span class="badge est">sin calibrar</span>'
+    : !c.ok ? '<span class="badge est">la pantalla o el zoom del navegador han cambiado: recalibra</span>'
+      : `<span class="badge cal">calibrada · ${fmt(c.pxPerMm, 3)} px/mm</span> <span class="note">${c.s.date || ''}</span>`;
+}
+function scrRefMm() { const v = $('scrRef').value; return v === 'custom' ? Math.max(20, parseFloat($('scrCustom').value) || 150) : parseFloat(v); }
+function openScr(first) {
+  $('scrPanel').classList.remove('hidden');
+  const cw = $('scrCv').parentElement.clientWidth;
+  if (cw / CSS_PX_MM < 120 && $('scrRef').value === '100') $('scrRef').value = '50';
+  scr.lenPx = scrCal().pxPerMm * scrRefMm();
+  $('scrSkip').textContent = first ? 'Ahora no' : 'Cerrar';
+  scrSync();
+  if (!first) $('scrPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function scrSync() {
+  const L = scrRefMm(), cw = $('scrCv').parentElement.clientWidth, maxLen = Math.max(50, cw - 24);
+  $('scrCustomWrap').classList.toggle('hidden', $('scrRef').value !== 'custom');
+  scr.lenPx = Math.max(L * 1.2, Math.min(maxLen, scr.lenPx));
+  const r = $('scrRange'); r.min = (L * 1.2).toFixed(0); r.max = maxLen.toFixed(0); r.value = scr.lenPx;
+  const k = scr.lenPx / L;
+  $('scrVal').innerHTML = `Barra: ${fmt(scr.lenPx, 2)} px → <b>${fmt(k, 3)} px/mm</b> (${fmt(k * 25.4, 1)} px por pulgada)` + (L * CSS_PX_MM * 0.8 > maxLen ? ' · <span style="color:var(--bad)">la barra no cabe: elige una longitud menor</span>' : '');
+  scrDraw();
+}
+function scrDraw() {
+  const cv = $('scrCv'), cw = cv.parentElement.clientWidth, dpr = window.devicePixelRatio || 1, L = scrRefMm(), k = scr.lenPx / L;
+  const isCard = $('scrRef').value === '85.6', ch = isCard ? Math.round(53.98 * k + 44) : 110, x0 = 12;
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); cv.style.height = ch + 'px';
+  const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.fillStyle = '#fff'; x.fillRect(0, 0, cw, ch);
+  x.strokeStyle = '#000'; x.fillStyle = '#000'; x.lineWidth = 1;
+  const X = mm => Math.round((x0 + mm * k) * dpr) / dpr + 0.5 / dpr;
+  for (let mm = 0; mm <= L + 1e-9; mm += 1) { const len = mm % 10 === 0 ? 14 : mm % 5 === 0 ? 9 : 5; x.beginPath(); x.moveTo(X(mm), ch - 4); x.lineTo(X(mm), ch - 4 - len); x.stroke(); }
+  if (isCard) { x.strokeRect(X(0), 20, X(L) - X(0), 53.98 * k); x.fillStyle = 'rgba(11,99,201,.08)'; x.fillRect(X(0), 20, X(L) - X(0), 53.98 * k); x.fillStyle = '#000'; }
+  else x.fillRect(X(0), 34, X(L) - X(0), 16);
+  x.lineWidth = 1 / dpr; x.strokeStyle = '#c2362b';
+  for (const mm of [0, L]) { x.beginPath(); x.moveTo(X(mm), 0); x.lineTo(X(mm), ch); x.stroke(); }
+  x.font = '12px system-ui'; x.fillStyle = '#c2362b';
+  x.fillText('0', X(0) + 4, 14); const lab = `${fmt(L, L % 1 ? 2 : 0)} mm`; x.fillText(lab, X(L) - x.measureText(lab).width - 4, 14);
+}
+function scrMove(dx) { scr.lenPx += dx; scrSync(); }
+function setupScrEvents() {
+  const cv = $('scrCv');
+  cv.addEventListener('pointerdown', ev => { scr.drag = ev.clientX; cv.setPointerCapture(ev.pointerId); cv.focus(); });
+  cv.addEventListener('pointermove', ev => { if (scr.drag == null) return; scrMove(ev.clientX - scr.drag); scr.drag = ev.clientX; });
+  const end = () => { scr.drag = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('keydown', ev => { const d = { ArrowLeft: -1, ArrowRight: 1 }[ev.key]; if (!d) return; ev.preventDefault(); scrMove(d * (ev.shiftKey ? 2 : 0.25)); });
+  $('scrRange').addEventListener('input', e => { scr.lenPx = parseFloat(e.target.value); scrSync(); });
+  $('scrMinus').addEventListener('click', () => scrMove(-0.25));
+  $('scrPlus').addEventListener('click', () => scrMove(0.25));
+  $('scrRef').addEventListener('change', () => { scr.lenPx = scrCal().pxPerMm * scrRefMm(); scrSync(); });
+  $('scrCustom').addEventListener('input', () => { scr.lenPx = scrCal().pxPerMm * scrRefMm(); scrSync(); });
+  $('scrSave').addEventListener('click', () => {
+    const L = scrRefMm();
+    store.set(SCR_KEY, { pxPerMm: scr.lenPx / L, refMm: L, ...scrNow(), date: new Date().toLocaleDateString('es-ES') });
+    $('scrPanel').classList.add('hidden'); renderScrStatus();
+    if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
+  });
+  $('scrSkip').addEventListener('click', () => $('scrPanel').classList.add('hidden'));
+  $('scrOpen').addEventListener('click', () => openScr(false));
+}
+
+// ---------- Plantilla de la montura (paso 1 del método montura) ----------
+const TPL_KEYS = ['oL', 'tL', 'nL', 'nR', 'tR', 'oR'];
+const TPL_LAB = { oL: 'exterior', tL: 'OI temporal', nL: 'OI nasal', nR: 'OD nasal', tR: 'OD temporal', oR: 'exterior' };
+const tpl = { lines: null, sel: 'oR', drag: null, typed: false };
+const tplDefault = () => ({ oL: -66, tL: -61, nL: -9, nR: 9, tR: 61, oR: 66 });
+const tplInner = () => $('tplInner').checked;
+function tplValues() { const t = tplFromLines(tpl.lines); return tplInner() ? t : { W: t.W }; }
+function openTpl() {
+  $('livePanel').classList.add('hidden'); $('measurePanel').classList.add('hidden');
+  $('tplPanel').classList.remove('hidden'); $('tplMsg').innerHTML = '';
+  if (!tpl.lines) { const sv = store.get(TPL_KEY); tpl.lines = sv && sv.lines ? sv.lines : tplDefault(); if (sv) $('tplInner').checked = sv.inner !== false; }
+  tpl.typed = false;
+  tplInnerUI(); tplWarn(); tplLayout(); tplDraw(); tplToInputs();
+  $('tplPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function tplInnerUI() { for (const el of document.querySelectorAll('.tplIn')) el.classList.toggle('hidden', !tplInner()); }
+function tplWarn() {
+  const c = scrCal(), w = [];
+  if (!c.ok) w.push(`<div class="warnbox"><b>${c.reason === 'none' ? 'La pantalla no está calibrada' : 'La pantalla o el zoom han cambiado desde la calibración'}</b>: la plantilla no está a tamaño real. <button type="button" onclick="document.getElementById('scrOpen').click()">Calibrar pantalla</button> o escribe abajo las medidas tomadas con una regla.</div>`);
+  const cwMm = $('tplCv').parentElement.clientWidth / c.pxPerMm;
+  if (cwMm < 150) w.push(`<div class="warnbox">La zona visible mide unos ${fmt(cwMm, 0)} mm de ancho: puede que la montura no quepa. Usa una pantalla más ancha o escribe las medidas.</div>`);
+  $('tplWarn').innerHTML = w.join('');
+}
+function tplLayout() {
+  const cv = $('tplCv'), cw = cv.parentElement.clientWidth, dpr = window.devicePixelRatio || 1, k = scrCal().pxPerMm;
+  const ch = Math.round(Math.min(95 * k, Math.max(220, window.innerHeight * 0.55)));
+  cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); cv.style.height = ch + 'px';
+}
+function tplDraw() {
+  const cv = $('tplCv'), dpr = window.devicePixelRatio || 1, cw = cv.width / dpr, ch = cv.height / dpr, k = scrCal().pxPerMm, L = tpl.lines;
+  const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  x.fillStyle = '#fff'; x.fillRect(0, 0, cw, ch);
+  const X = mm => Math.round((cw / 2 + mm * k) * dpr) / dpr + 0.5 / dpr, yc = Math.round(ch * 0.52);
+  // reglas en los bordes superior e inferior (0 en el centro)
+  x.strokeStyle = '#9aa4b2'; x.lineWidth = 1 / dpr; x.fillStyle = '#5b6476'; x.font = '10px system-ui';
+  const half = Math.floor(cw / 2 / k);
+  for (let mm = -half; mm <= half; mm++) {
+    const len = mm % 10 === 0 ? 10 : mm % 5 === 0 ? 6 : 3;
+    x.beginPath(); x.moveTo(X(mm), 0); x.lineTo(X(mm), len); x.moveTo(X(mm), ch); x.lineTo(X(mm), ch - len); x.stroke();
+    if (mm % 10 === 0 && mm) x.fillText(Math.abs(mm), X(mm) - 6, ch - 13);
+  }
+  x.strokeStyle = '#5b6476'; x.lineWidth = 1;
+  x.beginPath(); x.moveTo(0, yc + 0.5); x.lineTo(cw, yc + 0.5); x.stroke();
+  x.setLineDash([6, 5]); x.beginPath(); x.moveTo(X(0), 14); x.lineTo(X(0), ch - 26); x.stroke(); x.setLineDash([]);
+  x.fillStyle = '#5b6476'; x.font = '11px system-ui'; x.fillText('línea de centros de las lentes', 6, yc - 5); x.fillText('centro del puente', X(0) + 4, 26);
+  const keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
+  for (const key of keys) {
+    const outer = key[0] === 'o', on = key === tpl.sel, xx = X(L[key]);
+    x.strokeStyle = outer ? '#0b63c9' : '#c46a00'; x.lineWidth = on ? 2 : 1;
+    if (on) { x.fillStyle = outer ? 'rgba(11,99,201,.10)' : 'rgba(196,106,0,.10)'; x.fillRect(xx - 6, 0, 12, ch); }
+    x.beginPath(); x.moveTo(xx, 0); x.lineTo(xx, ch); x.stroke();
+    x.fillStyle = x.strokeStyle; x.font = (on ? 'bold ' : '') + '11px system-ui';
+    const lab = TPL_LAB[key], tw = x.measureText(lab).width, ty = outer ? 40 : 56;
+    x.fillText(lab, key === 'oL' || key === 'tL' || key === 'nR' ? xx + 4 : xx - tw - 4, ty);
+  }
+  const t = tplValues();
+  x.fillStyle = '#1c2230'; x.font = 'bold 13px system-ui';
+  const txt = `Ancho ${fmt(t.W)} mm` + (t.DBL != null ? ` · A OD ${fmt(t.Aod)} · DBL ${fmt(t.DBL)} · A OI ${fmt(t.Aos)}` : '');
+  x.fillText(txt, Math.max(6, cw / 2 - x.measureText(txt).width / 2), yc + 22);
+}
+function tplToInputs() {
+  const t = tplFromLines(tpl.lines), r1 = v => (Math.round(v * 10) / 10).toFixed(1);
+  $('tW').value = r1(t.W); $('tAod').value = r1(t.Aod); $('tDBL').value = r1(t.DBL); $('tAos').value = r1(t.Aos);
+}
+function tplFromInput(id) {
+  const L = tpl.lines, v = parseFloat($(id).value);
+  if (!isFinite(v) || v <= 0) return;
+  if (id === 'tW') { const m = (L.oL + L.oR) / 2; L.oL = m - v / 2; L.oR = m + v / 2; }
+  if (id === 'tDBL') { const m = (L.nL + L.nR) / 2, aos = L.nL - L.tL, aod = L.tR - L.nR; L.nL = m - v / 2; L.nR = m + v / 2; L.tL = L.nL - aos; L.tR = L.nR + aod; }
+  if (id === 'tAod') L.tR = L.nR + v;
+  if (id === 'tAos') L.tL = L.nL - v;
+  tpl.typed = true; tplDraw();
+}
+function tplMmAt(ev) { const r = $('tplCv').getBoundingClientRect(); return (ev.clientX - r.left - r.width / 2) / scrCal().pxPerMm; }
+function setupTplEvents() {
+  const cv = $('tplCv');
+  cv.addEventListener('pointerdown', ev => {
+    const mm = tplMmAt(ev), k = scrCal().pxPerMm, keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
+    let best = null, bd = 1e9;
+    for (const key of keys) { const d = Math.abs(tpl.lines[key] - mm) * k; if (d < bd) { bd = d; best = key; } }
+    cv.focus();
+    if (best && bd <= 14) { tpl.sel = best; tpl.drag = { key: best, off: tpl.lines[best] - mm }; cv.setPointerCapture(ev.pointerId); }
+    tplDraw();
+  });
+  cv.addEventListener('pointermove', ev => { if (!tpl.drag) return; tpl.lines[tpl.drag.key] = tplMmAt(ev) + tpl.drag.off; tplDraw(); tplToInputs(); });
+  const end = () => { tpl.drag = null; };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.addEventListener('keydown', ev => {
+    const d = { ArrowLeft: -1, ArrowRight: 1 }[ev.key]; if (!d || !tpl.sel) return;
+    ev.preventDefault(); tpl.lines[tpl.sel] += d * (ev.shiftKey ? 1 : 0.1); tplDraw(); tplToInputs();
+  });
+  for (const id of ['tW', 'tAod', 'tDBL', 'tAos']) $(id).addEventListener('change', () => tplFromInput(id));
+  $('tplInner').addEventListener('change', () => { tplInnerUI(); if (!tplInner() && tpl.sel[0] !== 'o') tpl.sel = 'oR'; tplDraw(); });
+  $('tplCancel').addEventListener('click', () => $('tplPanel').classList.add('hidden'));
+  $('tplOk').addEventListener('click', () => {
+    const t = tplValues(), err = [];
+    if (!(t.W >= 80 && t.W <= 180)) err.push('El ancho exterior debe estar entre 80 y 180 mm.');
+    if (t.DBL != null) {
+      if (!(t.Aod >= 30 && t.Aod <= 75 && t.Aos >= 30 && t.Aos <= 75)) err.push('Cada A debe estar entre 30 y 75 mm.');
+      if (!(t.DBL >= 8 && t.DBL <= 32)) err.push('El puente DBL debe estar entre 8 y 32 mm.');
+      if (t.Aod + t.Aos + t.DBL >= t.W) err.push('A + DBL + A no puede superar el ancho exterior: revisa el orden de las líneas.');
+    }
+    if (!scrCal().ok && !tpl.typed) err.push('La pantalla no está calibrada: calibra la pantalla o escribe las medidas tomadas con una regla.');
+    if (err.length) { $('tplMsg').innerHTML = err.map(e => `<div class="errbox">${e}</div>`).join(''); return; }
+    const r1 = v => v == null ? undefined : Math.round(v * 10) / 10;
+    S.tpl = { W: r1(t.W), Aod: r1(t.Aod), Aos: r1(t.Aos), DBL: r1(t.DBL) };
+    store.set(TPL_KEY, { lines: tpl.lines, inner: tplInner() });
+    $('tplPanel').classList.add('hidden');
+    startCamera('G');
+  });
+}
+
 // ---------- Cámara ----------
 function stepText() {
+  if (S.mode === 'frame') return 'Paso 2 de 3 · Foto con las gafas puestas (sin tarjeta)';
   if (S.mode === 'card') return 'Foto con gafas y tarjeta sobre la montura';
   return S.step === 'N' ? 'Foto 1 de 2 · SIN gafas' : 'Foto 2 de 2 · CON gafas (misma distancia)';
 }
@@ -1141,7 +1577,7 @@ async function startCamera(step) {
     setupOrientation();
     resetLive();
     live.running = true;
-    speech.say(S.step === 'N' ? 'Primera foto, sin gafas.' : S.mode === 'iris' ? 'Segunda foto, con gafas.' : 'Ponte las gafas y apoya la tarjeta sobre la montura.', true);
+    speech.say(S.step === 'N' ? 'Primera foto, sin gafas.' : S.mode === 'iris' ? 'Segunda foto, con gafas.' : S.mode === 'frame' ? 'Ponte las gafas y mira al objetivo de la cámara.' : 'Ponte las gafas y apoya la tarjeta sobre la montura.', true);
     $('livePanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     requestAnimationFrame(loop);
   } catch (e) {
@@ -1224,7 +1660,8 @@ function evaluate(a, relax = 1) {
   add('face', 'Cara detectada', true);
   const N = M.caps.find(c => c.id === 'N');
   if (S.mode === 'iris' && S.step === 'G' && N) {
-    const r = a.feat / N.feat;   // >1: más cerca que en la foto 1
+    const fl = focalFromDfov(S.fov.dfov, S.fov.ref, S.W, S.H);
+    const r = (a.feat / fl) / (N.feat / N.f);   // >1: más cerca que en la foto 1 (en unidades angulares: N puede estar remuestreada)
     add('dist', 'Misma distancia que la foto 1', Math.abs(r - 1) <= t.zr * relax, r > 1 ? 'Aléjate un poco: iguala la distancia de la primera foto.' : 'Acércate un poco: iguala la distancia de la primera foto.', `${r > 1 ? '+' : ''}${((r - 1) * 100).toFixed(1)} %`);
   } else {
     add('dist', 'Distancia 32–52 cm', a.Z >= 320 && a.Z <= 520, a.Z > 520 ? 'Acércate un poco a la pantalla, a unos 40 centímetros.' : 'Aléjate un poco de la pantalla, a unos 40 centímetros.', `${(a.Z / 10).toFixed(0)} cm`);
@@ -1319,11 +1756,11 @@ function nextFrame(video) { return new Promise(r => { if (video.requestVideoFram
 async function captureBurst() {
   if (live.capturing) return;
   live.capturing = true;
-  const video = $('video'), W = S.W, H = S.H;
+  const video = $('video'), W = S.W, H = S.H, t0 = performance.now();
   $('msg').textContent = 'Capturando…'; $('msg').className = 'ok';
   beep(1320, 0.18);
   const frames = [], f = focalFromDfov(S.fov.dfov, S.fov.ref, W, H);
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < BURST_N; i++) {
     await nextFrame(video);
     const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
     const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.drawImage(video, 0, 0, W, H);
@@ -1336,19 +1773,77 @@ async function captureBurst() {
     frames.push({ cv, a, sharp: lapVar(g, bx0, by0, bx1 - 1, by1 - 1) });
   }
   if (!frames.length) { live.capturing = false; $('msg').textContent = 'No se pudo capturar. Inténtalo de nuevo.'; return; }
+  const tCap = performance.now() - t0;
+  // referencia: entre los más nítidos, el mejor alineado
   const maxS = Math.max(...frames.map(q => q.sharp));
-  const cand = frames.filter(q => q.sharp >= 0.8 * maxS);
+  const cand = frames.filter(q => q.sharp >= 0.8 * maxS && q.a.blink < 0.4);
   const score = q => Math.abs(q.a.yaw) + Math.abs(q.a.roll) + 0.5 * Math.abs(q.a.pitch);
-  cand.sort((p, q) => score(p) - score(q));
-  const best = cand[0];
+  (cand.length ? cand : frames).sort((p, q) => score(p) - score(q));
+  const best = (cand.length ? cand : frames)[0];
+  $('msg').textContent = 'Procesando la ráfaga…';
+  await new Promise(r => setTimeout(r, 20));
+  let st = null;
+  try { st = stackBurst(frames, best, maxS); } catch (e) { console.warn('apilado', e); }
+  const info = { ...(st ? st.info : { n: 1, of: frames.length, up: 1, reason: 'error en el apilado' }), tCap, tProc: performance.now() - t0 - tCap };
   speech.say('Foto tomada.', true);
-  await onCaptured(best.cv, { yaw: best.a.yaw, pitch: best.a.pitch, roll: best.a.roll }, S.step);
+  const pose = { yaw: best.a.yaw, pitch: best.a.pitch, roll: best.a.roll };
+  const burst = { stack: st && st.cv, best: best.cv, info };
+  await onCaptured(burst.stack || best.cv, pose, S.step, burst);
   live.capturing = false;
 }
-async function onCaptured(cv, pose, kind) {
+// Registra los fotogramas de la ráfaga contra la referencia (dos zonas: alrededor de cada ojo, con su aro)
+// y los promedia en la zona de las gafas con remuestreo ×STACK_UP. Fuera de esa zona se usa la referencia ampliada.
+function stackBurst(frames, ref, maxS) {
+  const t0 = performance.now(), W = ref.cv.width, H = ref.cv.height, a = ref.a, ipd = a.ipd;
+  const clX = v => Math.max(0, Math.min(W - 1, Math.round(v))), clY = v => Math.max(0, Math.min(H - 1, Math.round(v)));
+  const top = S.mode === 'card' ? 1.35 : 0.65;
+  const roi = { x0: clX(a.eyeMid.x - 1.3 * ipd), x1: clX(a.eyeMid.x + 1.3 * ipd), y0: clY(a.eyeMid.y - top * ipd), y1: clY(a.eyeMid.y + 0.75 * ipd) };
+  const MG = 16, ex = { x0: clX(roi.x0 - MG), x1: clX(roi.x1 + MG), y0: clY(roi.y0 - MG), y1: clY(roi.y1 + MG) };
+  const grab = q => {
+    const id = q.cv.getContext('2d', { willReadFrequently: true }).getImageData(ex.x0, ex.y0, ex.x1 - ex.x0 + 1, ex.y1 - ex.y0 + 1);
+    return { rgba: { data: id.data, w: id.width, h: id.height, ox: ex.x0, oy: ex.y0 }, gray: makeGray(id, ex.x0, ex.y0) };
+  };
+  const R = grab(ref), hw = Math.round(0.3 * ipd), hh = Math.round(0.2 * ipd), m = 6;
+  const zones = ['od', 'os'].map(e => {
+    const c = a[e].c;
+    return { e, c, rect: { x0: Math.max(ex.x0 + m, Math.round(c.x) - hw), x1: Math.min(ex.x1 - m, Math.round(c.x) + hw), y0: Math.max(ex.y0 + m, Math.round(c.y) - hh), y1: Math.min(ex.y1 - m, Math.round(c.y) + hh) } };
+  });
+  const kept = [R.rgba], maps = [SIM_ID], nccs = [];
+  for (const q of frames) {
+    if (q === ref || q.sharp < 0.6 * maxS || q.a.blink >= 0.4) continue;
+    const G = grab(q), d = [];
+    for (const z of zones) {
+      const init = { x: q.a[z.e].c.x - z.c.x, y: q.a[z.e].c.y - z.c.y };
+      const r = registerShift(R.gray, G.gray, z.rect, init, 3);
+      d.push(r);
+    }
+    const nc = Math.min(d[0].ncc, d[1].ncc); nccs.push(nc);
+    if (nc < 0.9 || d.some(r => Math.hypot(r.x, r.y) > MG - 4)) continue;
+    const T = similarity2(zones[0].c, d[0], zones[1].c, d[1]);
+    const sc = Math.hypot(T.ar, T.ai), rot = Math.atan2(T.ai, T.ar) / DEG;
+    if (Math.abs(sc - 1) > 0.02 || Math.abs(rot) > 1) continue;
+    kept.push(G.rgba); maps.push(T);
+  }
+  const info = { n: kept.length, of: frames.length, up: 1, nccMin: nccs.length ? Math.min(...nccs) : 1 };
+  if (kept.length < 3) return { cv: null, info: { ...info, n: 1, reason: 'demasiado movimiento entre fotogramas' } };
+  const up = STACK_UP, out = stackRGBA(kept, maps, roi, up);
+  const cv = document.createElement('canvas'); cv.width = W * up; cv.height = H * up;
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  ctx.imageSmoothingEnabled = true; ctx.drawImage(ref.cv, 0, 0, W * up, H * up);
+  ctx.putImageData(new ImageData(out.data, out.w, out.h), out.ox, out.oy);
+  return { cv, info: { ...info, up, ms: performance.now() - t0 } };
+}
+function burstNote(cap) {
+  const b = cap.burst; if (!b) return null;
+  const i = b.info, t = `captura ${fmt(i.tCap / 1000, 1)} s + procesado ${fmt(i.tProc / 1000, 1)} s`;
+  if (cap.ss > 1) return `Imagen de medida: promedio registrado de ${i.n} de ${i.of} fotogramas, remuestreado ×${cap.ss} en la zona de las gafas (${t}).`;
+  return `Imagen de medida: mejor fotograma de la ráfaga${i.reason && b.stack == null ? ` (no se promedió: ${i.reason})` : ''} (${t}).`;
+}
+async function onCaptured(cv, pose, kind, burst) {
   M.mode = S.mode;
+  const extra = { burst: burst || null, ss: burst && burst.stack && cv === burst.stack ? burst.info.up : 1 };
   if (kind === 'N') {
-    const cap = await analyzeCapture(cv, pose, 'N');
+    const cap = await analyzeCapture(cv, pose, 'N', extra);
     if (!cap) return;
     M.caps = M.caps.filter(c => c.id !== 'N'); M.caps.push(cap);
     const G = M.caps.find(c => c.id === 'G');
@@ -1360,19 +1855,20 @@ async function onCaptured(cv, pose, kind) {
     return;
   }
   stopCamera();
-  const cap = await analyzeCapture(cv, pose, 'G');
+  const cap = await analyzeCapture(cv, pose, 'G', extra);
   if (!cap) return;
-  if (S.mode === 'card') M.caps = [cap]; else { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); }
+  if (S.mode !== 'iris') M.caps = [cap]; else { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); }
+  fillTplMeas();
   showMeasure('G');
 }
 // Si cambia la foto sin gafas, la escala de la montura en la foto con gafas debe recalcularse
 async function reanalyzeG() {
   const G = M.caps.find(c => c.id === 'G'); if (!G) return;
-  const cap = await analyzeCapture(G.cv, G.pose, 'G');
+  const cap = await analyzeCapture(G.cv, G.pose, 'G', { ss: G.ss, burst: G.burst });
   if (cap) { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); }
 }
 
-async function analyzeCapture(cv, pose, kind) {
+async function analyzeCapture(cv, pose, kind, extra = {}) {
   const W = cv.width, H = cv.height;
   $('loadMsg').textContent = 'Analizando la foto…';
   const lm = await getImageLandmarker();
@@ -1386,7 +1882,8 @@ async function analyzeCapture(cv, pose, kind) {
   const rf = { od: refineIris(img, a.od.c, a.od.d / 2), os: refineIris(img, a.os.c, a.os.d / 2) };
   const iris = {};
   for (const e of ['od', 'os']) iris[e] = rf[e] ? { x: rf[e].x, y: rf[e].y, r: rf[e].r } : { x: a[e].c.x, y: a[e].c.y, r: a[e].d / 2 };
-  const cap = { id: kind, cv, W, H, f, iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
+  const cap = { id: kind, cv, W, H, f, ss: extra.ss || 1, burst: extra.burst || null, iris, irisAuto: { od: !!rf.od, os: !!rf.os }, lmk: a.lmk, feat: a.feat, pose: pose || { yaw: a.yaw, pitch: a.pitch, roll: a.roll }, notes: [] };
+  const bn = burstNote(cap); if (bn) cap.notes.push(bn);
   if (!rf.od || !rf.os) cap.notes.push('El ajuste fino de algún iris no fue fiable: revisa su centro y su borde con la lupa.');
   const eyeMid = { x: (iris.od.x + iris.os.x) / 2, y: (iris.od.y + iris.os.y) / 2 };
   if (kind === 'N') { cap.bridge = { x: a.bridge.x, y: eyeMid.y }; $('loadMsg').textContent = ''; return cap; }
@@ -1409,8 +1906,31 @@ async function analyzeCapture(cv, pose, kind) {
     else mmpx = HVID / (iris.od.r + iris.os.r);
   }
   frameDetect(cap, img, mmpx);
+  if (S.mode === 'frame') outerDetect(cap, img, mmpx);
   $('loadMsg').textContent = '';
   return cap;
+}
+// Bordes exteriores de la montura a la altura del centro de cada caja (método montura)
+function outerDetect(cap, img, mmpx0) {
+  const t = S.tpl || {}, b = cap.box, dnc = tplDNC(t);
+  const dncPx = Math.abs((b.os.n + b.os.t) / 2 - (b.od.n + b.od.t) / 2);
+  const boxesOk = cap.boxFlags.od !== 'default' && cap.boxFlags.os !== 'default';
+  const mmpx = dnc && dncPx > 0 && boxesOk ? dnc / dncPx : mmpx0;
+  // aro + extremo por fuera del borde interior temporal, según la plantilla: (W − A_OD − A_OI − DBL) / 2
+  const expect = t.W > 0 && dnc ? (t.W - t.DBL - t.Aod - t.Aos) / 2 : null;
+  const cs = Math.cos(cap.tau), sn = Math.sin(cap.tau);
+  cap.outer = {}; cap.outerAuto = {};
+  for (const e of ['od', 'os']) {
+    const dir = e === 'od' ? -1 : 1;   // en u, el lado temporal de OD tiene la u menor
+    const p0 = toImgUV(cap, b[e].t, (b[e].top + b[e].bot) / 2);
+    const r = detectOuterEdge(img, p0, { x: dir * cs, y: dir * sn }, mmpx, { expectMm: expect, maxMm: 14 });
+    const ok = r && r.conf > 3;
+    cap.outer[e] = b[e].t + dir * (ok ? r.s : (expect != null && expect > 0 ? expect : 3) / mmpx);
+    cap.outerAuto[e] = !!ok;
+  }
+  cap.outer0 = { ...cap.outer };
+  if (!cap.outerAuto.od || !cap.outerAuto.os) cap.notes.push('No encontré con seguridad algún borde exterior de la montura: arrastra la línea azul claro hasta el borde exterior del aro, a la altura del centro de la lente.');
+  cap.notes.push('Comprueba las líneas azul claro: deben tocar el borde exterior del frente a la altura del centro de cada lente, igual que marcaste en la plantilla. De ellas sale la escala.');
 }
 function frameDetect(cap, img, mmpx) {
   const c = { x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 };
@@ -1467,18 +1987,33 @@ function params() {
     hvid: { od: hvOd === '' ? (hvOs === '' ? 11.7 : hvOs) : hvOd, os: hvOs === '' ? (hvOd === '' ? 11.7 : hvOd) : hvOs },
     hvidUser: hvOd !== '' || hvOs !== '',
     mounting: $('mountSel').value,
+    tpl: { W: n('mW'), Aod: n('mAod'), Aos: n('mAos'), DBL: n('mDBL') },
+    outerOff: readNum('pOuterOff'),
   };
 }
+// Rellena las medidas de la plantilla en el panel de medición
+function fillTplMeas() {
+  const t = S.tpl || {}, v = x => x > 0 ? x.toFixed(1) : '';
+  $('mW').value = v(t.W); $('mAod').value = v(t.Aod); $('mDBL').value = v(t.DBL); $('mAos').value = v(t.Aos);
+}
+function readTplMeas() { const n = id => { const v = parseFloat($(id).value); return v > 0 ? v : undefined; }; S.tpl = { W: n('mW'), Aod: n('mAod'), Aos: n('mAos'), DBL: n('mDBL') }; }
 function curCap() { return M.caps.find(c => c.id === view) || M.caps[0]; }
 function showMeasure(which) {
   $('livePanel').classList.add('hidden');
   $('measurePanel').classList.remove('hidden');
   view = which && M.caps.find(c => c.id === which) ? which : (M.caps.find(c => c.id === 'G') ? 'G' : 'N');
-  const iris = M.mode === 'iris';
+  const iris = M.mode === 'iris', frame = M.mode === 'frame';
   $('retakeNBtn').classList.toggle('hidden', !iris);
   $('calWrap').classList.toggle('hidden', iris);
+  $('tplMeasWrap').classList.toggle('hidden', !frame);
+  $('pCardOffWrap').classList.toggle('hidden', M.mode !== 'card');
+  $('pOuterOffWrap').classList.toggle('hidden', !frame);
+  $('lgCard').classList.toggle('hidden', M.mode !== 'card');
+  $('lgOuter').classList.toggle('hidden', !frame);
+  $('calNote').textContent = frame ? 'Si mides con una cinta la distancia del objetivo de la cámara al frente de la montura (con las gafas puestas y en la posición de esta foto), la app calcula el FOV real de tu cámara y lo guarda.' : 'Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.';
   $('vertexLbl').firstChild.textContent = iris ? 'Vértice previo si no se puede medir (mm)' : 'Vértice córnea → cara posterior (mm)';
   $('capTabs').innerHTML = M.caps.slice().sort((a, b) => a.id < b.id ? 1 : -1).map(c => `<button type="button" data-cap="${c.id}">${c.id === 'N' ? 'Foto sin gafas' : (M.mode === 'card' ? 'Foto con gafas y tarjeta' : 'Foto con gafas')}</button>`).join('');
+  $('retakeGBtn').textContent = frame ? 'Repetir la foto' : 'Repetir foto con gafas';
   if (iris && !M.caps.find(c => c.id === 'G')) $('capTabs').innerHTML += '<span class="note" style="align-self:center">Falta la foto con gafas</span>';
   sel = 'ic:od';
   syncFovUI(); setTabs(); layoutCanvas(); redraw(); recompute();
@@ -1488,6 +2023,9 @@ function setTabs() {
   for (const b of $('capTabs').querySelectorAll('button')) b.classList.toggle('on', b.dataset.cap === view);
   const cap = curCap();
   $('autoMsg').innerHTML = cap ? cap.notes.map(n => `<div class="warnbox">${n}</div>`).join('') : '';
+  const hasAlt = !!(cap && cap.burst && cap.burst.stack);
+  $('imgSelWrap').classList.toggle('hidden', !hasAlt);
+  if (hasAlt) $('imgSel').value = cap.ss > 1 ? 'stack' : 'best';
 }
 function layoutCanvas() {
   const cap = curCap(); if (!cap) return;
@@ -1509,6 +2047,7 @@ function handles(cap) {
   if (cap.box) for (const e of ['od', 'os']) {
     const b = cap.box[e], mu = (b.n + b.t) / 2, mv = (b.top + b.bot) / 2;
     for (const [k, u, v] of [['n', b.n, mv], ['t', b.t, mv], ['top', mu, b.top], ['bot', mu, b.bot]]) { const q = toImgUV(cap, u, v); h.push({ k: `bx:${e}:${k}`, x: q.x, y: q.y }); }
+    if (cap.outer && M.mode === 'frame') { const q = toImgUV(cap, cap.outer[e], mv); h.push({ k: `ox:${e}`, x: q.x, y: q.y }); }
   }
   return h;
 }
@@ -1516,6 +2055,7 @@ function moveHandle(cap, k, dx, dy) {
   const [a, e, side] = k.split(':');
   if (a === 'ic') { cap.iris[e].x += dx; cap.iris[e].y += dy; return; }
   if (a === 'ir') { cap.iris[e].r = Math.max(3, cap.iris[e].r + dx); return; }
+  if (a === 'ox') { cap.outer[e] += dx * Math.cos(cap.tau) + dy * Math.sin(cap.tau); return; }
   if (a === 'bx') {
     const cs = Math.cos(cap.tau), sn = Math.sin(cap.tau), du = dx * cs + dy * sn, dv = -dx * sn + dy * cs;
     if (side === 'n' || side === 't') cap.box[e][side] += du; else cap.box[e][side] += dv;
@@ -1555,6 +2095,16 @@ function drawScene(ctx, cap, ox, oy, k, cw, ch, isLoupe) {
       ctx.strokeStyle = '#ffae00'; ctx.beginPath();
       [[b.n, b.top], [b.t, b.top], [b.t, b.bot], [b.n, b.bot]].forEach(([u, v], i) => { const [x, y] = T(toImgUV(cap, u, v)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
       ctx.closePath(); ctx.stroke();
+    }
+    if (cap.outer && M.mode === 'frame') {
+      ctx.strokeStyle = '#00e5ff';
+      for (const e of ['od', 'os']) {
+        const b = cap.box[e], hb = (b.bot - b.top) * 0.18, mv = (b.top + b.bot) / 2;
+        const [a1, b1] = T(toImgUV(cap, cap.outer[e], b.top - hb)), [a2, b2] = T(toImgUV(cap, cap.outer[e], b.bot + hb));
+        ctx.beginPath(); ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.stroke();
+        const [c1, d1] = T(toImgUV(cap, b.t, mv)), [c2, d2] = T(toImgUV(cap, cap.outer[e], mv));
+        ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(c1, d1); ctx.lineTo(c2, d2); ctx.stroke(); ctx.setLineDash([]);
+      }
     }
     const xc = (cap.box.od.n + cap.box.os.n) / 2, v0 = Math.min(cap.box.od.top, cap.box.os.top), v1 = Math.max(cap.box.od.bot, cap.box.os.bot);
     const [a1, b1] = T(toImgUV(cap, xc, v0)), [a2, b2] = T(toImgUV(cap, xc, v1));
@@ -1637,7 +2187,7 @@ function recompute() {
   let h = '';
   const noRx = [p.rx.od.s, p.rx.od.c, p.rx.os.s, p.rx.os.c].every(v => !v);
   if (M.mode === 'iris' && G && noRx) h += `<div class="warnbox" style="margin:0 0 10px"><b>Introduce la graduación de cada lente</b> (sección «Graduación de las gafas», más abajo): con ella se calcula el vértice real a partir del cambio de tamaño del iris y se corrige el efecto prismático.</div>`;
-  else if (M.mode === 'card' && noRx) h += `<div class="note" style="margin-bottom:8px">Si las gafas tienen graduación, introdúcela más abajo para corregir el efecto prismático.</div>`;
+  else if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-bottom:8px">Si las gafas tienen graduación, introdúcela más abajo para corregir el efecto prismático.</div>`;
   h += `<div class="note">DIP de lejos (binocular)${M.mode === 'iris' ? ' · foto sin gafas' : ''}</div><div class="big">${fmt(R.pdFar)} mm <span class="note" style="font-size:14px">± ${fmt(u.pdFar)}</span></div>`;
   h += `<table class="kv" style="margin-top:8px">`;
   if (G) {
@@ -1662,6 +2212,7 @@ function recompute() {
     h += `<tr><td>Distancia entre centros (A + DBL)</td><td colspan="2">${fmt(R.DNC)}</td></tr>`;
     const Am = (F.od.A + F.os.A) / 2;
     h += `<tr><td>Marcado probable</td><td colspan="2">${Math.round(Am)}□${Math.round(R.DBL)} <span class="note">(± ${fmt(Math.max(u.A_od || 0, u.A_os || 0))} mm)</span></td></tr>`;
+    if (M.mode === 'frame' && p.tpl) h += `<tr><td>Medido en la plantilla</td><td colspan="2">ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)} / ${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''} <span class="note">(sin ranura${p.wrap ? ' ni galbe' : ''})</span></td></tr>`;
     h += `</table>`;
     if (F.od.edEst || F.os.edEst) h += `<div class="note">* ED estimado a partir de A y B (contorno incompleto).</div>`;
   }
@@ -1687,11 +2238,19 @@ function recompute() {
     h += `<tr><td>Escala en el plano de medida</td><td>${fmt(rg.s, 3)} mm/px</td></tr>`;
   }
   if (R.cardPx) h += `<tr><td>Tarjeta en la imagen</td><td>${fmt(R.cardPx, 1)} px · ${fmt(R.cardTilt, 1)}°</td></tr>`;
+  if (R.scale) {
+    const sc = R.scale;
+    if (sc.outer) h += `<tr><td>Escala por el ancho exterior</td><td>${fmt(sc.outer.z / 10)} cm <span class="note">(bordes ${fmt(sc.outer.off, 1)} mm detrás del plano de la lente)</span></td></tr>`;
+    if (sc.box) h += `<tr><td>Escala por los centros de las lentes (A + DBL)</td><td>${fmt(sc.box.z / 10)} cm</td></tr>`;
+    if (sc.disc != null) h += `<tr><td>Diferencia entre las dos referencias</td><td>${sgn(sc.disc * 100, 1)} %</td></tr>`;
+  }
+  if (G && G.ss > 1) h += `<tr><td>Imagen de medida</td><td>promedio de ${G.burst.info.n} fotogramas, ×${G.ss}</td></tr>`;
   if (G) h += `<tr><td>Postura (foto con gafas)</td><td>giro ${fmt(G.pose.yaw)}° · cabeceo ${fmt(G.pose.pitch)}°</td></tr>`;
   h += `<tr><td>FOV</td><td style="font-weight:400">${fmt(S.fov.dfov)}° · ${S.fov.src}</td></tr>`;
   h += `</table>`;
   for (const fl of R.flags) h += `<div class="errbox">${fl}</div>`;
   if (M.mode === 'iris') h += `<div class="warnbox">La escala absoluta del método iris depende del blanco‑blanco (${p.hvidUser ? 'introducido por ti' : 'valor medio 11,7 ± 0,45 mm'}). ${p.hvidUser ? '' : 'Si conoces el tuyo, introdúcelo: es lo que más mejora la precisión.'}</div>`;
+  if (M.mode === 'frame') h += `<div class="warnbox">La escala sale de las medidas de la plantilla: su precisión depende de la calibración de la pantalla y de lo bien marcados que estén los bordes, tanto en la plantilla como en la foto.</div>`;
   if ((S.fov.kind || 'est') === 'est') h += `<div class="warnbox">El FOV de tu cámara es estimado; afecta sobre todo a la corrección de convergencia (incluido en el ±).</div>`;
   $('results').innerHTML = h;
   renderFrameType(R, p);
@@ -1717,7 +2276,7 @@ function buildCopy(R, u, p) {
   const F = R.frame || (R.G && R.G.frame), mt = R.mounting;
   const G = M.caps.find(c => c.id === 'G'), padSel = $('padSel').value;
   const pads = G && G.frameAuto ? (padSel === 'auto' ? G.frameAuto.pads.pads : padSel === 'yes') : null;
-  const t = [`Medidor DIP — ${new Date().toLocaleString('es-ES')} — método ${M.mode === 'iris' ? 'iris (2 fotos)' : 'tarjeta'}`,
+  const t = [`Medidor DIP — ${new Date().toLocaleString('es-ES')} — método ${M.mode === 'iris' ? 'iris (2 fotos)' : M.mode === 'frame' ? 'montura (plantilla)' : 'tarjeta'}`,
   `DIP lejos: ${fmt(R.pdFar)} ± ${fmt(u.pdFar)} mm`,
   `Mono OD/OI lejos: ${fmt(R.monoOD)} / ${fmt(R.monoOS)} mm (± ${fmt(u.monoOD)} / ${fmt(u.monoOS)})${M.mode === 'iris' && R.monoAdjOD ? ` · ajustadas: ${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}` : ''}`];
   if (R.hOD != null) t.push(`Altura OD/OI: ${fmt(R.hOD)} / ${fmt(R.hOS)} mm (± ${fmt(u.hOD)} / ${fmt(u.hOS)})`);
@@ -1727,6 +2286,8 @@ function buildCopy(R, u, p) {
     t.push(`Descentramiento H (+nasal) ${sgn(F.od.decH)}/${sgn(F.os.decH)} · V ${sgn(F.od.decV)}/${sgn(F.os.decV)} · Ø mín. ${fmt(F.od.MBS, 0)}/${fmt(F.os.MBS, 0)}`);
     t.push(`Tipo: ${MOUNT_LABEL[mt]} · ${BEVEL_LABEL[mt]} · plaquetas: ${pads == null ? '—' : pads ? 'sí' : 'no'}`);
   }
+  if (M.mode === 'frame' && p.tpl) t.push(`Plantilla: ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)}/${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}${R.scale && R.scale.disc != null ? ` · diferencia entre referencias ${sgn(R.scale.disc * 100, 1)} %` : ''}`);
+  if (G && G.burst) t.push(`Imagen: ${G.ss > 1 ? `promedio de ${G.burst.info.n}/${G.burst.info.of} fotogramas ×${G.ss}` : 'mejor fotograma'}`);
   if (M.mode === 'iris' && R.eyes) t.push(`Vértice: ${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm (OD ${R.eyes.od.ok ? fmt(R.eyes.od.v) : '—'}, OI ${R.eyes.os.ok ? fmt(R.eyes.os.v) : '—'}) · blanco-blanco ${p.hvid.od}/${p.hvid.os} mm`);
   t.push(`Rx OD ${p.rx.od.s} ${p.rx.od.c} x ${p.rx.od.a} · OI ${p.rx.os.s} ${p.rx.os.c} x ${p.rx.os.a} · n ${p.index}`);
   t.push(`Cámara: ${S.camLabel || 'fotos importadas'} · FOV ${fmt(S.fov.dfov)}° (${S.fov.src})`);
@@ -1746,22 +2307,33 @@ $('saveFovBtn').addEventListener('click', () => {
   readFovUI(); store.set(fovKey(), { dfov: S.fov.dfov, ref: S.fov.ref, src: S.fov.src, kind: S.fov.kind });
   $('saveFovBtn').textContent = 'Guardado ✓'; setTimeout(() => $('saveFovBtn').textContent = 'Guardar FOV para esta cámara', 1500);
 });
-$('modeSel').addEventListener('change', e => { S.mode = e.target.value; M = { mode: S.mode, caps: [] }; pending.N = pending.G = null; setModeUI(); $('measurePanel').classList.add('hidden'); });
+$('modeSel').addEventListener('change', e => { S.mode = e.target.value; M = { mode: S.mode, caps: [] }; pending.N = pending.G = null; setModeUI(); $('measurePanel').classList.add('hidden'); $('tplPanel').classList.add('hidden'); });
 $('tolSel').addEventListener('change', e => { S.tolKey = e.target.value; });
 $('voiceChk').addEventListener('change', e => { S.voice = e.target.checked; if (!S.voice) try { speechSynthesis.cancel(); } catch { } });
 $('camSel').addEventListener('change', e => { S.deviceId = e.target.value; if (live.running) startCamera(S.step); });
-$('startBtn').addEventListener('click', () => { beep(440, 0.02); M = { mode: S.mode, caps: [] }; startCamera(); });
+$('startBtn').addEventListener('click', () => { beep(440, 0.02); M = { mode: S.mode, caps: [] }; if (S.mode === 'frame') openTpl(); else startCamera(); });
 $('contBtn').addEventListener('click', () => { S.step = 'G'; $('between').classList.add('hidden'); $('stepTitle').textContent = stepText(); resetLive(); speech.say('Segunda foto, con gafas.', true); });
 $('stopBtn').addEventListener('click', () => { stopCamera(); $('livePanel').classList.add('hidden'); });
 $('manualBtn').addEventListener('click', () => { if (live.a && !live.paused) captureBurst(); });
 $('retakeNBtn').addEventListener('click', () => startCamera('N'));
 $('retakeGBtn').addEventListener('click', () => startCamera('G'));
+$('imgSel').addEventListener('change', async e => {
+  const cap = curCap(); if (!cap || !cap.burst || !cap.burst.stack) return;
+  const st = e.target.value === 'stack', cv = st ? cap.burst.stack : cap.burst.best;
+  if (cv === cap.cv) return;
+  const nc = await analyzeCapture(cv, cap.pose, cap.id, { ss: st ? cap.burst.info.up : 1, burst: cap.burst });
+  if (!nc) return;
+  M.caps = M.caps.filter(c => c.id !== cap.id); M.caps.push(nc);
+  if (nc.id === 'N') await reanalyzeG();
+  showMeasure(nc.id);
+});
+for (const id of ['mW', 'mAod', 'mDBL', 'mAos']) $(id).addEventListener('input', () => { readTplMeas(); recompute(); });
 $('copyBtn').addEventListener('click', async () => {
   const ta = $('copyArea'); ta.classList.remove('hidden');
   try { await navigator.clipboard.writeText(ta.value); $('copyBtn').textContent = 'Copiado ✓'; } catch { ta.select(); $('copyBtn').textContent = 'Selecciona y copia'; }
   setTimeout(() => $('copyBtn').textContent = 'Copiar resultados', 1800);
 });
-for (const id of ['pVertex', 'pCardOff', 'pGroove', 'pPanto', 'pWrap', 'pNear', 'rxOdS', 'rxOdC', 'rxOdA', 'rxOdB', 'rxOdT', 'rxOsS', 'rxOsC', 'rxOsA', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs']) $(id).addEventListener('input', recompute);
+for (const id of ['pOuterOff', 'pVertex', 'pCardOff', 'pGroove', 'pPanto', 'pWrap', 'pNear', 'rxOdS', 'rxOdC', 'rxOdA', 'rxOdB', 'rxOdT', 'rxOsS', 'rxOsC', 'rxOsA', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs']) $(id).addEventListener('input', recompute);
 for (const id of ['pIndex', 'mountSel', 'padSel']) $(id).addEventListener('change', recompute);
 $('pFov').addEventListener('change', () => {
   const d = parseFloat($('pFov').value); if (!(d > 20 && d < 170)) return;
@@ -1771,6 +2343,15 @@ $('pFov').addEventListener('change', () => {
 });
 $('calBtn').addEventListener('click', () => {
   const Zm = parseFloat($('calZ').value), G = M.caps.find(c => c.id === 'G');
+  if (M.mode === 'frame') {
+    const Z = lastRes && lastRes.R && lastRes.R.Z;
+    if (!G || !Z || !(Zm > 150 && Zm < 1500)) { $('autoMsg').innerHTML = '<div class="errbox">Introduce una distancia entre 150 y 1500 mm.</div>' + $('autoMsg').innerHTML; return; }
+    const d = dfovFromFocal(G.f * Zm / Z, S.fov.ref, G.W, G.H);   // la distancia escala con la focal
+    Object.assign(S.fov, { dfov: d, src: `Calibrado por ti (${new Date().toLocaleDateString('es-ES')})`, kind: 'cal' });
+    for (const c of M.caps) c.f = focalFromDfov(d, S.fov.ref, c.W, c.H);
+    store.set(fovKey(), { dfov: d, ref: S.fov.ref, src: S.fov.src, kind: 'cal' });
+    syncFovUI(); recompute(); return;
+  }
   if (!G || !G.card || !(Zm > 150 && Zm < 1500)) { $('autoMsg').innerHTML = '<div class="errbox">Introduce una distancia entre 150 y 1500 mm (método tarjeta).</div>' + $('autoMsg').innerHTML; return; }
   const f = cardWidthPx(G.card.L, G.card.R).w * Zm / CARD_W, d = dfovFromFocal(f, S.fov.ref, G.W, G.H);
   Object.assign(S.fov, { dfov: d, src: `Calibrado por ti (${new Date().toLocaleDateString('es-ES')})`, kind: 'cal' });
@@ -1792,15 +2373,27 @@ async function processFiles() {
     if (pending.G && M.caps.find(c => c.id === 'N')) { const cap = await analyzeCapture(pending.G, null, 'G'); pending.G = null; if (cap) { M.caps = M.caps.filter(c => c.id !== 'G'); M.caps.push(cap); } }
     else if (M.caps.find(c => c.id === 'G') && M.caps.find(c => c.id === 'N')) await reanalyzeG();
     if (!M.caps.find(c => c.id === 'N')) { $('loadMsg').innerHTML = '<div class="warnbox">Carga también la foto SIN gafas.</div>'; return; }
-  } else if (pending.G) { const cap = await analyzeCapture(pending.G, null, 'G'); pending.G = null; if (cap) M.caps = [cap]; }
+  } else if (pending.G) {
+    if (S.mode === 'frame' && !S.tpl) { const sv = store.get(TPL_KEY); if (sv && sv.lines) { const t = tplFromLines(sv.lines); S.tpl = sv.inner === false ? { W: t.W } : t; } }
+    const cap = await analyzeCapture(pending.G, null, 'G'); pending.G = null; if (cap) M.caps = [cap];
+    if (S.mode === 'frame') fillTplMeas();
+  }
   if (M.caps.length) showMeasure(M.caps.find(c => c.id === 'G') ? 'G' : 'N');
 }
 $('fileN').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.N = await fileToCanvas(f); processFiles(); });
 $('fileG').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.G = await fileToCanvas(f); processFiles(); });
 
 setupMeasureEvents();
+setupScrEvents();
+setupTplEvents();
 setModeUI();
 detectDevice();
+renderScrStatus();
+if (scrCal().reason === 'none') openScr(true);
+window.addEventListener('resize', () => {
+  if (!$('scrPanel').classList.contains('hidden')) scrSync();
+  if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
+});
 </script>
 </body>
 </html>

@@ -87,6 +87,48 @@ La DIP de lejos sale de N, sin prisma.
 
 **Sensibilidad.** Con un 0,8 % de error en A, el error del vértice es de unos ±8 mm a −1 D, ±2 mm a −4 D y ±1 mm a −8 D.
 
+## 4 bis. Método montura (plantilla en la pantalla)
+
+**Calibración de la pantalla** (una vez por equipo): el usuario ajusta una barra hasta que mide L mm con una regla. `k = px_CSS / L` (px CSS por mm). Se guarda con `screen.width/height` y `devicePixelRatio`; si cambian, se pide recalibrar.
+
+**Plantilla**: la montura se apoya con el frente contra la pantalla y las varillas hacia el usuario (OD a la derecha). Seis líneas en mm desde el centro (`tplFromLines`):
+
+```
+W = oR − oL            (ancho exterior, a la altura de los centros de las lentes)
+A_OI = nL − tL,  DBL = nR − nL,  A_OD = tR − nR      (borde interior del aro, opcional)
+DNC = DBL + (A_OD + A_OI)/2
+```
+
+Son proyecciones frontales, igual que la foto, así que no hace falta corregir el galbe para la escala.
+
+**Foto**: además de las cajas, se busca el borde exterior del aro (`detectOuterEdge`) desde el lado temporal de cada caja hacia fuera, a la altura de su centro:
+
+- perfil de intensidad promediado en una banda de ±1,2 mm, derivada con semiancho 0,25 mm;
+- se toma el pico de polaridad contraria al borde interior (aro → piel o fondo) entre 0,4 y 14 mm, con preferencia por los cercanos y, si hay plantilla con cajas, por la distancia esperada `(W − A_OD − A_OI − DBL)/2` (σ = 1,5 mm);
+- posición subpíxel por el centroide del pico (la derivada de un escalón es una meseta).
+
+**Escala** (`frameScaleZ`). Dos estimaciones de la distancia cámara → plano de la lente:
+
+```
+Z_ext  = f · W / W_px − off,      off = (W − DNC)/2 · sen(galbe)     (o pOuterOff)
+Z_caja = f · DNC / DNC_px         (DNC_px entre centros de las cajas: no depende de la ranura)
+```
+
+Se combinan por la inversa de la varianza relativa:
+
+- `σ_ext² = (0,5/W)² + (1,0·ss/W_px)² + (1,5/Z)²`
+- `σ_caja² = (0,5/DNC)² + (0,7·ss/DNC_px)²`
+
+Si `|Z_ext − Z_caja|/Z > 2,5·√(σ_ext² + σ_caja²)`, se avisa. A partir de Z, todo sigue como en el método tarjeta (§2 y §5).
+
+## 4 ter. Ráfaga apilada
+
+1. Se capturan 8 fotogramas. Referencia: entre los de nitidez ≥ 80 % de la máxima y sin parpadeo, el de menor `|giro| + |ladeo| + 0,5·|cabeceo|`.
+2. Registro (`registerShift`) en dos zonas, una por ojo (±0,3·DIP_px × ±0,2·DIP_px, con el aro): búsqueda entera por NCC (±3 px alrededor de lo que indican los puntos faciales) y Lucas–Kanade de traslación con compensación del brillo medio. Precisión < 0,05 px en las pruebas.
+3. Con los dos desplazamientos se obtiene una semejanza `z' = a·z + b` (`similarity2`). Se descartan los fotogramas con NCC < 0,9, nitidez < 60 %, parpadeo, |escala − 1| > 2 % o giro > 1°.
+4. Con 3 o más fotogramas válidos se promedian (`stackRGBA`) en la zona de las gafas con remuestreo ×2 (píxel *j* ↔ `(j + 0,5)/2 − 0,5`); el resto de la imagen es la referencia ampliada. El ruido baja ≈ 1/√N.
+5. En la incertidumbre, los errores de localización se expresan en píxeles de la cámara (`× ss`).
+
 ## 5. Montura (boxing)
 
 **Contorno de cada lente** (`detectLensContour`):
@@ -130,6 +172,7 @@ La DIP de lejos sale de N, sin prisma.
 Suma cuadrática de las perturbaciones (`solveWithUnc`):
 
 - FOV: ±4 % (ficha técnica), ±15 % (estimado), ±3 % (calibrado).
+- Método montura: W ±0,5 mm, DBL ±0,5 mm, bordes exteriores ±0,7 px y su profundidad ±1,5 mm.
 - Centros del iris ±0,4 px; radios ±0,2 px; lados del recuadro ±0,7 px; borde de la tarjeta ±0,7 px.
 - Vértice previo ±2,5 mm; HVID ±0,45 mm (±0,1 si lo introduce el usuario).
 - k ± su desviación típica; curva base ±1,5 D y espesor ±0,5 mm.

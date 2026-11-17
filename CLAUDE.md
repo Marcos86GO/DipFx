@@ -7,7 +7,7 @@ Contexto para Claude Code. Léelo entero antes de tocar el código. El historial
 App web de una sola página (`index.html`, sin build) que, con la webcam del portátil o del móvil:
 
 1. **Identifica el dispositivo y la cámara.** Usa el nombre de la cámara, su resolución y su ID USB, y busca el FOV en una pequeña base de datos. El navegador **no** puede leer el modelo del portátil en escritorio; en Mac se deduce de forma aproximada por la resolución de pantalla.
-2. **Guía la postura en vivo** con texto y voz, y **solo dispara cuando todo cuadra**: distancia, centrado, ojos a la altura de la cámara, giro, cabeceo, ladeo, mirada al objetivo, ojos abiertos, quietud y tarjeta visible. Hace una ráfaga de 6 fotogramas y elige el más nítido y mejor alineado.
+2. **Guía la postura en vivo** con texto y voz, y **solo dispara cuando todo cuadra**: distancia, centrado, ojos a la altura de la cámara, giro, cabeceo, ladeo, mirada al objetivo, ojos abiertos, quietud y (en el método tarjeta) tarjeta visible. Hace una **ráfaga de 8 fotogramas**, los registra con precisión subpíxel contra el más nítido y mejor alineado, y los **promedia remuestreados ×2** en la zona de las gafas. Si hay demasiado movimiento, usa el mejor fotograma. En la medición se puede elegir entre el promedio y el mejor fotograma.
 3. **Mide**:
    - DIP de lejos binocular y monoculares, con corrección de la convergencia hacia la cámara.
    - DIP de cerca.
@@ -18,10 +18,11 @@ App web de una sola página (`index.html`, sin build) que, con la webcam del por
 
 Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un equipo técnico en una empresa de diseños de lentes freeform. **Interfaz y comentarios en español.** El rigor óptico importa más que lo vistoso.
 
-## Dos métodos
+## Tres métodos
 
 | Método | Fotos | Escala absoluta | Notas |
 |---|---|---|---|
+| `frame` (por defecto) | Montura medida sobre una plantilla a escala real en la pantalla + 1 foto con gafas, sin tarjeta | ancho exterior del frente y, si se marcan, A + DBL (distancia entre centros de las cajas) | Necesita la pantalla calibrada una vez (o medidas escritas a mano, con regla o trazador). |
 | `card` | 1 con gafas + tarjeta ID‑1 (85,60 mm) apoyada sobre la montura | tarjeta | El más preciso: DIP ±0,7 mm típico. |
 | `iris` | 1 **sin** gafas (N) + 1 **con** gafas (G), a la misma distancia | blanco‑blanco (HVID): 11,7 ± 0,45 mm o el valor del usuario | La DIP sale de N. El vértice se deduce del cambio de tamaño del iris a través de cada lente, con la Rx del usuario. Monoculares, alturas y montura salen de G. |
 
@@ -38,11 +39,12 @@ Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un e
 
 ```bash
 npm run fixtures     # genera imágenes sintéticas en tests/fixtures/out/ (python3, numpy, Pillow; ffmpeg opcional)
-npm test             # 19 pruebas unitarias con node:test sobre la sección CORE
+npm test             # 31 pruebas unitarias con node:test sobre la sección CORE
 npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial simulado (playwright; CHROME_PATH opcional)
 ```
 
 - `tests/lib/extract-core.cjs` extrae la sección entre `// ==CORE START==` y `// ==CORE END==` de `index.html` y exporta todo `function` y `const` de nivel superior. **No rompas esos marcadores** y mantén el CORE **sin DOM**.
+- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla con arrastre, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el método tarjeta en vivo y el método iris con fotos subidas.
 - Las pruebas e2e sustituyen MediaPipe por `tests/fixtures/out/fake_vision.mjs`, que devuelve puntos coherentes con cada imagen sintética. El detector distingue la imagen por el píxel marcador (1,1): 10 = sin gafas, 240 = con gafas, 128 = tarjeta.
 - Las escenas sintéticas se proyectan con el mismo modelo físico. Por eso validan la coherencia interna y los algoritmos de visión, **no** la exactitud con caras reales. **Nunca se ha probado con una cámara y una cara reales.**
 
@@ -50,24 +52,31 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
 
 - **CORE** (funciones puras, probadas):
   - Geometría: `focalFromDfov`, `rcFromLens` (centro de rotación + Prentice), `cardWidthPx`, `measureCap`, `solveAll`, `solveWithUnc`.
+  - Método montura: `tplFromLines`, `tplDNC`, `detectOuterEdge`, `frameScaleZ`.
+  - Ráfaga: `nccAt`, `registerShift` (búsqueda entera por NCC + Lucas–Kanade), `similarity2`, `stackRGBA`.
   - Óptica: `lensData`, `apparentMag` (lente gruesa), `solveVertexH`, `fuseVertex`.
   - Visión: `detectCard`, `refineEdge`, `refineIris` (ajuste de circunferencia de Kåsa sobre bordes laterales), `detectLensContour` (programación dinámica polar), `rimAnalysis`, `classifyFrame`, `padAnalysis`, `featureScale`.
 - **App**:
+  - Calibración de la pantalla (`scrCal`, `openScr`; clave `dipapp.screen`) y plantilla de la montura (`openTpl`, `tplDraw`; clave `dipapp.tpl`).
   - Detección del dispositivo y base de datos de FOV (`CAM_DB`).
   - Carga de MediaPipe y `analyzeFace`.
-  - Bucle en vivo: `evaluate` → `guidance` → cuenta atrás → `captureBurst`.
-  - `analyzeCapture` → `frameDetect`.
+  - Bucle en vivo: `evaluate` → `guidance` → cuenta atrás → `captureBurst` → `stackBurst`.
+  - `analyzeCapture` → `frameDetect` → (método montura) `outerDetect`.
   - Interfaz de medición: `handles`, `moveHandle`, `drawScene`, `recompute`.
 - Modelo de medición: `M = { mode, caps: [N?, G] }`. Cada `cap` contiene:
-  - `cv` (lienzo), `W`, `H`, `f` (focal en px).
+  - `cv` (lienzo), `W`, `H`, `f` (focal en px), `ss` (remuestreo de la imagen: 2 si es el promedio ×2 de la ráfaga, 1 si no), `burst` (`{stack, best, info}`, o null si es una foto subida).
   - `iris.{od,os}.{x,y,r}`, `lmk` (478 puntos en px), `pose`.
   - Solo en N: `bridge`.
   - Solo en tarjeta: `card.{L,R}`.
   - Solo en G: `box.{od,os}.{n,t,top,bot}`, `tau`, `contour`, `box0`, `contourOK`, `frameAuto`.
+  - Solo en el método montura: `outer.{od,os}` (coordenada u del borde exterior, a la altura del centro de cada caja), `outer0`, `outerAuto`.
+- Parámetros (`params()`): además de los ópticos, `tpl = {W, Aod, Aos, DBL}` (mm, de la plantilla) y `outerOff` (mm que los bordes exteriores quedan detrás del plano de la lente; vacío = se deduce del galbe).
 
 ## Convenios (invariantes: si los cambias, rompes resultados en silencio)
 
 - **Coordenadas de píxel**: el píxel *i* está en la coordenada *i*. Los puntos de MediaPipe se convierten con `x*W − 0.5`. El punto principal es `((W−1)/2, (H−1)/2)`.
+- **Remuestreo ×up** (ráfaga apilada): el píxel de salida *j* está en la coordenada original `(j + 0,5)/up − 0,5`. Es el mismo convenio que usa `drawImage` al ampliar, así que el punto principal y la focal (`focalFromDfov` con el nuevo W) siguen siendo coherentes. Los errores de localización del ± (`solveWithUnc`) se multiplican por `cap.ss` para expresarlos en píxeles de la cámara. Entre dos capturas con distinto `ss`, `k` se calcula en unidades angulares (`N.f / G.f`).
+- **Plantilla**: la montura se apoya con el frente contra la pantalla y las varillas hacia el usuario, así que la **lente derecha (OD) queda a la derecha** de la pantalla. Las medidas de la plantilla son proyecciones frontales, igual que la foto. Calibración de la pantalla en px CSS por mm; se invalida si cambian `screen.width/height` o `devicePixelRatio` (zoom del navegador).
 - **OD = ojo derecho del sujeto = izquierda de la imagen sin espejo.** La vista en vivo se muestra en espejo (CSS); las fotos de medición, sin espejo.
 - **Recuadro de la lente** en coordenadas (u, v) relativas al punto principal y giradas `−tau`, donde `tau` es la inclinación de la montura (recta entre centroides de las lentes). Lados: `n` nasal, `t` temporal, `top` superior, `bot` inferior. En OD el lado nasal tiene la u mayor; en OI, la menor.
 - **Signos de postura**: `yaw > 0` significa cabeza girada hacia **su** izquierda y `pitch > 0`, barbilla arriba. Se verifican en tiempo de ejecución contra indicadores 2D (`updateConvention`), porque el orden de la matriz de MediaPipe no está documentado. Se detecta por la posición de la traslación.
@@ -78,6 +87,7 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Tarjeta `85,60 mm`.
 - **Vértice** (`pVertex`) = córnea → cara posterior de la lente. El plano de medida es la mitad del espesor de la lente.
 - **Tarjeta**: se asume 1,5 mm por delante de ese plano (`pCardOff`).
+- **Bordes exteriores de la montura** (método montura): se miden a la altura del centro de cada caja y se asumen `(W − DNC)/2 · sen(galbe)` mm por detrás del plano de la lente (`pOuterOff` lo sustituye).
 - **Ranura o bisel** (0,5 mm por defecto): se suma según el montaje. En aro completo, a los 4 lados; en nylon, solo arriba; al aire, nada.
 
 ## Limitaciones conocidas (sé honesto con ellas en la interfaz)
@@ -94,6 +104,12 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - En **nylon**, el borde inferior no se ve: la app lo estima como `top + 0,72·A` y pide ajustarlo.
   - En monturas **al aire**, puede no encontrar el contorno y usar un recuadro típico (52□18, B 38).
 - **Clasificación** de montaje, material y plaquetas: umbrales heurísticos sin calibrar con imágenes reales.
+- **Método montura**:
+  - La escala depende de la calibración de la pantalla (regla sobre la pantalla) y de cómo se marquen los bordes en la plantilla (paralaje: mirar cada línea de frente). Estimado ±0,5 mm por medida de la plantilla.
+  - El borde exterior en la foto se pierde con monturas transparentes, finas o contra el pelo: el usuario lo ajusta a mano. En monturas al aire no hay borde exterior propio.
+  - Con galbe, los bordes exteriores quedan por detrás del plano de la lente: si no se introduce el galbe, ±1,5 mm de profundidad en el ±.
+  - Si se marcan las dos referencias (ancho exterior y cajas), se avisa cuando discrepan más de 2,5 σ.
+- **Ráfaga**: el registro es una semejanza (dos zonas, una por ojo). Si la cabeza gira o la cara cambia de expresión entre fotogramas, se descartan (NCC < 0,9, escala > 2 %, giro > 1°). El remuestreo ×2 mejora el ruido y la nitidez de los bordes solo si hay desplazamientos subpíxel entre fotogramas; no crea detalle que la óptica no resuelva.
 - **Pupila**: se usa el centro del iris (circunferencia ajustada), no el centro pupilar ni el reflejo corneal.
 
 ## Prioridades siguientes

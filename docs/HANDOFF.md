@@ -49,11 +49,29 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 
 ## Estado de verificación
 
-- 19 pruebas unitarias en verde (óptica, geometría de los dos métodos, visión, contornos y clasificación de 4 tipos de montura).
+- 19 pruebas unitarias en verde (óptica, geometría de los dos métodos, visión, contornos y clasificación de 4 tipos de montura). Desde el 17 nov son 31: se añaden el método montura, el borde exterior del aro y la ráfaga.
 - e2e en Chrome sin cabeza, en verde, con resultados frente a la verdad sintética:
   - **Método tarjeta**: DIP 64,1/64,0; monoculares 31,5/32,5 exactas; alturas 22,5 exactas; A 53,0 y DBL 17,0 exactos (con 0,5 mm de ranura); «aro completo metálico» con plaquetas.
   - **Método iris** (−5/−4 D, vértice real 13): DIP 64,0; monoculares exactas; alturas 22,7 frente a 22,5; vértice deducido 13,1 y 12,7; «pasta» sin plaquetas.
 - **Pendiente: nada se ha probado con una cámara y una cara reales.**
+
+## Sesión del 17 nov 2026: método montura y ráfaga apilada
+
+- El usuario no quiere depender de una tarjeta. Se descartaron, por este orden:
+  - cámara de IR: no accesible desde el navegador y de baja resolución;
+  - estéreo con dos cámaras: línea base de 1–2 cm, sin calibrar;
+  - barrido de giros de cabeza: interesante para vértice, centro de rotación y galbe, aplazado;
+  - rótulo de la varilla: poco fiable;
+  - foto de la montura desde abajo con regla: paralaje de 35–40 mm.
+- Se eligió: **calibrar la pantalla una vez** (regla sobre la pantalla) y **medir la montura sobre una plantilla a escala real**: ancho exterior y, opcionalmente, A y DBL. Después, una foto con las gafas puestas, en la que se detectan los bordes exteriores y las cajas, ajustables a mano.
+- Flujo pedido por el usuario:
+  1. medir la montura en la plantilla;
+  2. ráfaga frontal;
+  3. mejor imagen o promedio procesado en 2–4 s como máximo (en Chrome sin cabeza, unos 0,4–0,6 s de procesado);
+  4. detección de bordes y pupilas;
+  5. confirmación o ajuste;
+  6. medidas.
+- La ráfaga apilada se aplica a todos los métodos.
 
 ## Preguntas abiertas para el usuario
 
