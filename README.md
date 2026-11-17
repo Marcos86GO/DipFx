@@ -16,7 +16,7 @@ Aplicación para la toma de medidas de ajuste de gafas.
 
 La cámara solo funciona con **https** o en **localhost**:
 
-- **En línea (GitHub Pages)**: el workflow `.github/workflows/pages.yml` pasa las pruebas y publica `index.html` en cada push a `main` (o a mano desde *Actions → Publicar en GitHub Pages → Run workflow*). Requiere activar una vez *Settings → Pages → Source: GitHub Actions*. La URL será `https://<usuario>.github.io/DipFx/`.
+- **En línea (GitHub Pages)**: activar *Settings → Pages → Deploy from a branch → `main` → `/ (root)`*. La URL será `https://marcos86go.github.io/DipFx/`. El workflow `.github/workflows/tests.yml` ejecuta las pruebas unitarias en cada push a `main` y en cada pull request.
 - **En local**: `npm run serve` y abrir http://localhost:8000.
 
 ---
