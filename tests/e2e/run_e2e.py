@@ -2,7 +2,7 @@
 Requisitos: pip install playwright && playwright install chromium   (o CHROME_PATH=/ruta/a/chrome)
             python3 tests/fixtures/gen_e2e.py
 Comprueba: método montura en vivo (calibración de pantalla, plantilla, ráfaga apilada, bordes exteriores),
-método tarjeta en vivo (autocaptura) y método iris con dos fotos subidas."""
+fichas de personas e histórico (dos medidas, persistencia, CSV), método tarjeta en vivo y método iris con fotos subidas."""
 import asyncio, http.server, threading, functools, os, re, sys
 from playwright.async_api import async_playwright
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')); OUT=os.path.join(ROOT,'tests','fixtures','out')
@@ -37,50 +37,89 @@ def check_common(t,hexp,A,typ):
     h1,h2=num(t,'Altura OD/OI'); check('altura OD',h1,hexp,0.3); check('altura OI',h2,hexp,0.3)
     check('A',num1(t,'Montura: A'),A,0.3); check('DBL',num1(t,' DBL'),17.0,0.3)
     if typ not in t: fails.append('tipo de montura'); print('  FALLO tipo de montura')
+async def measure_frame(pg, first):
+    """Paso montura → foto → revisión (método montura). Devuelve el texto de resultados."""
+    await pg.wait_for_selector('#tplPanel:not(.hidden)'); await pg.wait_for_timeout(400)
+    if first:
+        # arrastrar el borde exterior derecho 40 px (= 10 mm con 4 px/mm)
+        w0=float(await pg.input_value('#tW')); bb=await pg.locator('#tplCv').bounding_box()
+        x=bb['x']+bb['width']/2+66*4; y=bb['y']+bb['height']*0.3
+        await pg.mouse.move(x,y); await pg.mouse.down(); await pg.mouse.move(x+20,y); await pg.mouse.move(x+40,y); await pg.mouse.up()
+        check('arrastre en la plantilla (mm)',round(float(await pg.input_value('#tW'))-w0,1),10.0,0.15)
+        await pg.click('#tplPanel details summary')
+        for sel,val in (('#tW','131'),('#tAod','52'),('#tDBL','18'),('#tAos','52')): await pg.fill(sel,val); await pg.dispatch_event(sel,'change')
+    else:
+        w=float(await pg.input_value('#tW')); check('la plantilla recuerda la última montura (mm)',w,131.0,0.05)
+    await pg.click('#tplOk')
+    await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
+    return await pg.input_value('#copyArea')
 async def main():
     async with async_playwright() as p:
-        # ---------- método montura (por defecto) ----------
+        # ---------- método montura (por defecto) con fichas de personas ----------
         b,pg,errs=await page_with_camera(p,'frame.y4m')
-        print('Método montura (plantilla + ráfaga en vivo):')
+        print('Método montura (plantilla + ráfaga en vivo) e histórico:')
         if not await pg.is_visible('#scrPanel'): fails.append('calibración inicial'); print('  FALLO no se pide calibrar la pantalla la primera vez')
         await pg.select_option('#scrRef','100')
         await pg.eval_on_selector('#scrRange','e=>{e.value=400;e.dispatchEvent(new Event("input"))}')
         await pg.click('#scrSave')
         st=await pg.inner_text('#scrStatus'); ok='4,000 px/mm' in st; print(f"  {'OK ' if ok else 'FALLO'} calibración guardada: {st}")
         if not ok: fails.append('calibración de pantalla')
-        await pg.click('#startBtn'); await pg.wait_for_selector('#tplPanel:not(.hidden)'); await pg.wait_for_timeout(1200)   # fin del desplazamiento suave
-        # arrastrar el borde exterior derecho 40 px (= 10 mm con 4 px/mm)
-        w0=float(await pg.input_value('#tW')); bb=await pg.locator('#tplCv').bounding_box()
-        x=bb['x']+bb['width']/2+66*4; y=bb['y']+bb['height']*0.3
-        await pg.mouse.move(x,y); await pg.mouse.down(); await pg.mouse.move(x+20,y); await pg.mouse.move(x+40,y); await pg.mouse.up()
-        check('arrastre en la plantilla (mm)',round(float(await pg.input_value('#tW'))-w0,1),10.0,0.15)
-        for sel,val in (('#tW','131'),('#tAod','52'),('#tDBL','18'),('#tAos','52')): await pg.fill(sel,val); await pg.dispatch_event(sel,'change')
-        await pg.click('#tplOk')
-        await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
-        t=await pg.input_value('#copyArea'); notes=await pg.inner_text('#autoMsg')
+        if not await pg.is_visible('#peopleEmpty'): fails.append('vista inicial'); print('  FALLO la vista inicial no muestra la lista vacía de personas')
+        # nueva medida → nueva persona
+        await pg.click('#newMeasureBtn'); await pg.wait_for_selector('#stepPerson:not(.hidden)')
+        await pg.click('#personNewBtn'); await pg.fill('#pfName','Ana Pérez'); await pg.fill('#pfRef','H-0012'); await pg.click('#pfSave')
+        t=await measure_frame(pg, True); notes=await pg.text_content('#autoMsg')
         m=re.search(r'Imagen de medida:[^\n]*',notes); print('  ',m.group(0) if m else 'sin nota de ráfaga')
         if 'promedio' not in t: fails.append('ráfaga apilada'); print('  FALLO no se usó el promedio de la ráfaga')
         m=re.search(r'procesado (\d+,\d) s',notes)
         if m: check('tiempo de procesado de la ráfaga (s)',float(m.group(1).replace(',','.')),0,4.0)
         check_common(t,22.5,53.0,'pasta')
         m=re.search(r'diferencia entre referencias (-?\+?\d+,\d) %',t); check('diferencia entre referencias (%)',float(m.group(1).replace(',','.').replace('+','')),0,0.5)
-        # el selector de imagen vuelve a analizar el mejor fotograma
         await pg.select_option('#imgSel','best'); await pg.wait_for_timeout(1500)
-        t2=await pg.input_value('#copyArea'); print('  mejor fotograma:'); check('DIP (mejor fotograma)',num1(t2,'DIP lejos'),64.0,0.2)
+        t2=await pg.input_value('#copyArea'); check('DIP (mejor fotograma)',num1(t2,'DIP lejos'),64.0,0.2)
         await pg.screenshot(path=os.path.join(OUT,'e2e_montura.png'),full_page=True)
+        # guardar en la ficha
+        if await pg.input_value('#savePerson')=='' : fails.append('persona preseleccionada'); print('  FALLO la persona no está preseleccionada al guardar')
+        await pg.fill('#saveFrameName','Acetato 52□18'); await pg.click('#saveBtn')
+        await pg.wait_for_selector('#viewPerson:not(.hidden)'); await pg.wait_for_timeout(300)
+        n1=await pg.locator('#personMeasures tbody tr').count(); check('medidas en la ficha tras guardar',n1,1,0)
+        # segunda medida de la misma persona desde su ficha
+        await pg.click('#personMeasureBtn')
+        await measure_frame(pg, False); await pg.click('#saveBtn')
+        await pg.wait_for_selector('#viewPerson:not(.hidden)'); await pg.wait_for_timeout(300)
+        check('medidas en la ficha tras la segunda',await pg.locator('#personMeasures tbody tr').count(),2,0)
+        stats=await pg.inner_text('#personStats'); ok='media de 2' in stats; print(f"  {'OK ' if ok else 'FALLO'} resumen de varias medidas: {stats.splitlines()[0] if stats else ''}")
+        if not ok: fails.append('resumen del histórico')
+        # detalle de una medida guardada
+        await pg.click('#personMeasures tbody tr >> nth=0'); await pg.wait_for_selector('#viewRecord:not(.hidden)')
+        rb=await pg.inner_text('#recordBody'); check('DIP en la medida guardada',num1(rb,'DIP de lejos'),64.0,0.2)
+        if not await pg.locator('#recordBody img.recImg').count(): fails.append('foto guardada'); print('  FALLO la medida no guarda la foto')
+        await pg.screenshot(path=os.path.join(OUT,'e2e_registro.png'),full_page=True)
+        # persistencia tras recargar y exportación CSV
+        await pg.reload(); await pg.wait_for_timeout(800)
+        rows=await pg.locator('#peopleTable tbody tr').all_inner_texts()
+        ok=len(rows)==1 and 'Ana Pérez' in rows[0] and '\t2\t' in rows[0]; print(f"  {'OK ' if ok else 'FALLO'} datos tras recargar: {rows}")
+        if not ok: fails.append('persistencia')
+        await pg.click('nav [data-view=settings]')
+        async with pg.expect_download() as dl: await pg.click('#exportCsv')
+        csv=open(await (await dl.value).path(),encoding='utf-8-sig').read().splitlines()
+        ok=len(csv)==3 and csv[1].startswith('Ana Pérez;H-0012;') and ';64' in csv[1]; print(f"  {'OK ' if ok else 'FALLO'} CSV exportado ({len(csv)-1} medidas)")
+        if not ok: fails.append('exportación CSV'); print(csv[:2])
+        await pg.screenshot(path=os.path.join(OUT,'e2e_ajustes.png'),full_page=True)
         if errs: fails.append('errores JS (montura)'); print('Errores JS:',errs)
         await b.close()
         # ---------- método tarjeta e iris ----------
         b,pg,errs=await page_with_camera(p,'card.y4m')
         print('Método tarjeta (en vivo):')
-        await pg.select_option('#modeSel','card')
-        await pg.click('#startBtn')
+        await pg.click('#scrSkip')
+        await pg.click('nav [data-view=settings]'); await pg.select_option('#modeSel','card')
+        await pg.click('#newMeasureBtn'); await pg.click('#personSkip')
         await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
         t=await pg.input_value('#copyArea')
         check_common(t,22.5,53.0,'Aro completo metálico')
         await pg.screenshot(path=os.path.join(OUT,'e2e_tarjeta.png'),full_page=True)
         print('Método iris (2 fotos subidas):')
-        await pg.select_option('#modeSel','iris')
+        await pg.click('nav [data-view=settings]'); await pg.select_option('#modeSel','iris')
         await pg.set_input_files('#fileN',os.path.join(OUT,'iris_N.png')); await pg.wait_for_timeout(1500)
         await pg.set_input_files('#fileG',os.path.join(OUT,'iris_G.png'))
         await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=15000); await pg.wait_for_timeout(800)
@@ -91,6 +130,10 @@ async def main():
         check('A',num1(t,'Montura: A'),53.0,0.4); check('DBL',num1(t,' DBL'),17.0,0.3)
         m=re.search(r'OD (\d+,\d), OI (\d+,\d)',t); check('vértice OD',float(m.group(1).replace(',','.')),13.0,0.5); check('vértice OI',float(m.group(2).replace(',','.')),13.0,0.5)
         if 'pasta' not in t: fails.append('tipo iris'); print('  FALLO tipo de montura')
+        # guardar sin persona previa: se crea desde el selector
+        await pg.select_option('#savePerson','__new'); await pg.fill('#pfName','Luis'); await pg.click('#pfSave'); await pg.wait_for_timeout(300)
+        await pg.click('#saveBtn'); await pg.wait_for_selector('#viewPerson:not(.hidden)')
+        check('medida iris guardada en una persona nueva',await pg.locator('#personMeasures tbody tr').count(),1,0)
         await pg.screenshot(path=os.path.join(OUT,'e2e_iris.png'),full_page=True)
         if errs: fails.append('errores JS'); print('Errores JS:',errs)
         await b.close()

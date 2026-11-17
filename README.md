@@ -38,14 +38,15 @@ La captura es guiada: solo se dispara cuando la cabeza está recta y los ojos a 
 npm run serve          # http://localhost:8000  (la cámara exige https o localhost)
 ```
 
-0. La primera vez, **calibra la pantalla** con una regla (se guarda en el navegador; se puede repetir desde «Calibrar pantalla»).
-1. Elige el método:
+0. La primera vez, **calibra la pantalla** con una regla (se guarda en el navegador; se puede repetir en Ajustes → Pantalla).
+1. Pulsa **«+ Nueva medida»** y elige o crea la persona. El asistente te lleva paso a paso: montura → foto → revisar y guardar. Cada medida queda en la ficha de la persona (sección **Personas**), con su histórico. Los datos se guardan solo en este navegador: haz copias en Ajustes → Datos.
+2. El método se elige en Ajustes:
    - **Montura** (por defecto): mide la montura sobre la plantilla de la pantalla y haz una foto con las gafas puestas. No necesita tarjeta.
    - **Tarjeta**: una foto con gafas y una tarjeta estándar apoyada sobre la montura. La referencia más limpia en la imagen.
    - **Iris**: una foto sin gafas y otra con gafas. Después introduce la graduación y, si lo conoces, tu blanco‑blanco.
-2. Desactiva el encuadre automático de la cámara (Center Stage, Windows Studio Effects).
-3. Sigue las indicaciones de voz y de pantalla, y mira al objetivo de la cámara.
-4. Revisa y ajusta los marcadores con la lupa.
+3. Desactiva el encuadre automático de la cámara (Center Stage, Windows Studio Effects).
+4. Sigue las indicaciones de voz y de pantalla, y mira al objetivo de la cámara.
+5. Revisa y ajusta los marcadores con la lupa, y guarda.
 
 ### Desarrollo
 

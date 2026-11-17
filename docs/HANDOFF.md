@@ -73,6 +73,13 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
   6. medidas.
 - La ráfaga apilada se aplica a todos los métodos.
 
+## Sesión del 17–18 nov 2026: histórico de personas e interfaz guiada
+
+- El usuario pidió guardar las medidas de cada persona, con un histórico de todas sus medidas, y una interfaz limpia, sencilla y que guíe el proceso.
+- Decisión: sin servidor, **todo en el navegador** con IndexedDB (personas y medidas; la foto con las marcas, opcional, como JPEG). Copia de seguridad JSON (con o sin fotos), importación y CSV para hojas de cálculo. Motivo: la app es estática (GitHub Pages) y las fotos de caras son datos personales sensibles.
+- Interfaz rehecha: cabecera con Personas / Ajustes / + Nueva medida; asistente por pasos con indicador de progreso; resultados en tarjetas con las cifras clave y los detalles técnicos plegados; editor que amplía la zona de las gafas; ajustes agrupados; diseño adaptado al móvil.
+- Pendiente: reabrir una medida guardada para reeditar marcadores, informe PDF, sincronización entre dispositivos.
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?

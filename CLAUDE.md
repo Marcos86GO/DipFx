@@ -15,6 +15,9 @@ App web de una sola página (`index.html`, sin build) que, con la webcam del por
    - Dimensiones boxing de la montura: A, B, DBL, distancia entre centros, ED, descentramientos y diámetro mínimo de lente.
    - Tipo de montaje, bisel y si hay plaquetas, como clasificación heurística.
 4. Todo marcador es **editable a mano**, con lupa y flechas del teclado. Los resultados llevan su **incertidumbre (±)**, calculada por perturbación.
+5. **Guarda un histórico por persona**: fichas de personas (nombre, referencia, fecha de nacimiento, notas), cada una con todas sus medidas (valores, ±, montura, graduación, parámetros y, opcionalmente, la foto con las marcas). Muestra la media y la dispersión de varias medidas. Todo queda **solo en el navegador** (IndexedDB), con copia de seguridad JSON, importación y exportación CSV.
+
+**Interfaz**: cabecera con «Personas», «Ajustes» y «+ Nueva medida». Una medida es un asistente por pasos: Persona → Montura (solo método montura) → Foto → Revisar y guardar. Los detalles técnicos y los parámetros avanzados van plegados. La calibración de la pantalla y la ficha de persona son ventanas modales.
 
 Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un equipo técnico en una empresa de diseños de lentes freeform. **Interfaz y comentarios en español.** El rigor óptico importa más que lo vistoso.
 
@@ -39,12 +42,12 @@ Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un e
 
 ```bash
 npm run fixtures     # genera imágenes sintéticas en tests/fixtures/out/ (python3, numpy, Pillow; ffmpeg opcional)
-npm test             # 31 pruebas unitarias con node:test sobre la sección CORE
+npm test             # 35 pruebas unitarias con node:test sobre la sección CORE
 npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial simulado (playwright; CHROME_PATH opcional)
 ```
 
 - `tests/lib/extract-core.cjs` extrae la sección entre `// ==CORE START==` y `// ==CORE END==` de `index.html` y exporta todo `function` y `const` de nivel superior. **No rompas esos marcadores** y mantén el CORE **sin DOM**.
-- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla con arrastre, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el método tarjeta en vivo y el método iris con fotos subidas.
+- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla con arrastre, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el histórico (crear persona, dos medidas, resumen, detalle con foto, persistencia tras recargar, CSV), el método tarjeta en vivo y el método iris con fotos subidas guardado en una persona nueva.
 - Las pruebas e2e sustituyen MediaPipe por `tests/fixtures/out/fake_vision.mjs`, que devuelve puntos coherentes con cada imagen sintética. El detector distingue la imagen por el píxel marcador (1,1): 10 = sin gafas, 240 = con gafas, 128 = tarjeta.
 - Las escenas sintéticas se proyectan con el mismo modelo físico. Por eso validan la coherencia interna y los algoritmos de visión, **no** la exactitud con caras reales. **Nunca se ha probado con una cámara y una cara reales.**
 
@@ -54,15 +57,18 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Geometría: `focalFromDfov`, `rcFromLens` (centro de rotación + Prentice), `cardWidthPx`, `measureCap`, `solveAll`, `solveWithUnc`.
   - Método montura: `tplFromLines`, `tplDNC`, `detectOuterEdge`, `frameScaleZ`.
   - Ráfaga: `nccAt`, `registerShift` (búsqueda entera por NCC + Lucas–Kanade), `similarity2`, `stackRGBA`.
+  - Histórico: `buildRecord` (registro que se guarda), `summarizeHistory`, `recordsToCSV` (`;` y coma decimal), `normalizeImport`.
   - Óptica: `lensData`, `apparentMag` (lente gruesa), `solveVertexH`, `fuseVertex`.
   - Visión: `detectCard`, `refineEdge`, `refineIris` (ajuste de circunferencia de Kåsa sobre bordes laterales), `detectLensContour` (programación dinámica polar), `rimAnalysis`, `classifyFrame`, `padAnalysis`, `featureScale`.
 - **App**:
+  - Navegación: `go(vista)` entre `viewPeople`, `viewPerson`, `viewRecord`, `viewWizard` y `viewSettings`. Asistente: `startMeasure(personId)`, `showStep('person'|'frame'|'photo'|'review')`, estado en `wiz = {person, step, savedId}`.
+  - Datos: `DB` (IndexedDB `dipfx` v1; almacenes `people` {id, name, ref, birth, notes, created, updated} y `measures` (registro de `buildRecord`, índice `personId`, `image` como Blob JPEG)). `renderPeople`, `renderPerson`, `renderRecord`, `saveMeasure`, `snapshotBlob`, `exportJson`, `exportCsv`, `importJson`. Preferencias (método, exigencia, voz) en `localStorage` `dipapp.prefs`.
   - Calibración de la pantalla (`scrCal`, `openScr`; clave `dipapp.screen`) y plantilla de la montura (`openTpl`, `tplDraw`; clave `dipapp.tpl`).
   - Detección del dispositivo y base de datos de FOV (`CAM_DB`).
   - Carga de MediaPipe y `analyzeFace`.
   - Bucle en vivo: `evaluate` → `guidance` → cuenta atrás → `captureBurst` → `stackBurst`.
   - `analyzeCapture` → `frameDetect` → (método montura) `outerDetect`.
-  - Interfaz de medición: `handles`, `moveHandle`, `drawScene`, `recompute`.
+  - Interfaz de medición: `handles`, `moveHandle`, `drawScene`, `recompute` (cifras clave en `#results`; geometría y afinado en `#techDetails`). El editor muestra por defecto la zona de las gafas (`viewRect`, `cap.vr`); `cap.full` muestra la foto completa.
 - Modelo de medición: `M = { mode, caps: [N?, G] }`. Cada `cap` contiene:
   - `cv` (lienzo), `W`, `H`, `f` (focal en px), `ss` (remuestreo de la imagen: 2 si es el promedio ×2 de la ráfaga, 1 si no), `burst` (`{stack, best, info}`, o null si es una foto subida).
   - `iris.{od,os}.{x,y,r}`, `lmk` (478 puntos en px), `pose`.
@@ -111,6 +117,7 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Si se marcan las dos referencias (ancho exterior y cajas), se avisa cuando discrepan más de 2,5 σ.
 - **Ráfaga**: el registro es una semejanza (dos zonas, una por ojo). Si la cabeza gira o la cara cambia de expresión entre fotogramas, se descartan (NCC < 0,9, escala > 2 %, giro > 1°). El remuestreo ×2 mejora el ruido y la nitidez de los bordes solo si hay desplazamientos subpíxel entre fotogramas; no crea detalle que la óptica no resuelva.
 - **Pupila**: se usa el centro del iris (circunferencia ajustada), no el centro pupilar ni el reflejo corneal.
+- **Histórico**: vive en el navegador de un dispositivo. No se sincroniza; si se borran los datos del sitio, se pierde. Solo la copia de seguridad JSON lo protege. Las fotos de caras son datos personales: se guardan solo si se marca la casilla y nunca salen del dispositivo salvo en la copia con fotos.
 
 ## Prioridades siguientes
 
@@ -126,10 +133,10 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
    - Ángulo pantoscópico y galbe estimados (hoy son entradas manuales).
    - Vértice también en el método tarjeta (segunda foto sin gafas y con tarjeta en la frente).
 5. **Mejoras de producto**:
-   - Exportar a PDF o JSON.
-   - Historial.
+   - Exportar una medida a PDF (informe para el cliente o el laboratorio).
+   - Reabrir una medida guardada para reajustar sus marcadores (hoy se guarda la foto con las marcas, no el estado editable).
+   - Sincronización entre dispositivos (necesitaría un servidor; cuidado con la protección de datos).
    - Edición del contorno completo para el ED.
-   - Publicación en GitHub Pages.
 
 ## Normas de trabajo en este repo
 

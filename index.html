@@ -5,239 +5,331 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Medidor de DIP, alturas y montura</title>
 <style>
-:root{--bg:#f4f6f9;--card:#fff;--ink:#1c2230;--mut:#5b6476;--line:#dde2ea;--acc:#0b63c9;--ok:#12844a;--bad:#c2362b;--warn:#a86500}
+:root{--bg:#f4f6fa;--card:#fff;--ink:#17202e;--mut:#5d6778;--line:#e1e6ee;--acc:#0b63c9;--acc2:#e9f1fc;--ok:#12844a;--bad:#c2362b;--warn:#a86500;--r:14px}
 *{box-sizing:border-box}
-body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
-header{padding:12px 20px;border-bottom:1px solid var(--line);background:#fff;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
-header h1{font-size:18px;margin:0}
-header .sub{color:var(--mut);font-size:13px}
-main{max-width:1320px;margin:0 auto;padding:16px;display:grid;gap:16px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px}
-.panel h2{font-size:16px;margin:0 0 12px}
-.panel h3{font-size:14px;margin:16px 0 6px}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+h1{font-size:24px;margin:0;letter-spacing:-.01em}
+h2{font-size:19px;margin:0 0 6px}
+h3{font-size:15px;margin:18px 0 8px}
 .hidden{display:none!important}
-.grid2{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}
-@media(max-width:960px){.grid2{grid-template-columns:1fr}}
-table.kv{border-collapse:collapse;width:100%;font-size:14px}
-table.kv td,table.kv th{padding:5px 6px;border-bottom:1px solid var(--line);vertical-align:top}
-table.kv td:first-child{color:var(--mut)}
-table.kv th{font-size:12px;color:var(--mut);font-weight:600;text-align:right}
-table.kv th:first-child{text-align:left}
-label.f{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--mut)}
-label.f input,label.f select{font:inherit;font-size:14px;color:var(--ink);padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:#fff;width:100%}
-.row{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
-.row>label.f{flex:1 1 80px;min-width:0}
-button{font:inherit;padding:8px 14px;border-radius:7px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+/* cabecera */
+header.top{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 20px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:8px;margin-right:auto}
+.brand b{font-size:19px}
+.brand .sub{color:var(--mut);font-size:13px}
+nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+nav .nav{background:none;border-color:transparent;color:var(--mut);font-weight:600}
+nav .nav.on{background:var(--acc2);color:var(--acc)}
+main{max-width:1180px;margin:0 auto;padding:22px 16px 60px}
+/* tarjetas y controles */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:0 1px 2px rgba(20,30,50,.04)}
+.card+.card{margin-top:14px}
+.viewHead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.viewHead .sp{flex:1 1 auto}
+.lead{color:var(--mut);margin:2px 0 14px;font-size:15px}
+button{font:inherit;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer;font-weight:500}
+button:hover{border-color:#c5cedb}
 button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+button.pri:hover{background:#0a58b3}
+button.big{padding:12px 22px;font-size:16px}
+button.link{border:none;background:none;color:var(--acc);padding:4px 0;font-weight:600}
+button.danger{color:var(--bad)}
 button:disabled{opacity:.5;cursor:default}
+input[type=search],input[type=text],input[type=date],textarea.f{font:inherit;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mut)}
+label.f input,label.f select,label.f textarea{font:inherit;font-size:15px;color:var(--ink);padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;width:100%}
+label.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);cursor:pointer}
+label.chk input{width:auto;margin:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:10px}
+.row>label.f{flex:1 1 120px;min-width:0}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.actions .sp{flex:1 1 auto}
 .note{font-size:13px;color:var(--mut)}
-.warnbox{background:#fff6e8;border:1px solid #f0d3a2;color:#6b4300;border-radius:8px;padding:8px 10px;font-size:13px;margin-top:8px}
-.errbox{background:#fdeceb;border:1px solid #f2b8b3;color:#7d1d16;border-radius:8px;padding:8px 10px;font-size:13px;margin-top:8px}
-.okbox{background:#e8f6ee;border:1px solid #b8e2c8;color:#0d5a31;border-radius:8px;padding:10px 12px;font-size:14px;margin-top:10px}
-details{margin-top:12px}
-details summary{cursor:pointer;font-weight:600}
+.warnbox{background:#fff7ea;border:1px solid #f0d6a8;color:#6b4300;border-radius:10px;padding:9px 12px;font-size:13.5px;margin-top:8px}
+.errbox{background:#fdeeed;border:1px solid #f2bbb6;color:#7d1d16;border-radius:10px;padding:9px 12px;font-size:13.5px;margin-top:8px}
+.okbox{background:#e9f7ef;border:1px solid #b8e2c8;color:#0d5a31;border-radius:10px;padding:12px 14px;font-size:14.5px;margin-top:10px}
+.badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;background:var(--acc2);color:var(--acc);border:1px solid #cfe0f6;font-weight:500}
+.badge.est{background:#fff6e8;color:#7a4b00;border-color:#f0d3a2}
+.badge.cal{background:#e8f6ee;color:#0d6a3a;border-color:#b8e2c8}
+details{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px 14px;background:#fff}
+details>summary{cursor:pointer;font-weight:600;list-style-position:inside}
+details[open]>summary{margin-bottom:6px}
 details ol,details ul{margin:8px 0 0 0;padding-left:20px}
 details li{margin:4px 0}
-.stage{position:relative;background:#111;border-radius:10px;overflow:hidden;width:100%}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+@media(max-width:960px){.grid2{grid-template-columns:1fr}}
+.settings{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.settings .card+.card{margin-top:0}
+@media(max-width:860px){.settings{grid-template-columns:1fr}}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#17202e;color:#fff;padding:11px 18px;border-radius:12px;z-index:90;box-shadow:0 6px 20px rgba(0,0,0,.25);font-weight:500}
+/* listas */
+table.list{border-collapse:collapse;width:100%;font-size:14.5px}
+table.list th{font-size:12px;color:var(--mut);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.03em}
+table.list td{padding:11px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.list tr.click{cursor:pointer}
+table.list tr.click:hover td{background:#f7f9fc}
+table.list td.num,table.list th.num{text-align:right}
+.empty{text-align:center;color:var(--mut);padding:40px 10px}
+.empty b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.pinfo{display:flex;gap:18px;flex-wrap:wrap;color:var(--mut);font-size:14px;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.stat{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat .k{font-size:12px;color:var(--mut)}
+.stat .v{font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.privacy{font-size:12.5px;color:var(--mut);margin-top:14px}
+/* asistente */
+ol.stepper{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 16px;flex-wrap:wrap}
+ol.stepper li{display:flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border-radius:30px;background:#fff;border:1px solid var(--line);color:var(--mut);font-size:14px;font-weight:600}
+ol.stepper li .n{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:#eef1f5;font-size:13px}
+ol.stepper li.on{border-color:var(--acc);color:var(--acc);background:var(--acc2)}
+ol.stepper li.on .n{background:var(--acc);color:#fff}
+ol.stepper li.done{color:var(--ok)}
+ol.stepper li.done .n{background:var(--ok);color:#fff}
+.who{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;font-size:14px;color:var(--mut)}
+.who b{color:var(--ink)}
+.plist{display:grid;gap:8px;margin-top:12px;max-height:340px;overflow:auto}
+.pitem{display:flex;justify-content:space-between;gap:10px;align-items:center;text-align:left;width:100%;padding:12px 14px;border-radius:12px}
+.pitem:hover{background:#f7f9fc}
+.pitem .m{color:var(--mut);font-size:13px}
+ol.steps{margin:4px 0 12px;padding-left:22px;font-size:14.5px}
+ol.steps li{margin:4px 0}
+.tips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 10px}
+.tips span{background:#f2f5f9;border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:13px;color:var(--mut)}
+/* captura */
+.stage{position:relative;background:#111;border-radius:12px;overflow:hidden;width:100%}
 .stage video,.stage canvas{position:absolute;inset:0;width:100%;height:100%;transform:scaleX(-1)}
-#stepTitle{display:inline-block;background:#eef3fb;color:var(--acc);border:1px solid #cfe0f6;border-radius:8px;padding:4px 10px;font-weight:700;margin-bottom:10px}
-#msg{font-size:20px;font-weight:600;margin:12px 0 4px;min-height:30px}
+#stepTitle{display:inline-block;background:var(--acc2);color:var(--acc);border-radius:20px;padding:4px 12px;font-weight:700;margin-bottom:10px;font-size:14px}
+#msg{font-size:21px;font-weight:650;margin:2px 0 12px;min-height:30px;line-height:1.3}
 #msg.ok{color:var(--ok)} #msg.bad{color:var(--bad)}
 #countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:120px;font-weight:800;color:rgba(255,255,255,.9);text-shadow:0 2px 12px rgba(0,0,0,.6);pointer-events:none}
 ul.checks{list-style:none;padding:0;margin:0;font-size:14px}
-ul.checks li{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)}
+ul.checks li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}
 ul.checks li .st{font-weight:700}
 ul.checks li.ok .st{color:var(--ok)} ul.checks li.bad .st{color:var(--bad)} ul.checks li.na .st{color:var(--mut)}
 ul.checks li .val{color:var(--mut);font-variant-numeric:tabular-nums}
-#lookHere{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#0b63c9;color:#fff;padding:6px 16px;border-radius:0 0 10px 10px;font-weight:700;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+#lookHere{position:fixed;top:0;left:50%;transform:translateX(-50%);background:#0b63c9;color:#fff;padding:6px 16px;border-radius:0 0 10px 10px;font-weight:700;z-index:95;box-shadow:0 2px 8px rgba(0,0,0,.25)}
 #lookHere.pulse{animation:pulse .6s infinite alternate}
 @keyframes pulse{from{background:#0b63c9}to{background:#12844a}}
+canvas#poseViz{display:block;margin:10px auto 0;background:#f0f3f7;border-radius:50%}
+/* revisión */
 .photoWrap{position:relative;width:100%}
-#pc{width:100%;display:block;border-radius:8px;background:#111;touch-action:none;cursor:crosshair}
+#pc{width:100%;display:block;border-radius:12px;background:#111;touch-action:none;cursor:crosshair}
 #loupe{position:absolute;top:8px;left:8px;width:210px;height:210px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.4);pointer-events:none;background:#000}
 .tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
 .tabs button{padding:6px 12px;font-size:14px}
 .tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 .res{font-variant-numeric:tabular-nums}
-.res .big{font-size:26px;font-weight:700}
-.res table td:not(:first-child){text-align:right;font-weight:600}
-.res table td:first-child{width:52%}
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tile{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.tile.main{grid-column:1/-1;background:var(--acc2);border-color:#cfe0f6}
+.tile .k{font-size:12.5px;color:var(--mut)}
+.tile .v{font-size:21px;font-weight:700}
+.tile.main .v{font-size:30px;color:var(--acc)}
+.tile .u{font-size:13px;color:var(--mut);font-weight:500}
+table.kv{border-collapse:collapse;width:100%;font-size:14px}
+table.kv td,table.kv th{padding:6px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+table.kv td:first-child{color:var(--mut)}
+table.kv th{font-size:12px;color:var(--mut);font-weight:600;text-align:right}
+table.kv th:first-child{text-align:left}
+.res table.kv td:not(:first-child){text-align:right;font-weight:600}
 #frameType td{font-weight:400!important}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:8px}
 .legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px;background:var(--c)}
-canvas#poseViz{display:block;margin:6px auto 0;background:#f0f3f7;border-radius:50%}
-.badge{display:inline-block;font-size:12px;padding:1px 7px;border-radius:10px;background:#eef3fb;color:var(--acc);border:1px solid #cfe0f6}
-.badge.est{background:#fff6e8;color:#7a4b00;border-color:#f0d3a2}
-.badge.cal{background:#e8f6ee;color:#0d6a3a;border-color:#b8e2c8}
+.savebox{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
 textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;margin-top:8px}
 .rxgrid{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));gap:4px 6px;align-items:center;font-size:12.5px;color:var(--mut)}
-.rxgrid input{font:inherit;font-size:14px;color:var(--ink);padding:4px 6px;border:1px solid var(--line);border-radius:6px;width:100%}
+.rxgrid input{font:inherit;font-size:14px;color:var(--ink);padding:5px 6px;border:1px solid var(--line);border-radius:7px;width:100%}
 .rxgrid b{color:var(--ink)}
-.tplWrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+/* plantilla y calibración */
+.tplWrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #tplCv,#scrCv{display:block;width:100%;touch-action:none;outline:none}
 #tplCv{cursor:ew-resize}
 .tplNums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
 @media(max-width:640px){.tplNums{grid-template-columns:repeat(2,minmax(0,1fr))}}
-ol.steps{margin:4px 0 10px;padding-left:20px;font-size:14px}
-ol.steps li{margin:3px 0}
+/* ventanas modales */
+.modal{position:fixed;inset:0;background:rgba(15,22,35,.45);z-index:80;display:flex;align-items:flex-start;justify-content:center;padding:5vh 12px;overflow:auto}
+.modalBox{background:#fff;border-radius:16px;padding:22px;width:min(860px,100%);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modalBox.sm{width:min(480px,100%)}
+/* registro guardado */
+.recImg{width:100%;border-radius:12px;display:block;background:#111}
+.scrollx{overflow-x:auto}
+@media(max-width:640px){
+  main{padding:16px 10px 50px}
+  .card{padding:14px}
+  .brand .sub{display:none}
+  table.list .opt{display:none}
+  .viewHead input[type=search]{min-width:0!important;flex:1 1 100%}
+  #msg{font-size:18px}
+}
 </style>
 </head>
 <body>
 <div id="lookHere" class="hidden">▲ Mira aquí, al objetivo de la cámara ▲</div>
-<header>
-  <h1>Medidor de DIP, alturas y montura</h1>
-  <span class="sub">Captura guiada por webcam · DIP de lejos con corrección de convergencia · alturas · dimensiones y tipo de montura</span>
+<header class="top">
+  <div class="brand"><b>DipFx</b><span class="sub">Medidas de centrado con la cámara</span></div>
+  <nav>
+    <button class="nav" data-view="people" type="button">Personas</button>
+    <button class="nav" data-view="settings" type="button">Ajustes</button>
+    <button class="pri" id="newMeasureBtn" type="button">+ Nueva medida</button>
+  </nav>
 </header>
 <main>
 
-<!-- 0. CALIBRACIÓN DE LA PANTALLA (primera vez; editable desde el panel 1) -->
-<section class="panel hidden" id="scrPanel">
-  <h2>Calibrar la pantalla <span class="note" style="font-weight:400">· solo hace falta una vez en este equipo</span></h2>
-  <div class="note">La plantilla de la montura se dibuja a tamaño real, y el navegador no sabe cuánto mide un píxel de tu pantalla. Apoya una regla sobre la pantalla y ajusta la barra con el deslizador o los botones hasta que mida exactamente la longitud indicada. El valor se guarda en este navegador y puedes cambiarlo cuando quieras desde «Calibrar pantalla».</div>
-  <div class="row">
-    <label class="f">Referencia<select id="scrRef">
-      <option value="100">Regla: 100 mm</option><option value="50">Regla: 50 mm (pantallas pequeñas)</option><option value="85.6">Tarjeta ID‑1: ancho 85,60 mm</option><option value="custom">Otra longitud…</option>
-    </select></label>
-    <label class="f hidden" id="scrCustomWrap">Longitud (mm)<input id="scrCustom" type="number" step="1" min="20" max="400" value="150"></label>
+<!-- ===== PERSONAS ===== -->
+<section class="view" id="viewPeople">
+  <div class="viewHead"><h1>Personas</h1><span class="sp"></span>
+    <input id="peopleSearch" type="search" placeholder="Buscar por nombre o referencia" style="min-width:240px">
+    <button id="personAddBtn" type="button">Nueva persona</button></div>
+  <div class="card" style="padding:6px 10px">
+    <div class="scrollx"><table class="list" id="peopleTable"><thead><tr><th>Nombre</th><th class="opt">Referencia</th><th class="num">Medidas</th><th class="opt">Última medida</th><th class="num">DIP</th></tr></thead><tbody></tbody></table></div>
+    <div class="empty hidden" id="peopleEmpty"><b>Aún no hay personas guardadas</b>Pulsa «+ Nueva medida» para medir a alguien. Al terminar, la medida se guarda en su ficha.</div>
   </div>
-  <div class="tplWrap" style="margin-top:10px"><canvas id="scrCv" tabindex="0"></canvas></div>
-  <div class="row" style="align-items:center">
-    <button id="scrMinus" type="button" title="Acortar 0,25 px">−</button>
-    <input id="scrRange" type="range" min="100" max="900" step="0.25" style="flex:1 1 200px">
-    <button id="scrPlus" type="button" title="Alargar 0,25 px">+</button>
-  </div>
-  <div class="note" id="scrVal" style="margin-top:4px"></div>
-  <div class="note" style="margin-top:4px">Mira cada extremo de la barra justo de frente (con un ojo cerrado) para que no haya paralaje. Con la barra seleccionada, las flechas ← → la ajustan en pasos de 0,25 px (con Mayús, 2 px).</div>
-  <div class="row"><button class="pri" id="scrSave" type="button">Guardar calibración</button><button id="scrSkip" type="button">Ahora no</button></div>
+  <p class="privacy">Las personas y sus medidas se guardan solo en este navegador, en este dispositivo: no se envían a ningún servidor. Si borras los datos del navegador, se pierden. Haz copias de seguridad desde Ajustes → Datos.</p>
 </section>
 
-<!-- 1. DISPOSITIVO -->
-<section class="panel" id="setupPanel">
-  <h2>1 · Dispositivo, cámara y método</h2>
-  <div class="grid2">
-    <div>
-      <table class="kv" id="devinfo"><tr><td>Detectando…</td><td></td></tr></table>
-      <div id="camWarn"></div>
-    </div>
-    <div>
-      <div class="row" style="align-items:center;margin-top:0"><span class="note" style="flex:1 1 auto">Pantalla: <span id="scrStatus">—</span></span><button id="scrOpen" type="button">Calibrar pantalla</button></div>
-      <div class="row"><label class="f">Cámara<select id="camSel"><option value="">(se listan tras dar permiso)</option></select></label></div>
-      <div class="row">
-        <label class="f">FOV diagonal (°)<input id="fovIn" type="number" step="0.1" min="30" max="140" value="75"></label>
-        <label class="f">Referido a<select id="refSel"><option value="1.7778">16:9</option><option value="1.3333">4:3</option></select></label>
-      </div>
-      <div class="note" style="margin-top:6px">Origen del FOV: <span id="fovSrc" class="badge est">genérico</span></div>
-      <div class="row"><button id="saveFovBtn" type="button">Guardar FOV para esta cámara</button></div>
-      <div class="row" style="margin-top:12px">
-        <label class="f">Método<select id="modeSel">
-          <option value="frame" selected>Montura medida en la plantilla · 1 foto con gafas</option>
-          <option value="card">Tarjeta sobre la montura · 1 foto con gafas</option>
-          <option value="iris">Iris · 2 fotos: sin gafas y con gafas</option>
-        </select></label>
-      </div>
-      <div class="row">
-        <label class="f">Exigencia de alineación<select id="tolSel">
-          <option value="estricto">Estricta</option><option value="normal" selected>Normal</option><option value="flexible">Flexible</option>
-        </select></label>
-        <label class="f" style="flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;color:var(--ink)"><input type="checkbox" id="voiceChk" checked style="width:auto"> Guía por voz</label>
-      </div>
-      <div class="row" style="margin-top:14px"><button class="pri" id="startBtn" type="button">Empezar: medir la montura</button></div>
-      <div class="note" style="margin-top:12px">O analiza fotos ya hechas con esta misma cámara (sin recortar):</div>
-      <div class="row">
-        <label class="f" id="fileNWrap">Foto SIN gafas<input type="file" id="fileN" accept="image/*"></label>
-        <label class="f"><span id="fileGLabel">Foto CON gafas y tarjeta</span><input type="file" id="fileG" accept="image/*"></label>
-      </div>
-      <div id="loadMsg" class="note" style="margin-top:8px"></div>
-    </div>
+<!-- ===== FICHA DE UNA PERSONA ===== -->
+<section class="view hidden" id="viewPerson">
+  <button class="link" type="button" data-view="people">← Personas</button>
+  <div class="card" style="margin-top:8px">
+    <div class="viewHead" style="margin:0"><h1 id="personName"></h1><span class="sp"></span>
+      <button id="personEditBtn" type="button">Editar</button>
+      <button class="pri" id="personMeasureBtn" type="button">+ Nueva medida</button></div>
+    <div class="pinfo" id="personInfo"></div>
+    <div class="stats" id="personStats"></div>
   </div>
-  <details>
-    <summary>Cómo hacer una buena captura</summary>
-    <ol>
-      <li><b>Desactiva el encuadre automático</b>: Center Stage (Mac/iPad), «Encuadre automático» de Windows Studio Effects o el software del fabricante.</li>
-      <li>Pantalla <b>vertical (90°)</b> y cámara a la altura de los ojos; la app te dirá si subir o bajar. Distancia 35–45 cm, luz frontal suave y sin reflejos en las lentes.</li>
-      <li>Mira <b>al objetivo de la cámara</b>, no a la pantalla: así el punto de fijación es conocido y la app corrige la convergencia.</li>
-      <li><b>Método montura</b>: primero mide la montura sobre la plantilla de la pantalla (ancho exterior y, mejor, también cada lente). Luego, con las gafas puestas, la app hace una ráfaga y combina los fotogramas. La escala sale de la propia montura: no hace falta ninguna tarjeta.</li>
-      <li><b>Método tarjeta</b>: con las gafas puestas, apoya una tarjeta estándar horizontal y plana con su borde inferior sobre la parte superior de la montura. Sujétala por el borde superior sin tapar los laterales.</li>
-      <li><b>Método iris</b>: primero una foto <b>sin gafas</b> y luego otra <b>con gafas</b> a la misma distancia (la app te guía para igualarla). Pon expresión neutra en ambas. Introduce después la graduación de cada lente: el cambio de tamaño del iris a través de cada lente permite calcular el vértice real y afinar todo.</li>
-      <li>Si conoces tu diámetro blanco‑blanco (topógrafo, biómetro), introdúcelo: es la escala del método iris.</li>
-      <li>Tras la captura, revisa con la lupa las pupilas, el recuadro de cada lente (naranja) y, en su caso, la tarjeta.</li>
+  <div class="card">
+    <h2>Medidas</h2>
+    <div class="scrollx"><table class="list" id="personMeasures"><thead><tr><th>Fecha</th><th class="opt">Montura</th><th class="opt">Método</th><th class="num">DIP</th><th class="num">Mono OD / OI</th><th class="num">Altura OD / OI</th></tr></thead><tbody></tbody></table></div>
+    <div class="empty hidden" id="personEmpty"><b>Sin medidas todavía</b>Pulsa «+ Nueva medida».</div>
+  </div>
+  <div class="actions" style="border:none"><span class="sp"></span><button class="danger" id="personDelBtn" type="button">Borrar persona y sus medidas</button></div>
+</section>
+
+<!-- ===== MEDIDA GUARDADA ===== -->
+<section class="view hidden" id="viewRecord">
+  <button class="link" type="button" id="recordBack">← Volver</button>
+  <div class="card" style="margin-top:8px" id="recordBody"></div>
+  <div class="actions" style="border:none"><button id="recordCopy" type="button">Copiar resultados</button><span class="sp"></span><button class="danger" id="recordDel" type="button">Borrar esta medida</button></div>
+</section>
+
+<!-- ===== NUEVA MEDIDA (asistente) ===== -->
+<section class="view hidden" id="viewWizard">
+  <ol class="stepper" id="stepper"></ol>
+  <div class="who" id="wizWho"></div>
+
+  <!-- Paso: persona -->
+  <div class="card" id="stepPerson">
+    <h2>¿A quién vas a medir?</h2>
+    <p class="lead">Elige una persona guardada o crea una nueva. Todas sus medidas quedarán en su ficha.</p>
+    <div class="row" style="margin-top:0"><input id="stepPersonSearch" type="search" placeholder="Buscar por nombre o referencia" style="flex:1 1 260px"><button class="pri" id="personNewBtn" type="button">+ Nueva persona</button></div>
+    <div class="plist" id="stepPersonList"></div>
+    <div class="actions"><button class="link" id="personSkip" type="button">Medir sin asignar ahora (se elige al guardar)</button><span class="sp"></span><span class="note" id="methodNote"></span></div>
+  </div>
+
+  <!-- Paso: montura -->
+  <div class="card hidden" id="tplPanel">
+    <h2>Mide la montura sobre la pantalla</h2>
+    <ol class="steps">
+      <li>Abre las varillas y apoya con suavidad el <b>frente de la montura contra la pantalla</b>, con las varillas hacia ti (como si fueras a ponértela). La lente derecha queda a tu derecha.</li>
+      <li>Haz que la <b>línea horizontal</b> pase por el centro de las dos lentes y que el <b>puente</b> quede sobre la línea discontinua.</li>
+      <li>Arrastra las líneas <b style="color:#0b63c9">azules</b> a los <b>bordes exteriores</b> del frente. Si puedes, lleva también las <b style="color:#c46a00">naranjas</b> al <b>borde interior del aro</b> de cada lente: dan una segunda referencia y más precisión.</li>
+      <li>Mira cada línea <b>de frente y con un ojo cerrado</b>. Toca una línea y afínala con las flechas del teclado (0,1 mm; con Mayús, 1 mm).</li>
     </ol>
-  </details>
-</section>
-
-<!-- 1b. PLANTILLA DE LA MONTURA (método montura) -->
-<section class="panel hidden" id="tplPanel">
-  <h2>Paso 1 de 3 · Medir la montura sobre la plantilla</h2>
-  <ol class="steps">
-    <li>Abre las varillas y apoya con suavidad el <b>frente de la montura contra la pantalla</b>, con las varillas hacia ti (como si fueras a ponértela). La lente derecha queda a tu derecha.</li>
-    <li>Coloca la montura de modo que la <b>línea horizontal</b> pase por el centro de las dos lentes y el <b>puente</b> quede sobre la línea discontinua vertical.</li>
-    <li>Arrastra las líneas <b style="color:#0b63c9">azules</b> hasta los <b>bordes exteriores</b> del frente, a la altura de la línea horizontal. Si puedes, arrastra también las <b style="color:#c46a00">naranjas</b> hasta el <b>borde interior del aro</b> de cada lente (lados nasal y temporal): dan una segunda referencia de escala.</li>
-    <li>Mira cada línea <b>justo de frente, con un ojo cerrado</b>. Selecciona una línea y afínala con las flechas (0,1 mm; con Mayús, 1 mm).</li>
-  </ol>
-  <div id="tplWarn"></div>
-  <div class="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
-  <div class="row"><label class="f" style="flex:0 0 auto;flex-direction:row;align-items:center;gap:6px;color:var(--ink)"><input type="checkbox" id="tplInner" checked style="width:auto"> Marcar también el borde interior de cada lente (recomendado)</label></div>
-  <div class="note" style="margin-top:8px">También puedes escribir las medidas si las has tomado con una regla o un trazador:</div>
-  <div class="tplNums">
-    <label class="f">Ancho exterior (mm)<input id="tW" type="number" step="0.1"></label>
-    <label class="f tplIn">A lente derecha · OD (mm)<input id="tAod" type="number" step="0.1"></label>
-    <label class="f tplIn">Puente DBL (mm)<input id="tDBL" type="number" step="0.1"></label>
-    <label class="f tplIn">A lente izquierda · OI (mm)<input id="tAos" type="number" step="0.1"></label>
+    <div id="tplWarn"></div>
+    <div class="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
+    <div class="row"><label class="chk"><input type="checkbox" id="tplInner" checked> Marcar también el borde interior de cada lente (recomendado)</label></div>
+    <details>
+      <summary>Escribir las medidas a mano (regla o trazador)</summary>
+      <div class="tplNums">
+        <label class="f">Ancho exterior (mm)<input id="tW" type="number" step="0.1"></label>
+        <label class="f tplIn">A lente derecha · OD (mm)<input id="tAod" type="number" step="0.1"></label>
+        <label class="f tplIn">Puente DBL (mm)<input id="tDBL" type="number" step="0.1"></label>
+        <label class="f tplIn">A lente izquierda · OI (mm)<input id="tAos" type="number" step="0.1"></label>
+      </div>
+    </details>
+    <div id="tplMsg"></div>
+    <div class="actions"><button id="tplCancel" type="button">← Atrás</button><span class="sp"></span><button class="pri big" id="tplOk" type="button">Siguiente: la foto →</button></div>
   </div>
-  <div class="row" style="margin-top:12px"><button class="pri" id="tplOk" type="button">Confirmar y pasar a la foto</button><button id="tplCancel" type="button">Cancelar</button></div>
-  <div id="tplMsg"></div>
-</section>
 
-<!-- 2. CAPTURA -->
-<section class="panel hidden" id="livePanel">
-  <h2>2 · Captura guiada</h2>
-  <div id="stepTitle"></div>
-  <div class="grid2">
-    <div>
-      <div class="stage" id="stage">
-        <video id="video" playsinline muted autoplay></video>
-        <canvas id="ov"></canvas>
-        <div id="countdown"></div>
+  <!-- Paso: foto -->
+  <div class="card hidden" id="livePanel">
+    <div id="stepTitle"></div>
+    <div class="tips"><span>Pantalla vertical</span><span>Cámara a la altura de los ojos</span><span>35–45 cm</span><span>Luz frontal suave</span><span>Mira al objetivo, no a la pantalla</span></div>
+    <div class="grid2">
+      <div>
+        <div class="stage" id="stage">
+          <video id="video" playsinline muted autoplay></video>
+          <canvas id="ov"></canvas>
+          <div id="countdown"></div>
+        </div>
+        <div class="note" style="margin-top:6px">Vista en espejo. La línea horizontal discontinua marca la altura de la cámara: tus pupilas deben quedar sobre ella. La foto se hace sola cuando todo está bien.</div>
       </div>
-      <div id="msg">Cargando detector facial…</div>
-      <div class="note">Vista en espejo. La línea discontinua horizontal es la altura de la cámara: tus pupilas deben quedar sobre ella.</div>
-      <div id="between" class="okbox hidden">
-        <b>Foto 1 (sin gafas) lista ✓</b><br>Ponte ahora tus gafas y, cuando estés listo, pulsa «Continuar». Colócate a la misma distancia: la app te indicará si acercarte o alejarte.
-        <div class="row"><button class="pri" id="contBtn" type="button">Continuar con gafas</button></div>
-      </div>
-    </div>
-    <div>
-      <ul class="checks" id="checks"></ul>
-      <canvas id="poseViz" width="150" height="150"></canvas>
-      <div class="note" style="text-align:center">Punto = orientación de tu cabeza (elipse = tolerancia)</div>
-      <div class="row" style="margin-top:12px">
-        <button id="manualBtn" type="button">Capturar ya</button>
-        <button id="stopBtn" type="button">Detener</button>
+      <div>
+        <div id="msg">Cargando detector facial…</div>
+        <div id="between" class="okbox hidden">
+          <b>Foto 1 (sin gafas) lista ✓</b><br>Ponte ahora las gafas y pulsa «Continuar». Colócate a la misma distancia: la app te dirá si acercarte o alejarte.
+          <div class="row"><button class="pri" id="contBtn" type="button">Continuar con gafas</button></div>
+        </div>
+        <details open><summary>Comprobaciones</summary><ul class="checks" id="checks"></ul>
+          <canvas id="poseViz" width="130" height="130"></canvas>
+          <div class="note" style="text-align:center">Punto = orientación de la cabeza · elipse = tolerancia</div>
+        </details>
+        <div class="actions"><button id="stopBtn" type="button">← Atrás</button><span class="sp"></span><button id="manualBtn" type="button">Capturar ya</button></div>
+        <div id="camWarn"></div>
       </div>
     </div>
   </div>
-</section>
 
-<!-- 3. MEDICIÓN -->
-<section class="panel hidden" id="measurePanel">
-  <h2>3 · Medición</h2>
-  <div class="grid2">
-    <div>
-      <div class="tabs" id="capTabs"></div>
-      <div class="photoWrap">
-        <canvas id="pc"></canvas>
-        <canvas id="loupe" width="210" height="210" class="hidden"></canvas>
+  <!-- Paso: revisar y guardar -->
+  <div class="hidden" id="measurePanel">
+    <div class="grid2">
+      <div class="card">
+        <h2>Revisa los marcadores</h2>
+        <p class="lead" style="margin-bottom:10px">Comprueba que cada marca está en su sitio. Si alguna no lo está, arrástrala; con un clic y las flechas del teclado la afinas (0,25 px; con Mayús, 2 px).</p>
+        <div class="tabs" id="capTabs"></div>
+        <div class="photoWrap">
+          <canvas id="pc"></canvas>
+          <canvas id="loupe" width="210" height="210" class="hidden"></canvas>
+        </div>
+        <div class="legend">
+          <span style="--c:#22d36b">Iris / pupila</span><span style="--c:#25b8ff" id="lgCard">Tarjeta</span><span style="--c:#00e5ff" id="lgOuter">Borde exterior de la montura</span><span style="--c:#ffae00">Contorno de la lente</span><span style="--c:#ff4fd8">Centro (puente / nariz)</span>
+        </div>
+        <div class="row"><span id="imgSelWrap"><label class="f" style="width:260px">Imagen de medida<select id="imgSel"><option value="stack">Promedio de la ráfaga</option><option value="best">Mejor fotograma</option></select></label></span><span style="flex:1 1 auto"></span><button id="zoomBtn" type="button">Ver la foto completa</button></div>
+        <details><summary id="autoSum">Notas de la detección automática</summary><div id="autoMsg"></div></details>
       </div>
-      <div class="legend">
-        <span style="--c:#22d36b">Iris / pupila</span><span style="--c:#25b8ff" id="lgCard">Tarjeta</span><span style="--c:#00e5ff" id="lgOuter">Borde exterior de la montura</span><span style="--c:#ffae00">Recuadro de la lente (boxing)</span><span style="--c:#ff4fd8">Centro (puente / nariz)</span>
+      <div class="res">
+        <div class="card">
+          <h2>Resultados</h2>
+          <div id="results"></div>
+          <div class="savebox">
+            <label class="f">Guardar en la ficha de<select id="savePerson"></select></label>
+            <div class="row"><label class="f">Montura (marca, modelo; opcional)<input id="saveFrameName" type="text" placeholder="p. ej. Acetato negro 52□18"></label></div>
+            <div class="row"><label class="f">Notas (opcional)<input id="saveNotes" type="text"></label></div>
+            <div class="row"><label class="chk"><input type="checkbox" id="saveImg" checked> Guardar también la foto con las marcas</label></div>
+            <div class="row"><button class="pri big" id="saveBtn" type="button" style="flex:1 1 auto">Guardar medida</button></div>
+            <div id="saveMsg"></div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button id="retakeNBtn" type="button">Repetir foto sin gafas</button>
+            <button id="retakeGBtn" type="button">Repetir la foto</button>
+            <button id="copyBtn" type="button">Copiar</button>
+          </div>
+          <textarea id="copyArea" class="hidden" readonly></textarea>
+        </div>
       </div>
-      <div class="row" id="imgSelWrap" style="margin-top:6px"><label class="f">Imagen de medida<select id="imgSel"><option value="stack">Promedio de la ráfaga</option><option value="best">Mejor fotograma</option></select></label></div>
-      <div class="note" style="margin-top:6px">Arrastra los marcadores para corregirlos: centro del iris, su borde (radio), cada lado del recuadro de cada lente y, en su caso, los bordes exteriores de la montura o de la tarjeta. Haz clic en uno y afínalo con las flechas del teclado (0,25 px; con Mayús, 2 px).</div>
-      <div id="autoMsg"></div>
     </div>
-    <div class="res">
-      <div id="results"></div>
-      <h3>Montura</h3>
+    <details id="rxWrap"><summary>Graduación de las gafas <span class="note" style="font-weight:400">· corrige el efecto prismático; imprescindible en el método iris</span></summary>
+      <div class="rxgrid" style="margin-top:8px">
+        <span></span><span>Esf</span><span>Cil</span><span>Eje</span><span>Curva base (D)</span><span>Espesor c. (mm)</span>
+        <b>OD</b><input id="rxOdS" type="number" step="0.25" value="0"><input id="rxOdC" type="number" step="0.25" value="0"><input id="rxOdA" type="number" step="1" value="0"><input id="rxOdB" type="number" step="0.25" placeholder="auto"><input id="rxOdT" type="number" step="0.1" placeholder="auto">
+        <b>OI</b><input id="rxOsS" type="number" step="0.25" value="0"><input id="rxOsC" type="number" step="0.25" value="0"><input id="rxOsA" type="number" step="1" value="0"><input id="rxOsB" type="number" step="0.25" placeholder="auto"><input id="rxOsT" type="number" step="0.1" placeholder="auto">
+      </div>
+      <div class="row"><label class="f">Índice<select id="pIndex"><option>1.5</option><option>1.53</option><option>1.56</option><option>1.59</option><option>1.6</option><option>1.67</option><option>1.74</option></select></label>
+        <label class="f">Blanco‑blanco OD (mm)<input id="hvidOd" type="number" step="0.1" placeholder="11.7"></label>
+        <label class="f">Blanco‑blanco OI (mm)<input id="hvidOs" type="number" step="0.1" placeholder="11.7"></label></div>
+      <div class="note" id="lensAutoNote" style="margin-top:6px"></div>
+    </details>
+    <details><summary>Tipo de montura</summary>
       <div class="row">
         <label class="f">Montaje<select id="mountSel">
           <option value="auto">Automático</option>
@@ -258,48 +350,132 @@ ol.steps li{margin:3px 0}
           <label class="f">A OI (mm)<input id="mAos" type="number" step="0.1"></label>
         </div>
       </div>
-      <h3>Graduación de las gafas</h3>
-      <div class="rxgrid">
-        <span></span><span>Esf</span><span>Cil</span><span>Eje</span><span>Curva base (D)</span><span>Espesor c. (mm)</span>
-        <b>OD</b><input id="rxOdS" type="number" step="0.25" value="0"><input id="rxOdC" type="number" step="0.25" value="0"><input id="rxOdA" type="number" step="1" value="0"><input id="rxOdB" type="number" step="0.25" placeholder="auto"><input id="rxOdT" type="number" step="0.1" placeholder="auto">
-        <b>OI</b><input id="rxOsS" type="number" step="0.25" value="0"><input id="rxOsC" type="number" step="0.25" value="0"><input id="rxOsA" type="number" step="1" value="0"><input id="rxOsB" type="number" step="0.25" placeholder="auto"><input id="rxOsT" type="number" step="0.1" placeholder="auto">
+    </details>
+    <details><summary>Parámetros avanzados</summary>
+      <div class="row">
+        <label class="f" id="vertexLbl">Vértice córnea → cara posterior (mm)<input id="pVertex" type="number" step="0.5" value="12"></label>
+        <label class="f" id="pCardOffWrap">Tarjeta delante del plano de la lente (mm)<input id="pCardOff" type="number" step="0.5" value="1.5"></label>
+        <label class="f" id="pOuterOffWrap">Bordes exteriores detrás del plano de la lente (mm)<input id="pOuterOff" type="number" step="0.5" placeholder="auto (galbe)"></label>
       </div>
-      <div class="row"><label class="f">Índice<select id="pIndex"><option>1.5</option><option>1.53</option><option>1.56</option><option>1.59</option><option>1.6</option><option>1.67</option><option>1.74</option></select></label>
-        <label class="f">Blanco‑blanco OD (mm)<input id="hvidOd" type="number" step="0.1" placeholder="11.7"></label>
-        <label class="f">Blanco‑blanco OI (mm)<input id="hvidOs" type="number" step="0.1" placeholder="11.7"></label></div>
-      <div class="note" id="lensAutoNote"></div>
-      <details>
-        <summary>Más parámetros</summary>
-        <div class="row">
-          <label class="f" id="vertexLbl">Vértice córnea → cara posterior (mm)<input id="pVertex" type="number" step="0.5" value="12"></label>
-          <label class="f" id="pCardOffWrap">Tarjeta delante del plano de la lente (mm)<input id="pCardOff" type="number" step="0.5" value="1.5"></label>
-          <label class="f" id="pOuterOffWrap">Bordes exteriores detrás del plano de la lente (mm)<input id="pOuterOff" type="number" step="0.5" placeholder="auto (galbe)"></label>
-        </div>
-        <div class="row">
-          <label class="f">Profundidad de ranura/bisel (mm)<input id="pGroove" type="number" step="0.1" value="0.5"></label>
-          <label class="f">Ángulo pantoscópico (°)<input id="pPanto" type="number" step="1" value="0"></label>
-          <label class="f">Galbe (°)<input id="pWrap" type="number" step="1" value="0"></label>
-        </div>
-        <div class="row">
-          <label class="f">Distancia de cerca (mm)<input id="pNear" type="number" step="10" value="400"></label>
-          <label class="f">FOV diagonal usado (°)<input id="pFov" type="number" step="0.1"></label>
-        </div>
-      </details>
-      <details id="calWrap">
-        <summary>Calibrar la cámara con una distancia medida (opcional)</summary>
-        <div class="note" style="margin-top:6px" id="calNote">Si mides con una cinta la distancia del objetivo a la cara frontal de la tarjeta en esta misma foto, la app calcula el FOV real de tu cámara y lo guarda.</div>
-        <div class="row"><label class="f">Distancia medida (mm)<input id="calZ" type="number" step="1" placeholder="p. ej. 400"></label><button id="calBtn" type="button">Calibrar</button></div>
-      </details>
-      <div class="row" style="margin-top:14px">
-        <button id="retakeNBtn" type="button">Repetir foto sin gafas</button>
-        <button class="pri" id="retakeGBtn" type="button">Repetir foto con gafas</button>
-        <button id="copyBtn" type="button">Copiar resultados</button>
+      <div class="row">
+        <label class="f">Profundidad de ranura/bisel (mm)<input id="pGroove" type="number" step="0.1" value="0.5"></label>
+        <label class="f">Ángulo pantoscópico (°)<input id="pPanto" type="number" step="1" value="0"></label>
+        <label class="f">Galbe (°)<input id="pWrap" type="number" step="1" value="0"></label>
       </div>
-      <textarea id="copyArea" class="hidden" readonly></textarea>
+      <div class="row">
+        <label class="f">Distancia de cerca (mm)<input id="pNear" type="number" step="10" value="400"></label>
+        <label class="f">FOV diagonal usado (°)<input id="pFov" type="number" step="0.1"></label>
+      </div>
+    </details>
+    <details id="calWrap">
+      <summary>Calibrar la cámara con una distancia medida (opcional)</summary>
+      <div class="note" style="margin-top:6px" id="calNote"></div>
+      <div class="row"><label class="f">Distancia medida (mm)<input id="calZ" type="number" step="1" placeholder="p. ej. 400"></label><button id="calBtn" type="button">Calibrar</button></div>
+    </details>
+    <details><summary>Detalles técnicos</summary><div class="res" id="techDetails"></div></details>
+  </div>
+</section>
+
+<!-- ===== AJUSTES ===== -->
+<section class="view hidden" id="viewSettings">
+  <div class="viewHead"><h1>Ajustes</h1></div>
+  <div class="settings">
+    <div class="card">
+      <h2>Pantalla</h2>
+      <p class="note">La plantilla de la montura se dibuja a tamaño real. Calibra la pantalla una vez con una regla.</p>
+      <div class="row" style="align-items:center"><span id="scrStatus">—</span><span class="sp" style="flex:1 1 auto"></span><button id="scrOpen" type="button">Calibrar pantalla</button></div>
+    </div>
+    <div class="card">
+      <h2>Método de medida</h2>
+      <label class="f"><select id="modeSel">
+        <option value="frame" selected>Montura medida en la plantilla (recomendado)</option>
+        <option value="card">Tarjeta sobre la montura</option>
+        <option value="iris">Iris: foto sin gafas y con gafas</option>
+      </select></label>
+      <p class="note" id="modeDesc"></p>
+    </div>
+    <div class="card">
+      <h2>Captura</h2>
+      <div class="row" style="margin-top:0">
+        <label class="f">Exigencia de alineación<select id="tolSel">
+          <option value="estricto">Estricta</option><option value="normal" selected>Normal</option><option value="flexible">Flexible</option>
+        </select></label>
+      </div>
+      <div class="row"><label class="chk"><input type="checkbox" id="voiceChk" checked> Guía por voz (la persona mira a la cámara y no puede leer la pantalla)</label></div>
+      <details><summary>Cómo hacer una buena captura</summary>
+        <ol>
+          <li><b>Desactiva el encuadre automático</b>: Center Stage (Mac/iPad), «Encuadre automático» de Windows Studio Effects o el software del fabricante.</li>
+          <li>Pantalla <b>vertical (90°)</b> y cámara a la altura de los ojos; la app dice si subir o bajar. Distancia 35–45 cm, luz frontal suave y sin reflejos en las lentes.</li>
+          <li>Mirar <b>al objetivo de la cámara</b>, no a la pantalla: así la app corrige la convergencia.</li>
+          <li><b>Método tarjeta</b>: con las gafas puestas, apoya una tarjeta estándar horizontal y plana sobre la parte superior de la montura, sujeta por el borde superior.</li>
+          <li><b>Método iris</b>: una foto <b>sin gafas</b> y otra <b>con gafas</b> a la misma distancia. Introduce después la graduación de cada lente y, si lo conoces, el blanco‑blanco.</li>
+        </ol>
+      </details>
+    </div>
+    <div class="card">
+      <h2>Cámara</h2>
+      <div class="row" style="margin-top:0"><label class="f">Cámara<select id="camSel"><option value="">(se listan tras dar permiso)</option></select></label></div>
+      <div class="row">
+        <label class="f">FOV diagonal (°)<input id="fovIn" type="number" step="0.1" min="30" max="140" value="75"></label>
+        <label class="f">Referido a<select id="refSel"><option value="1.7778">16:9</option><option value="1.3333">4:3</option></select></label>
+      </div>
+      <div class="row" style="align-items:center"><span class="note">Origen del FOV: <span id="fovSrc" class="badge est">genérico</span></span><span style="flex:1 1 auto"></span><button id="saveFovBtn" type="button">Guardar FOV</button></div>
+      <details><summary>Dispositivo detectado</summary><table class="kv" id="devinfo"><tr><td>Detectando…</td><td></td></tr></table></details>
+    </div>
+    <div class="card">
+      <h2>Datos</h2>
+      <p class="note">Todo se guarda solo en este navegador. Exporta una copia de seguridad de vez en cuando, o para pasar los datos a otro equipo.</p>
+      <div class="row"><button id="exportJson" type="button">Copia de seguridad (JSON)</button><button id="exportCsv" type="button">Exportar medidas (CSV)</button></div>
+      <div class="row"><label class="chk"><input type="checkbox" id="exportImgs"> Incluir las fotos en la copia de seguridad</label></div>
+      <div class="row"><label class="f">Importar una copia de seguridad<input type="file" id="importFile" accept="application/json,.json"></label></div>
+      <div class="row"><button class="danger" id="wipeBtn" type="button">Borrar todos los datos</button></div>
+      <div id="dataMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Analizar fotos ya hechas</h2>
+      <p class="note">Para revisar fotos hechas con esta misma cámara, sin recortar. Útil para depurar.</p>
+      <div class="row">
+        <label class="f" id="fileNWrap">Foto SIN gafas<input type="file" id="fileN" accept="image/*"></label>
+        <label class="f"><span id="fileGLabel">Foto CON gafas</span><input type="file" id="fileG" accept="image/*"></label>
+      </div>
+      <div id="loadMsg" class="note" style="margin-top:8px"></div>
     </div>
   </div>
 </section>
 </main>
+
+<!-- ===== MODAL: calibración de la pantalla ===== -->
+<div class="modal hidden" id="scrPanel"><div class="modalBox">
+  <h2>Calibra la pantalla <span class="note" style="font-weight:400">· solo una vez en este equipo</span></h2>
+  <p class="note">La plantilla de la montura se dibuja a tamaño real, pero el navegador no sabe cuánto mide un píxel de tu pantalla. Apoya una regla sobre la pantalla y ajusta la barra hasta que mida exactamente la longitud indicada.</p>
+  <div class="row">
+    <label class="f">Referencia<select id="scrRef">
+      <option value="100">Regla: 100 mm</option><option value="50">Regla: 50 mm (pantallas pequeñas)</option><option value="85.6">Tarjeta ID‑1: ancho 85,60 mm</option><option value="custom">Otra longitud…</option>
+    </select></label>
+    <label class="f hidden" id="scrCustomWrap">Longitud (mm)<input id="scrCustom" type="number" step="1" min="20" max="400" value="150"></label>
+  </div>
+  <div class="tplWrap" style="margin-top:12px"><canvas id="scrCv" tabindex="0"></canvas></div>
+  <div class="row" style="align-items:center">
+    <button id="scrMinus" type="button" title="Acortar 0,25 px">−</button>
+    <input id="scrRange" type="range" min="100" max="900" step="0.25" style="flex:1 1 200px">
+    <button id="scrPlus" type="button" title="Alargar 0,25 px">+</button>
+  </div>
+  <div class="note" id="scrVal" style="margin-top:6px"></div>
+  <div class="note" style="margin-top:4px">Mira cada extremo de la barra de frente, con un ojo cerrado, para evitar el paralaje. También puedes arrastrar la barra o usar las flechas ← → (0,25 px; con Mayús, 2 px).</div>
+  <div class="actions"><button id="scrSkip" type="button">Ahora no</button><span class="sp"></span><button class="pri big" id="scrSave" type="button">Guardar calibración</button></div>
+</div></div>
+
+<!-- ===== MODAL: persona ===== -->
+<div class="modal hidden" id="personModal"><div class="modalBox sm">
+  <h2 id="pfTitle">Nueva persona</h2>
+  <div class="row"><label class="f">Nombre y apellidos *<input id="pfName" type="text" autocomplete="off"></label></div>
+  <div class="row"><label class="f">Referencia (nº de cliente, historia…)<input id="pfRef" type="text" autocomplete="off"></label><label class="f">Fecha de nacimiento<input id="pfBirth" type="date"></label></div>
+  <div class="row"><label class="f">Notas<textarea id="pfNotes" rows="2"></textarea></label></div>
+  <div id="pfMsg"></div>
+  <div class="actions"><button id="pfCancel" type="button">Cancelar</button><span class="sp"></span><button class="pri" id="pfSave" type="button">Guardar</button></div>
+</div></div>
+
+<div id="toast" class="toast hidden"></div>
 
 <script type="module">
 // ======================================================================
@@ -1142,6 +1318,81 @@ function solveWithUnc(M, p, sf) {
   }
   return { base, u };
 }
+// ---------- Histórico: registros de medida, resumen, exportación (sin DOM) ----------
+const REC_KEYS = ['pdFar', 'monoOD', 'monoOS', 'hOD', 'hOS', 'pdNear', 'DBL', 'DNC', 'Z', 'vertex'];
+const r2 = v => v == null || !isFinite(v) ? null : Math.round(v * 100) / 100;
+// Registro que se guarda en el histórico a partir del resultado de solveWithUnc (R, u) y los parámetros p
+function buildRecord(R, u, p, meta = {}) {
+  const values = {}, unc = {};
+  for (const k of REC_KEYS) { values[k] = r2(R[k]); if (u && u[k] != null) unc[k] = r2(u[k]); }
+  const F = R.frame || (R.G && R.G.frame);
+  let frame = null;
+  if (F) {
+    frame = {};
+    for (const e of ['od', 'os']) {
+      frame[e] = { A: r2(F[e].A), B: r2(F[e].B), ED: r2(F[e].ED), decH: r2(F[e].decH), decV: r2(F[e].decV), MBS: r2(F[e].MBS) };
+      if (u && u['A_' + e] != null) unc['A_' + e] = r2(u['A_' + e]);
+    }
+  }
+  const rx = e => ({ s: +p.rx[e].s || 0, c: +p.rx[e].c || 0, a: +p.rx[e].a || 0 });
+  const t = p.tpl || {}, tpl = {};
+  for (const k of ['W', 'Aod', 'Aos', 'DBL']) if (t[k] > 0) tpl[k] = r2(t[k]);
+  return {
+    id: meta.id, personId: meta.personId ?? null, date: meta.date || new Date().toISOString(), method: R.mode,
+    frameName: meta.frameName || '', notes: meta.notes || '',
+    values, unc, frame, mounting: R.mounting || null, pads: meta.pads ?? null,
+    vertexMeasured: !!R.vertexMeasured, flags: (R.flags || []).slice(),
+    params: {
+      rx: { od: rx('od'), os: rx('os') }, index: +p.index || 1.5, vertex: r2(+p.vertex), wrap: +p.wrap || 0, panto: +p.panto || 0,
+      groove: +p.groove || 0, nearDist: +p.nearDist || 400, tpl: Object.keys(tpl).length ? tpl : null, hvid: p.hvidUser ? { od: r2(+p.hvid.od), os: r2(+p.hvid.os) } : null,
+    },
+    camera: meta.camera || null, image: meta.image ?? null, text: meta.text || '',
+  };
+}
+// Media, desviación típica (muestral), mínimo y máximo de varias medidas de una persona
+function summarizeHistory(recs, keys = ['pdFar', 'monoOD', 'monoOS']) {
+  const out = {};
+  for (const k of keys) {
+    const xs = recs.map(r => r && r.values ? r.values[k] : null).filter(x => x != null && isFinite(x));
+    if (!xs.length) continue;
+    const n = xs.length, mean = xs.reduce((a, b) => a + b, 0) / n;
+    const sd = n > 1 ? Math.sqrt(xs.reduce((a, b) => a + (b - mean) ** 2, 0) / (n - 1)) : null;
+    out[k] = { n, mean, sd, min: Math.min(...xs), max: Math.max(...xs) };
+  }
+  return out;
+}
+// CSV para hojas de cálculo en español: separador «;» y coma decimal
+function csvCell(v) {
+  if (v == null || (typeof v === 'number' && !isFinite(v))) return '';
+  let s = typeof v === 'number' ? String(Math.round(v * 100) / 100).replace('.', ',') : String(v);
+  if (/[";\n\r]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+const METHOD_LABEL = { frame: 'montura', card: 'tarjeta', iris: 'iris' };
+function recordsToCSV(people, measures) {
+  const byId = new Map(people.map(q => [q.id, q]));
+  const V = k => m => m.values ? m.values[k] : null, Fr = (e, k) => m => m.frame && m.frame[e] ? m.frame[e][k] : null, Rx = (e, k) => m => m.params && m.params.rx ? m.params.rx[e][k] : null;
+  const cols = [
+    ['Persona', m => (byId.get(m.personId) || {}).name || ''], ['Referencia', m => (byId.get(m.personId) || {}).ref || ''],
+    ['Fecha', m => m.date ? m.date.slice(0, 16).replace('T', ' ') : ''], ['Método', m => METHOD_LABEL[m.method] || m.method || ''],
+    ['Montura', m => m.frameName || ''],
+    ['DIP lejos', V('pdFar')], ['± DIP', m => m.unc ? m.unc.pdFar : null], ['Mono OD', V('monoOD')], ['Mono OI', V('monoOS')],
+    ['Altura OD', V('hOD')], ['Altura OI', V('hOS')], ['DIP cerca', V('pdNear')],
+    ['A OD', Fr('od', 'A')], ['A OI', Fr('os', 'A')], ['B OD', Fr('od', 'B')], ['B OI', Fr('os', 'B')], ['DBL', V('DBL')],
+    ['ED OD', Fr('od', 'ED')], ['ED OI', Fr('os', 'ED')], ['Montaje', m => m.mounting || ''],
+    ['Esf OD', Rx('od', 's')], ['Cil OD', Rx('od', 'c')], ['Eje OD', Rx('od', 'a')], ['Esf OI', Rx('os', 's')], ['Cil OI', Rx('os', 'c')], ['Eje OI', Rx('os', 'a')],
+    ['Vértice', V('vertex')], ['Notas', m => m.notes || ''],
+  ];
+  const rows = measures.slice().sort((a, b) => ((byId.get(a.personId) || {}).name || '').localeCompare((byId.get(b.personId) || {}).name || '', 'es') || (a.date < b.date ? -1 : 1));
+  return [cols.map(c => csvCell(c[0])).join(';'), ...rows.map(m => cols.map(c => csvCell(c[1](m))).join(';'))].join('\r\n');
+}
+// Valida una copia de seguridad importada: {app: 'dipfx', people: [...], measures: [...]}
+function normalizeImport(o) {
+  if (!o || typeof o !== 'object' || o.app !== 'dipfx' || !Array.isArray(o.people) || !Array.isArray(o.measures)) return { ok: false, error: 'El archivo no es una copia de seguridad de DipFx.' };
+  const people = o.people.filter(q => q && typeof q.id === 'string' && typeof q.name === 'string' && q.name.trim());
+  const measures = o.measures.filter(m => m && typeof m.id === 'string' && typeof m.personId === 'string' && m.values && typeof m.values === 'object');
+  return { ok: true, people, measures, skipped: o.people.length - people.length + o.measures.length - measures.length };
+}
 // ==CORE END==
 
 // ======================================================================
@@ -1271,7 +1522,8 @@ function setModeUI() {
   const iris = S.mode === 'iris';
   $('fileNWrap').classList.toggle('hidden', !iris);
   $('fileGLabel').textContent = S.mode === 'card' ? 'Foto CON gafas y tarjeta' : 'Foto CON gafas';
-  $('startBtn').textContent = S.mode === 'frame' ? 'Empezar: medir la montura' : 'Iniciar cámara';
+  $('modeDesc').textContent = METHOD_DESC[S.mode];
+  $('methodNote').textContent = `Método: ${METHOD_NAME[S.mode]} · se cambia en Ajustes`;
 }
 
 // ---------- MediaPipe ----------
@@ -1373,7 +1625,6 @@ function openScr(first) {
   scr.lenPx = scrCal().pxPerMm * scrRefMm();
   $('scrSkip').textContent = first ? 'Ahora no' : 'Cerrar';
   scrSync();
-  if (!first) $('scrPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function scrSync() {
   const L = scrRefMm(), cw = $('scrCv').parentElement.clientWidth, maxLen = Math.max(50, cw - 24);
@@ -1431,12 +1682,10 @@ const tplDefault = () => ({ oL: -66, tL: -61, nL: -9, nR: 9, tR: 61, oR: 66 });
 const tplInner = () => $('tplInner').checked;
 function tplValues() { const t = tplFromLines(tpl.lines); return tplInner() ? t : { W: t.W }; }
 function openTpl() {
-  $('livePanel').classList.add('hidden'); $('measurePanel').classList.add('hidden');
-  $('tplPanel').classList.remove('hidden'); $('tplMsg').innerHTML = '';
+  showStep('frame'); $('tplMsg').innerHTML = '';
   if (!tpl.lines) { const sv = store.get(TPL_KEY); tpl.lines = sv && sv.lines ? sv.lines : tplDefault(); if (sv) $('tplInner').checked = sv.inner !== false; }
   tpl.typed = false;
   tplInnerUI(); tplWarn(); tplLayout(); tplDraw(); tplToInputs();
-  $('tplPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function tplInnerUI() { for (const el of document.querySelectorAll('.tplIn')) el.classList.toggle('hidden', !tplInner()); }
 function tplWarn() {
@@ -1516,7 +1765,7 @@ function setupTplEvents() {
   });
   for (const id of ['tW', 'tAod', 'tDBL', 'tAos']) $(id).addEventListener('change', () => tplFromInput(id));
   $('tplInner').addEventListener('change', () => { tplInnerUI(); if (!tplInner() && tpl.sel[0] !== 'o') tpl.sel = 'oR'; tplDraw(); });
-  $('tplCancel').addEventListener('click', () => $('tplPanel').classList.add('hidden'));
+  $('tplCancel').addEventListener('click', () => showStep('person'));
   $('tplOk').addEventListener('click', () => {
     const t = tplValues(), err = [];
     if (!(t.W >= 80 && t.W <= 180)) err.push('El ancho exterior debe estar entre 80 y 180 mm.');
@@ -1530,20 +1779,20 @@ function setupTplEvents() {
     const r1 = v => v == null ? undefined : Math.round(v * 10) / 10;
     S.tpl = { W: r1(t.W), Aod: r1(t.Aod), Aos: r1(t.Aos), DBL: r1(t.DBL) };
     store.set(TPL_KEY, { lines: tpl.lines, inner: tplInner() });
-    $('tplPanel').classList.add('hidden');
     startCamera('G');
   });
 }
 
 // ---------- Cámara ----------
 function stepText() {
-  if (S.mode === 'frame') return 'Paso 2 de 3 · Foto con las gafas puestas (sin tarjeta)';
+  if (S.mode === 'frame') return 'Foto con las gafas puestas (sin tarjeta)';
   if (S.mode === 'card') return 'Foto con gafas y tarjeta sobre la montura';
   return S.step === 'N' ? 'Foto 1 de 2 · SIN gafas' : 'Foto 2 de 2 · CON gafas (misma distancia)';
 }
 async function startCamera(step) {
   S.step = step || (S.mode === 'iris' ? 'N' : 'G');
-  $('startBtn').disabled = true;
+  showStep('photo');
+  $('msg').textContent = 'Activando la cámara…'; $('msg').className = '';
   try {
     stopCamera();
     const v = { width: { ideal: 1920 }, height: { ideal: 1080 }, frameRate: { ideal: 30 } };
@@ -1568,7 +1817,6 @@ async function startCamera(step) {
     $('stage').style.aspectRatio = `${S.W} / ${S.H}`;
     $('ov').width = S.W; $('ov').height = S.H;
     await listCameras(); identifyCamera();
-    $('livePanel').classList.remove('hidden');
     $('between').classList.add('hidden');
     $('stepTitle').textContent = stepText();
     $('lookHere').classList.remove('hidden');
@@ -1578,12 +1826,12 @@ async function startCamera(step) {
     resetLive();
     live.running = true;
     speech.say(S.step === 'N' ? 'Primera foto, sin gafas.' : S.mode === 'iris' ? 'Segunda foto, con gafas.' : S.mode === 'frame' ? 'Ponte las gafas y mira al objetivo de la cámara.' : 'Ponte las gafas y apoya la tarjeta sobre la montura.', true);
-    $('livePanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
     requestAnimationFrame(loop);
   } catch (e) {
     console.error(e);
-    $('loadMsg').innerHTML = `<div class="errbox">No se pudo iniciar la cámara: ${e.message || e}. Abre la página desde https:// o localhost, y permite el acceso a la cámara.</div>`;
-  } finally { $('startBtn').disabled = false; }
+    $('msg').className = 'bad';
+    $('msg').innerHTML = `No se pudo iniciar la cámara: ${e.message || e}.<div class="note" style="font-weight:400;margin-top:6px">Abre la página desde https:// o localhost y permite el acceso a la cámara. Si el ordenador tiene varias, elige otra en Ajustes → Cámara.</div>`;
+  }
 }
 function resetLive() { Object.assign(live, { paused: false, lastT: -1, sm: null, hist: [], cardHist: [], cardOk: false, okSince: 0, cdStart: 0, capturing: false }); $('countdown').textContent = ''; }
 function stopCamera() {
@@ -1840,7 +2088,7 @@ function burstNote(cap) {
   return `Imagen de medida: mejor fotograma de la ráfaga${i.reason && b.stack == null ? ` (no se promedió: ${i.reason})` : ''} (${t}).`;
 }
 async function onCaptured(cv, pose, kind, burst) {
-  M.mode = S.mode;
+  M.mode = S.mode; wiz.savedId = null;
   const extra = { burst: burst || null, ss: burst && burst.stack && cv === burst.stack ? burst.info.up : 1 };
   if (kind === 'N') {
     const cap = await analyzeCapture(cv, pose, 'N', extra);
@@ -1874,7 +2122,7 @@ async function analyzeCapture(cv, pose, kind, extra = {}) {
   const lm = await getImageLandmarker();
   let res = null;
   try { res = lm.detect(cv); } catch (e) { console.warn(e); }
-  if (!res || !res.faceLandmarks || !res.faceLandmarks.length) { $('loadMsg').innerHTML = '<div class="errbox">No se detectó ninguna cara en la foto.</div>'; return null; }
+  if (!res || !res.faceLandmarks || !res.faceLandmarks.length) { $('loadMsg').innerHTML = '<div class="errbox">No se detectó ninguna cara en la foto.</div>'; toast('No se detectó ninguna cara en la foto. Inténtalo de nuevo.'); return null; }
   const f = focalFromDfov(S.fov.dfov, S.fov.ref, W, H);
   const a = analyzeFace(res, W, H, f); applyConv(a);
   const ctx = cv.getContext('2d', { willReadFrequently: true });
@@ -1999,8 +2247,7 @@ function fillTplMeas() {
 function readTplMeas() { const n = id => { const v = parseFloat($(id).value); return v > 0 ? v : undefined; }; S.tpl = { W: n('mW'), Aod: n('mAod'), Aos: n('mAos'), DBL: n('mDBL') }; }
 function curCap() { return M.caps.find(c => c.id === view) || M.caps[0]; }
 function showMeasure(which) {
-  $('livePanel').classList.add('hidden');
-  $('measurePanel').classList.remove('hidden');
+  showStep('review');
   view = which && M.caps.find(c => c.id === which) ? which : (M.caps.find(c => c.id === 'G') ? 'G' : 'N');
   const iris = M.mode === 'iris', frame = M.mode === 'frame';
   $('retakeNBtn').classList.toggle('hidden', !iris);
@@ -2017,22 +2264,35 @@ function showMeasure(which) {
   if (iris && !M.caps.find(c => c.id === 'G')) $('capTabs').innerHTML += '<span class="note" style="align-self:center">Falta la foto con gafas</span>';
   sel = 'ic:od';
   syncFovUI(); setTabs(); layoutCanvas(); redraw(); recompute();
-  $('measurePanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('rxWrap').open = iris;
+  fillSavePerson();
 }
 function setTabs() {
   for (const b of $('capTabs').querySelectorAll('button')) b.classList.toggle('on', b.dataset.cap === view);
   const cap = curCap();
-  $('autoMsg').innerHTML = cap ? cap.notes.map(n => `<div class="warnbox">${n}</div>`).join('') : '';
+  // los avisos que piden actuar (empiezan por «No …» o «El …») se muestran abiertos; el resto, plegados
+  const alerts = cap ? cap.notes.filter(n => /^(No |El )/.test(n)) : [];
+  $('autoMsg').innerHTML = cap ? cap.notes.map(n => `<div class="${alerts.includes(n) ? 'warnbox' : 'note'}" style="margin-top:6px">${n}</div>`).join('') : '';
+  $('autoMsg').parentElement.open = alerts.length > 0;
+  $('autoSum').textContent = alerts.length ? `Revisa ${alerts.length === 1 ? 'este aviso' : `estos ${alerts.length} avisos`}` : 'Notas de la detección automática';
   const hasAlt = !!(cap && cap.burst && cap.burst.stack);
   $('imgSelWrap').classList.toggle('hidden', !hasAlt);
   if (hasAlt) $('imgSel').value = cap.ss > 1 ? 'stack' : 'best';
 }
 function layoutCanvas() {
   const cap = curCap(); if (!cap) return;
-  const c = $('pc'), cw = c.parentElement.clientWidth, dpr = window.devicePixelRatio || 1;
-  c.width = Math.round(cw * dpr); c.height = Math.round(cw * cap.H / cap.W * dpr);
-  c.style.height = (cw * cap.H / cap.W) + 'px';
-  cap.k = c.width / cap.W; cap.dpr = dpr;
+  const c = $('pc'), cw = c.parentElement.clientWidth, dpr = window.devicePixelRatio || 1, v = cap.vr = viewRect(cap);
+  c.width = Math.round(cw * dpr); c.height = Math.round(cw * v.h / v.w * dpr);
+  c.style.height = (cw * v.h / v.w) + 'px';
+  cap.k = c.width / v.w; cap.dpr = dpr;
+  $('zoomBtn').textContent = cap.full ? 'Ampliar la zona de las gafas' : 'Ver la foto completa';
+}
+// Zona visible en el editor: por defecto, ampliada alrededor de las gafas (y de la tarjeta, si la hay)
+function viewRect(cap) {
+  if (cap.full) return { x0: 0, y0: 0, w: cap.W, h: cap.H };
+  const a = cap.iris.od, b = cap.iris.os, ipd = Math.max(20, Math.abs(b.x - a.x)), cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2;
+  const up = cap.card ? 1.45 : 0.8, w = Math.min(cap.W, 2.9 * ipd), h = Math.min(cap.H, (up + 0.9) * ipd);
+  return { x0: Math.max(0, Math.min(cap.W - w, cx - w / 2)), y0: Math.max(0, Math.min(cap.H - h, cy - up * ipd)), w, h };
 }
 const toImgUV = (cap, u, v) => { const c = { x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 }, t = cap.tau, cs = Math.cos(t), sn = Math.sin(t); return { x: c.x + u * cs - v * sn, y: c.y + u * sn + v * cs }; };
 function handles(cap) {
@@ -2133,11 +2393,11 @@ function drawScene(ctx, cap, ox, oy, k, cw, ch, isLoupe) {
 function redraw() {
   const cap = curCap(); if (!cap) return;
   const c = $('pc'), ctx = c.getContext('2d');
-  drawScene(ctx, cap, 0, 0, cap.k, c.width, c.height, false);
+  drawScene(ctx, cap, cap.vr.x0, cap.vr.y0, cap.k, c.width, c.height, false);
   const lp = $('loupe'), h = handles(cap).find(q => q.k === sel);
   if (!h) { lp.classList.add('hidden'); return; }
   lp.classList.remove('hidden');
-  const kL = 5, sz = lp.width, left = h.x < cap.W / 2;
+  const kL = 5, sz = lp.width, left = h.x < cap.vr.x0 + cap.vr.w / 2;
   lp.style.left = left ? 'auto' : '8px'; lp.style.right = left ? '8px' : 'auto';
   const l = lp.getContext('2d');
   l.save(); l.beginPath(); l.arc(sz / 2, sz / 2, sz / 2, 0, 2 * Math.PI); l.clip();
@@ -2146,12 +2406,12 @@ function redraw() {
   l.beginPath(); l.moveTo(sz / 2, 0); l.lineTo(sz / 2, sz); l.moveTo(0, sz / 2); l.lineTo(sz, sz / 2); l.stroke();
   l.restore();
 }
-function toImg(ev) { const cap = curCap(), r = $('pc').getBoundingClientRect(); return { x: (ev.clientX - r.left) / r.width * cap.W, y: (ev.clientY - r.top) / r.height * cap.H }; }
+function toImg(ev) { const cap = curCap(), v = cap.vr, r = $('pc').getBoundingClientRect(); return { x: v.x0 + (ev.clientX - r.left) / r.width * v.w, y: v.y0 + (ev.clientY - r.top) / r.height * v.h }; }
 function setupMeasureEvents() {
   const c = $('pc');
   c.addEventListener('pointerdown', ev => {
     const cap = curCap(); if (!cap) return;
-    const p = toImg(ev), tol = 14 * cap.W / c.getBoundingClientRect().width;
+    const p = toImg(ev), tol = 14 * cap.vr.w / c.getBoundingClientRect().width;
     let best = null, bd = 1e9;
     for (const h of handles(cap)) { const d = Math.hypot(h.x - p.x, h.y - p.y); if (d < bd) { bd = d; best = h; } }
     if (best && bd <= tol) { sel = best.k; drag = { k: best.k, last: p }; c.setPointerCapture(ev.pointerId); }
@@ -2165,7 +2425,7 @@ function setupMeasureEvents() {
   const end = () => { drag = null; };
   c.addEventListener('pointerup', end); c.addEventListener('pointercancel', end);
   window.addEventListener('keydown', ev => {
-    if (!sel || $('measurePanel').classList.contains('hidden')) return;
+    if (!sel || S.view !== 'wizard' || $('measurePanel').classList.contains('hidden')) return;
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
     const s = ev.shiftKey ? 2 : 0.25;
     const d = { ArrowLeft: [-s, 0], ArrowRight: [s, 0], ArrowUp: [0, -s], ArrowDown: [0, s] }[ev.key];
@@ -2182,77 +2442,73 @@ function recompute() {
   const p = params();
   const { base: R, u } = solveWithUnc(M, p, SF[S.fov.kind] || 0.15);
   lastRes = { R, u, p };
-  const pm = (k, d = 1) => `${fmt(R[k], d)} <span class="note">± ${fmt(u[k], 1)}</span>`;
   const G = M.caps.find(c => c.id === 'G'), N = M.caps.find(c => c.id === 'N');
-  let h = '';
   const noRx = [p.rx.od.s, p.rx.od.c, p.rx.os.s, p.rx.os.c].every(v => !v);
-  if (M.mode === 'iris' && G && noRx) h += `<div class="warnbox" style="margin:0 0 10px"><b>Introduce la graduación de cada lente</b> (sección «Graduación de las gafas», más abajo): con ella se calcula el vértice real a partir del cambio de tamaño del iris y se corrige el efecto prismático.</div>`;
-  else if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-bottom:8px">Si las gafas tienen graduación, introdúcela más abajo para corregir el efecto prismático.</div>`;
-  h += `<div class="note">DIP de lejos (binocular)${M.mode === 'iris' ? ' · foto sin gafas' : ''}</div><div class="big">${fmt(R.pdFar)} mm <span class="note" style="font-size:14px">± ${fmt(u.pdFar)}</span></div>`;
-  h += `<table class="kv" style="margin-top:8px">`;
-  if (G) {
-    h += `<tr><td>Monocular OD / OI (lejos, desde el centro de la montura)</td><td>${pm('monoOD')}<br>${pm('monoOS')}</td></tr>`;
-    if (M.mode === 'iris') h += `<tr><td>Monoculares ajustadas a la DIP sin gafas</td><td>${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}</td></tr>`;
-    h += `<tr><td>Altura pupilar OD / OI</td><td>${pm('hOD')}<br>${pm('hOS')}</td></tr>`;
-  } else h += `<tr><td>Monocular OD / OI (desde la nariz)</td><td>${pm('monoOD')}<br>${pm('monoOS')}</td></tr>`;
-  if (M.mode === 'iris' && N && G) h += `<tr><td>Monoculares anatómicas (nariz, sin gafas)</td><td>${fmt(R.monoNoseOD)} / ${fmt(R.monoNoseOS)}</td></tr>`;
-  h += `<tr><td>DIP de cerca a ${fmt(p.nearDist / 10, 0)} cm (plano de la lente)</td><td>${fmt(R.pdNear)}</td></tr>`;
-  h += `</table>`;
-  // Montura
+  const tile = (k, label, cls = '') => `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(R[k])} <span class="u">± ${fmt(u[k])} mm</span></div></div>`;
+  let h = '';
+  if (M.mode === 'iris' && G && noRx) h += `<div class="warnbox" style="margin:0 0 10px"><b>Introduce la graduación de cada lente</b> en «Graduación de las gafas» (debajo): con ella se calcula el vértice real y se corrige el efecto prismático.</div>`;
+  h += `<div class="tiles">`;
+  h += tile('pdFar', `DIP de lejos${M.mode === 'iris' ? ' (foto sin gafas)' : ''}`, 'main');
+  h += tile('monoOD', G ? 'Monocular OD' : 'Monocular OD (desde la nariz)') + tile('monoOS', G ? 'Monocular OI' : 'Monocular OI (desde la nariz)');
+  if (G) h += tile('hOD', 'Altura OD') + tile('hOS', 'Altura OI');
+  h += `<div class="tile"><div class="k">DIP de cerca a ${fmt(p.nearDist / 10, 0)} cm</div><div class="v">${fmt(R.pdNear)} <span class="u">mm</span></div></div>`;
+  if (R.DBL != null) h += tile('DBL', 'Puente DBL');
+  h += `</div>`;
+  if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-top:8px">¿Las gafas tienen graduación? Introdúcela en «Graduación de las gafas» para corregir el efecto prismático.</div>`;
   const F = R.frame || (R.G && R.G.frame);
   if (F) {
-    h += `<h3>Dimensiones de la montura (sistema boxing)</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr>`;
-    h += `<tr><td>Calibre A (horizontal)</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr>`;
-    h += `<tr><td>Altura B (vertical)</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
+    h += `<h3>Montura (boxing)</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr>`;
+    h += `<tr><td>Calibre A</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr>`;
+    h += `<tr><td>Altura B</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
     h += `<tr><td>Diámetro efectivo ED</td><td>${fmt(F.od.ED)}${F.od.edEst ? '*' : ''}</td><td>${fmt(F.os.ED)}${F.os.edEst ? '*' : ''}</td></tr>`;
-    h += `<tr><td>Descentramiento horizontal (+ nasal)</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr>`;
-    h += `<tr><td>Descentramiento vertical (+ arriba)</td><td>${sgn(F.od.decV)}</td><td>${sgn(F.os.decV)}</td></tr>`;
+    h += `<tr><td>Descentramiento H (+ nasal)</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr>`;
+    h += `<tr><td>Descentramiento V (+ arriba)</td><td>${sgn(F.od.decV)}</td><td>${sgn(F.os.decV)}</td></tr>`;
     h += `<tr><td>Diámetro mínimo de lente</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
-    h += `<tr><td>Puente DBL</td><td colspan="2">${pm('DBL')}</td></tr>`;
-    h += `<tr><td>Distancia entre centros (A + DBL)</td><td colspan="2">${fmt(R.DNC)}</td></tr>`;
     const Am = (F.od.A + F.os.A) / 2;
-    h += `<tr><td>Marcado probable</td><td colspan="2">${Math.round(Am)}□${Math.round(R.DBL)} <span class="note">(± ${fmt(Math.max(u.A_od || 0, u.A_os || 0))} mm)</span></td></tr>`;
-    if (M.mode === 'frame' && p.tpl) h += `<tr><td>Medido en la plantilla</td><td colspan="2">ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)} / ${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''} <span class="note">(sin ranura${p.wrap ? ' ni galbe' : ''})</span></td></tr>`;
+    h += `<tr><td>Marcado probable</td><td colspan="2">${Math.round(Am)}□${Math.round(R.DBL)}</td></tr>`;
     h += `</table>`;
     if (F.od.edEst || F.os.edEst) h += `<div class="note">* ED estimado a partir de A y B (contorno incompleto).</div>`;
   }
-  // Afinado por el iris
+  for (const fl of R.flags) h += `<div class="errbox">${fl}</div>`;
+  $('results').innerHTML = h;
+  // detalles técnicos
+  let d = '';
+  if (M.mode === 'iris' && G) d += `<table class="kv"><tr><td>Monoculares ajustadas a la DIP sin gafas</td><td>${fmt(R.monoAdjOD)} / ${fmt(R.monoAdjOS)}</td></tr>${N ? `<tr><td>Monoculares anatómicas (nariz, sin gafas)</td><td>${fmt(R.monoNoseOD)} / ${fmt(R.monoNoseOS)}</td></tr>` : ''}</table>`;
+  if (F) d += `<h3>Montura</h3><table class="kv"><tr><td>Distancia entre centros (A + DBL)</td><td>${fmt(R.DNC)}</td></tr><tr><td>Incertidumbre de A</td><td>± ${fmt(Math.max(u.A_od || 0, u.A_os || 0))} mm</td></tr>${M.mode === 'frame' && p.tpl ? `<tr><td>Medido en la plantilla</td><td>ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)} / ${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}</td></tr>` : ''}</table>`;
   if (M.mode === 'iris' && R.eyes) {
-    h += `<h3>Afinado por el cambio de tamaño del iris</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr>`;
-    h += `<tr><td>Potencia horizontal de la lente</td><td>${sgn(R.eyes.od.F, 2)} D</td><td>${sgn(R.eyes.os.F, 2)} D</td></tr>`;
-    h += `<tr><td>Aumento aparente del iris</td><td>${fmt((R.eyes.od.Aobs - 1) * 100, 1)} %</td><td>${fmt((R.eyes.os.Aobs - 1) * 100, 1)} %</td></tr>`;
+    d += `<h3>Afinado por el cambio de tamaño del iris</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr>`;
+    d += `<tr><td>Potencia horizontal de la lente</td><td>${sgn(R.eyes.od.F, 2)} D</td><td>${sgn(R.eyes.os.F, 2)} D</td></tr>`;
+    d += `<tr><td>Aumento aparente del iris</td><td>${fmt((R.eyes.od.Aobs - 1) * 100, 1)} %</td><td>${fmt((R.eyes.os.Aobs - 1) * 100, 1)} %</td></tr>`;
     const ve = e => R.eyes[e].ok ? `${fmt(R.eyes[e].v)} ± ${fmt(R.eyes[e].sd)}` : `<span class="note">${R.eyes[e].reason}</span>`;
-    h += `<tr><td>Vértice deducido</td><td>${ve('od')}</td><td>${ve('os')}</td></tr>`;
-    h += `<tr><td>Vértice usado (combinado)</td><td colspan="2">${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm${R.vertexMeasured ? '' : ' <span class="note">(valor previo)</span>'}</td></tr>`;
-    h += `<tr><td>Cambio de distancia entre fotos</td><td colspan="2">${sgn((R.k - 1) * 100, 1)} % <span class="note">(± ${fmt(R.kSd * 100, 1)})</span></td></tr>`;
-    h += `<tr><td>Distancia foto 1 / foto 2</td><td colspan="2">${fmt(R.ZN / 10)} / ${fmt(R.Z2 / 10)} cm</td></tr>`;
-    if (R.G) h += `<tr><td>DIP con gafas (comprobación)</td><td colspan="2">${fmt(R.pdFarG)} mm</td></tr>`;
-    h += `</table>`;
+    d += `<tr><td>Vértice deducido</td><td>${ve('od')}</td><td>${ve('os')}</td></tr>`;
+    d += `<tr><td>Vértice usado (combinado)</td><td colspan="2">${fmt(R.vertex)} ± ${fmt(R.vertexSd)} mm${R.vertexMeasured ? '' : ' <span class="note">(valor previo)</span>'}</td></tr>`;
+    d += `<tr><td>Cambio de distancia entre fotos</td><td colspan="2">${sgn((R.k - 1) * 100, 1)} % <span class="note">(± ${fmt(R.kSd * 100, 1)})</span></td></tr>`;
+    d += `<tr><td>Distancia foto 1 / foto 2</td><td colspan="2">${fmt(R.ZN / 10)} / ${fmt(R.Z2 / 10)} cm</td></tr>`;
+    if (R.G) d += `<tr><td>DIP con gafas (comprobación)</td><td colspan="2">${fmt(R.pdFarG)} mm</td></tr>`;
+    d += `</table>`;
   }
-  // Geometría
-  h += `<h3>Geometría</h3><table class="kv">`;
+  d += `<h3>Geometría</h3><table class="kv">`;
   const rg = R.G || R.N;
   if (rg) {
-    h += `<tr><td>Distancia cámara → plano de medida</td><td>${fmt(rg.Z / 10)} cm <span class="note">± ${fmt((u.Z || 0) / 10)}</span></td></tr>`;
-    h += `<tr><td>Corrección por convergencia</td><td>+${fmt(rg.pdFar - rg.pdMeasured, 2)} mm</td></tr>`;
-    h += `<tr><td>Escala en el plano de medida</td><td>${fmt(rg.s, 3)} mm/px</td></tr>`;
+    d += `<tr><td>Distancia cámara → plano de medida</td><td>${fmt(rg.Z / 10)} cm <span class="note">± ${fmt((u.Z || 0) / 10)}</span></td></tr>`;
+    d += `<tr><td>Corrección por convergencia</td><td>+${fmt(rg.pdFar - rg.pdMeasured, 2)} mm</td></tr>`;
+    d += `<tr><td>Escala en el plano de medida</td><td>${fmt(rg.s, 3)} mm/px</td></tr>`;
   }
-  if (R.cardPx) h += `<tr><td>Tarjeta en la imagen</td><td>${fmt(R.cardPx, 1)} px · ${fmt(R.cardTilt, 1)}°</td></tr>`;
+  if (R.cardPx) d += `<tr><td>Tarjeta en la imagen</td><td>${fmt(R.cardPx, 1)} px · ${fmt(R.cardTilt, 1)}°</td></tr>`;
   if (R.scale) {
     const sc = R.scale;
-    if (sc.outer) h += `<tr><td>Escala por el ancho exterior</td><td>${fmt(sc.outer.z / 10)} cm <span class="note">(bordes ${fmt(sc.outer.off, 1)} mm detrás del plano de la lente)</span></td></tr>`;
-    if (sc.box) h += `<tr><td>Escala por los centros de las lentes (A + DBL)</td><td>${fmt(sc.box.z / 10)} cm</td></tr>`;
-    if (sc.disc != null) h += `<tr><td>Diferencia entre las dos referencias</td><td>${sgn(sc.disc * 100, 1)} %</td></tr>`;
+    if (sc.outer) d += `<tr><td>Escala por el ancho exterior</td><td>${fmt(sc.outer.z / 10)} cm <span class="note">(bordes ${fmt(sc.outer.off, 1)} mm detrás del plano de la lente)</span></td></tr>`;
+    if (sc.box) d += `<tr><td>Escala por los centros de las lentes (A + DBL)</td><td>${fmt(sc.box.z / 10)} cm</td></tr>`;
+    if (sc.disc != null) d += `<tr><td>Diferencia entre las dos referencias</td><td>${sgn(sc.disc * 100, 1)} %</td></tr>`;
   }
-  if (G && G.ss > 1) h += `<tr><td>Imagen de medida</td><td>promedio de ${G.burst.info.n} fotogramas, ×${G.ss}</td></tr>`;
-  if (G) h += `<tr><td>Postura (foto con gafas)</td><td>giro ${fmt(G.pose.yaw)}° · cabeceo ${fmt(G.pose.pitch)}°</td></tr>`;
-  h += `<tr><td>FOV</td><td style="font-weight:400">${fmt(S.fov.dfov)}° · ${S.fov.src}</td></tr>`;
-  h += `</table>`;
-  for (const fl of R.flags) h += `<div class="errbox">${fl}</div>`;
-  if (M.mode === 'iris') h += `<div class="warnbox">La escala absoluta del método iris depende del blanco‑blanco (${p.hvidUser ? 'introducido por ti' : 'valor medio 11,7 ± 0,45 mm'}). ${p.hvidUser ? '' : 'Si conoces el tuyo, introdúcelo: es lo que más mejora la precisión.'}</div>`;
-  if (M.mode === 'frame') h += `<div class="warnbox">La escala sale de las medidas de la plantilla: su precisión depende de la calibración de la pantalla y de lo bien marcados que estén los bordes, tanto en la plantilla como en la foto.</div>`;
-  if ((S.fov.kind || 'est') === 'est') h += `<div class="warnbox">El FOV de tu cámara es estimado; afecta sobre todo a la corrección de convergencia (incluido en el ±).</div>`;
-  $('results').innerHTML = h;
+  if (G && G.ss > 1) d += `<tr><td>Imagen de medida</td><td>promedio de ${G.burst.info.n} fotogramas, ×${G.ss}</td></tr>`;
+  if (G) d += `<tr><td>Postura (foto con gafas)</td><td>giro ${fmt(G.pose.yaw)}° · cabeceo ${fmt(G.pose.pitch)}°</td></tr>`;
+  d += `<tr><td>FOV</td><td style="font-weight:400">${fmt(S.fov.dfov)}° · ${S.fov.src}</td></tr>`;
+  d += `</table>`;
+  if (M.mode === 'iris') d += `<div class="warnbox">La escala absoluta del método iris depende del blanco‑blanco (${p.hvidUser ? 'introducido por ti' : 'valor medio 11,7 ± 0,45 mm'}). ${p.hvidUser ? '' : 'Si conoces el de esta persona, introdúcelo: es lo que más mejora la precisión.'}</div>`;
+  if (M.mode === 'frame') d += `<div class="warnbox">La escala sale de las medidas de la plantilla: su precisión depende de la calibración de la pantalla y de lo bien marcados que estén los bordes, en la plantilla y en la foto.</div>`;
+  if ((S.fov.kind || 'est') === 'est') d += `<div class="warnbox">El FOV de la cámara es estimado; afecta sobre todo a la corrección de convergencia (incluido en el ±).</div>`;
+  $('techDetails').innerHTML = d;
   renderFrameType(R, p);
   const L = R.lens;
   $('lensAutoNote').textContent = L ? `Curva base usada: OD ${fmt(L.od.F1, 2)} D${L.od.baseAuto ? ' (estimada, regla de Vogel)' : ''}, OI ${fmt(L.os.F1, 2)} D${L.os.baseAuto ? ' (estimada)' : ''} · Espesor: OD ${fmt(L.od.t, 1)} mm${L.od.tAuto ? ' (est.)' : ''}, OI ${fmt(L.os.t, 1)} mm${L.os.tAuto ? ' (est.)' : ''}` : '';
@@ -2294,6 +2550,286 @@ function buildCopy(R, u, p) {
   $('copyArea').value = t.join('\n');
 }
 
+// ---------- Vistas y asistente de medida ----------
+const METHOD_NAME = { frame: 'montura en la plantilla', card: 'tarjeta sobre la montura', iris: 'iris (2 fotos)' };
+const METHOD_DESC = {
+  frame: 'Primero se mide la montura sobre una plantilla a escala real en la pantalla y después se hace una foto con las gafas puestas. No hace falta ninguna tarjeta.',
+  card: 'Una foto con las gafas puestas y una tarjeta estándar (85,60 mm) apoyada sobre la montura. La referencia más limpia en la imagen.',
+  iris: 'Una foto sin gafas y otra con gafas. La escala sale del tamaño del iris (blanco‑blanco): menos preciso, salvo que se conozca el de la persona.',
+};
+const STEP_LABEL = { person: 'Persona', frame: 'Montura', photo: 'Foto', review: 'Revisar y guardar' };
+const VIEWS = ['people', 'person', 'record', 'wizard', 'settings'];
+const wiz = { person: null, step: null, savedId: null };
+const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+const fdate = iso => { try { return new Date(iso).toLocaleString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return iso; } };
+function toast(t) { const el = $('toast'); el.textContent = t; el.classList.remove('hidden'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add('hidden'), 2800); }
+function go(v) {
+  for (const x of VIEWS) $('view' + x[0].toUpperCase() + x.slice(1)).classList.toggle('hidden', x !== v);
+  for (const b of document.querySelectorAll('nav .nav')) b.classList.toggle('on', b.dataset.view === v || ((v === 'person' || v === 'record') && b.dataset.view === 'people'));
+  if (v !== 'wizard' && live.running) stopCamera();
+  if (S.view !== v) window.scrollTo({ top: 0, behavior: 'instant' });
+  S.view = v;
+}
+function wizSteps() { return S.mode === 'frame' ? ['person', 'frame', 'photo', 'review'] : ['person', 'photo', 'review']; }
+function showStep(st) {
+  go('wizard');
+  const changed = wiz.step !== st;
+  wiz.step = st;
+  const map = { person: 'stepPerson', frame: 'tplPanel', photo: 'livePanel', review: 'measurePanel' };
+  for (const k in map) $(map[k]).classList.toggle('hidden', k !== st);
+  const steps = wizSteps(), cur = steps.indexOf(st);
+  $('stepper').innerHTML = steps.map((k, i) => `<li class="${i < cur ? 'done' : i === cur ? 'on' : ''}"><span class="n">${i < cur ? '✓' : i + 1}</span>${STEP_LABEL[k]}</li>`).join('');
+  renderWho();
+  if (changed) window.scrollTo({ top: 0, behavior: 'instant' });
+}
+function renderWho() {
+  const p = wiz.person && peopleCache.find(q => q.id === wiz.person);
+  $('wizWho').innerHTML = wiz.step === 'person' ? '' : p ? `Midiendo a <b>${esc(p.name)}</b>${p.ref ? ` <span class="note">(${esc(p.ref)})</span>` : ''}` : 'Sin persona asignada: la eliges al guardar.';
+}
+function resetMeasureInputs() {
+  for (const id of ['rxOdS', 'rxOdC', 'rxOdA', 'rxOsS', 'rxOsC', 'rxOsA']) $(id).value = '0';
+  for (const id of ['rxOdB', 'rxOdT', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs', 'saveFrameName', 'saveNotes', 'calZ']) $(id).value = '';
+  $('mountSel').value = 'auto'; $('padSel').value = 'auto'; $('saveMsg').innerHTML = ''; $('saveBtn').textContent = 'Guardar medida';
+}
+async function startMeasure(personId) {
+  beep(440, 0.02);
+  if (live.running) stopCamera();
+  M = { mode: S.mode, caps: [] }; lastRes = null; wiz.person = personId || null; wiz.savedId = null; wiz.step = null;
+  resetMeasureInputs();
+  await loadPeople();
+  if (personId) nextAfterPerson(); else { showStep('person'); renderStepPerson(); $('stepPersonSearch').value = ''; }
+}
+function nextAfterPerson() { if (S.mode === 'frame') openTpl(); else startCamera(); }
+
+// ---------- Datos: IndexedDB (solo en este navegador) ----------
+const DB = {
+  db: null,
+  open() {
+    if (this.db) return Promise.resolve(this.db);
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('dipfx', 1);
+      r.onupgradeneeded = () => {
+        const d = r.result;
+        if (!d.objectStoreNames.contains('people')) d.createObjectStore('people', { keyPath: 'id' });
+        if (!d.objectStoreNames.contains('measures')) d.createObjectStore('measures', { keyPath: 'id' }).createIndex('personId', 'personId');
+      };
+      r.onsuccess = () => { this.db = r.result; res(this.db); };
+      r.onerror = () => rej(r.error);
+    });
+  },
+  async tx(store, mode, fn) {
+    const d = await this.open();
+    return new Promise((res, rej) => {
+      const t = d.transaction(store, mode), r = fn(t.objectStore(store)); let out;
+      if (r) r.onsuccess = () => { out = r.result; };
+      t.oncomplete = () => res(out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error);
+    });
+  },
+  all(st) { return this.tx(st, 'readonly', s => s.getAll()); },
+  get(st, id) { return this.tx(st, 'readonly', s => s.get(id)); },
+  put(st, o) { return this.tx(st, 'readwrite', s => s.put(o)); },
+  del(st, id) { return this.tx(st, 'readwrite', s => s.delete(id)); },
+  clear(st) { return this.tx(st, 'readwrite', s => s.clear()); },
+  byPerson(id) { return this.tx('measures', 'readonly', s => s.index('personId').getAll(id)); },
+};
+let peopleCache = [];
+async function loadPeople() {
+  try { peopleCache = (await DB.all('people')) || []; } catch (e) { console.warn(e); toast('No se puede acceder al almacenamiento del navegador (¿modo privado?). Las medidas no se podrán guardar.'); peopleCache = []; }
+  peopleCache.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+  return peopleCache;
+}
+async function loadMeasures() { try { return (await DB.all('measures')) || []; } catch { return []; } }
+const matches = (p, q) => !q || (p.name + ' ' + (p.ref || '')).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''));
+
+// ---------- Personas ----------
+async function renderPeople() {
+  const ppl = await loadPeople(), ms = await loadMeasures(), q = $('peopleSearch').value.trim();
+  const by = new Map(); for (const m of ms) { const a = by.get(m.personId) || []; a.push(m); by.set(m.personId, a); }
+  const last = id => (by.get(id) || []).reduce((a, m) => !a || m.date > a.date ? m : a, null);
+  const rows = ppl.filter(p => matches(p, q)).sort((a, b) => ((last(b.id) || {}).date || b.created || '').localeCompare((last(a.id) || {}).date || a.created || ''));
+  $('peopleTable').querySelector('tbody').innerHTML = rows.map(p => {
+    const l = last(p.id);
+    return `<tr class="click" data-person="${p.id}"><td><b>${esc(p.name)}</b></td><td class="opt">${esc(p.ref || '')}</td><td class="num">${(by.get(p.id) || []).length}</td><td class="opt">${l ? fdate(l.date) : '<span class="note">—</span>'}</td><td class="num">${l ? fmt(l.values.pdFar) : ''}</td></tr>`;
+  }).join('');
+  $('peopleEmpty').classList.toggle('hidden', ppl.length > 0);
+  $('peopleTable').classList.toggle('hidden', !ppl.length);
+}
+async function renderStepPerson() {
+  const ppl = peopleCache.length ? peopleCache : await loadPeople(), q = $('stepPersonSearch').value.trim();
+  const list = ppl.filter(p => matches(p, q)).slice(0, 60);
+  $('stepPersonList').innerHTML = list.length ? list.map(p => `<button class="pitem" type="button" data-pick="${p.id}"><span><b>${esc(p.name)}</b>${p.ref ? ` <span class="m">· ${esc(p.ref)}</span>` : ''}</span><span class="m">Elegir →</span></button>`).join('')
+    : `<div class="note" style="padding:8px 2px">${ppl.length ? 'Nadie coincide con la búsqueda.' : 'Todavía no hay personas guardadas: crea la primera.'}</div>`;
+}
+async function renderPerson(id) {
+  await loadPeople();
+  const p = peopleCache.find(q => q.id === id); if (!p) { go('people'); renderPeople(); return; }
+  S.personView = id; go('person');
+  $('personName').textContent = p.name;
+  const age = p.birth ? Math.floor((Date.now() - new Date(p.birth)) / 31557600000) : null;
+  $('personInfo').innerHTML = [p.ref && `Ref.: <b>${esc(p.ref)}</b>`, p.birth && `Nacimiento: ${new Date(p.birth).toLocaleDateString('es-ES')}${age != null && age >= 0 ? ` (${age} años)` : ''}`, p.notes && esc(p.notes)].filter(Boolean).map(t => `<span>${t}</span>`).join('');
+  const ms = ((await DB.byPerson(id)) || []).sort((a, b) => b.date.localeCompare(a.date));
+  const st = summarizeHistory(ms), lab = { pdFar: 'DIP de lejos', monoOD: 'Monocular OD', monoOS: 'Monocular OI' };
+  $('personStats').innerHTML = ms.length ? Object.keys(lab).filter(k => st[k]).map(k => `<div class="stat"><div class="k">${lab[k]}${st[k].n > 1 ? ` · media de ${st[k].n}` : ''}</div><div class="v">${fmt(st[k].mean)} mm</div>${st[k].n > 1 ? `<div class="note">dispersión ± ${fmt(st[k].sd, 2)} · ${fmt(st[k].min)}–${fmt(st[k].max)}</div>` : '<div class="note">una medida</div>'}</div>`).join('') : '';
+  $('personMeasures').querySelector('tbody').innerHTML = ms.map(m => `<tr class="click" data-rec="${m.id}"><td>${fdate(m.date)}</td><td class="opt">${esc(m.frameName) || '<span class="note">—</span>'}</td><td class="opt">${METHOD_LABEL[m.method] || ''}</td><td class="num"><b>${fmt(m.values.pdFar)}</b></td><td class="num">${fmt(m.values.monoOD)} / ${fmt(m.values.monoOS)}</td><td class="num">${m.values.hOD != null ? `${fmt(m.values.hOD)} / ${fmt(m.values.hOS)}` : '—'}</td></tr>`).join('');
+  $('personEmpty').classList.toggle('hidden', ms.length > 0);
+  $('personMeasures').classList.toggle('hidden', !ms.length);
+}
+let pfCb = null, pfEdit = null;
+function openPersonModal(person, cb) {
+  pfEdit = person || null; pfCb = cb || null;
+  $('pfTitle').textContent = person ? 'Editar persona' : 'Nueva persona';
+  $('pfName').value = person ? person.name : ''; $('pfRef').value = person ? person.ref || '' : '';
+  $('pfBirth').value = person ? person.birth || '' : ''; $('pfNotes').value = person ? person.notes || '' : '';
+  $('pfMsg').innerHTML = ''; $('personModal').classList.remove('hidden'); setTimeout(() => $('pfName').focus(), 30);
+}
+async function savePersonModal() {
+  const name = $('pfName').value.trim();
+  if (!name) { $('pfMsg').innerHTML = '<div class="errbox">Escribe el nombre.</div>'; return; }
+  const now = new Date().toISOString();
+  const o = { ...(pfEdit || {}), id: pfEdit ? pfEdit.id : uid(), name, ref: $('pfRef').value.trim(), birth: $('pfBirth').value, notes: $('pfNotes').value.trim(), created: pfEdit ? pfEdit.created : now, updated: now };
+  try { await DB.put('people', o); } catch (e) { $('pfMsg').innerHTML = `<div class="errbox">No se pudo guardar: ${esc(e.message || e)}</div>`; return; }
+  $('personModal').classList.add('hidden'); await loadPeople();
+  toast(pfEdit ? 'Datos actualizados' : `${name} añadido`);
+  const cb = pfCb; pfCb = null; if (cb) cb(o);
+}
+
+// ---------- Guardar la medida ----------
+async function fillSavePerson() {
+  const ppl = await loadPeople();
+  $('savePerson').innerHTML = `<option value="">— Elige una persona —</option>` + ppl.map(p => `<option value="${p.id}">${esc(p.name)}${p.ref ? ` · ${esc(p.ref)}` : ''}</option>`).join('') + `<option value="__new">+ Nueva persona…</option>`;
+  $('savePerson').value = wiz.person || '';
+  $('saveBtn').textContent = wiz.savedId ? 'Actualizar la medida guardada' : 'Guardar medida';
+}
+function snapshotBlob() {
+  const cap = M.caps.find(c => c.id === 'G') || M.caps[0]; if (!cap) return Promise.resolve(null);
+  const a = cap.iris.od, b = cap.iris.os, ipd = Math.abs(b.x - a.x), cx = (a.x + b.x) / 2, cy = (a.y + b.y) / 2, up = M.mode === 'card' ? 1.4 : 0.75;
+  const x0 = Math.max(0, cx - 1.35 * ipd), x1 = Math.min(cap.W, cx + 1.35 * ipd), y0 = Math.max(0, cy - up * ipd), y1 = Math.min(cap.H, cy + 0.85 * ipd);
+  const k = Math.min(1, 1400 / (x1 - x0)), cw = Math.round((x1 - x0) * k), ch = Math.round((y1 - y0) * k);
+  const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
+  const prev = sel; sel = null; drawScene(cv.getContext('2d'), cap, x0, y0, k, cw, ch, false); sel = prev;
+  return new Promise(r => cv.toBlob(bl => r(bl), 'image/jpeg', 0.85));
+}
+async function saveMeasure() {
+  const pid = $('savePerson').value;
+  if (!pid || pid === '__new') { $('saveMsg').innerHTML = '<div class="errbox">Elige a qué persona pertenece la medida.</div>'; return; }
+  if (!lastRes || !isFinite(lastRes.R.pdFar)) { $('saveMsg').innerHTML = '<div class="errbox">No hay una medida válida que guardar.</div>'; return; }
+  const { R, u, p } = lastRes, G = M.caps.find(c => c.id === 'G'), padSel = $('padSel').value;
+  const pads = G && G.frameAuto ? (padSel === 'auto' ? G.frameAuto.pads.pads : padSel === 'yes') : null;
+  let image = null;
+  if ($('saveImg').checked) try { image = await snapshotBlob(); } catch (e) { console.warn(e); }
+  const rec = buildRecord(R, u, p, {
+    id: wiz.savedId || uid(), personId: pid, frameName: $('saveFrameName').value.trim(), notes: $('saveNotes').value.trim(), pads,
+    camera: { label: S.camLabel || 'fotos subidas', dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value,
+  });
+  try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">No se pudo guardar: ${esc(e.message || e)}</div>`; return; }
+  const was = wiz.savedId; wiz.savedId = rec.id; wiz.person = pid;
+  const name = (peopleCache.find(q => q.id === pid) || {}).name || '';
+  toast(was ? 'Medida actualizada' : `Medida guardada en la ficha de ${name}`);
+  renderPerson(pid);
+}
+
+// ---------- Medida guardada ----------
+let recUrl = null;
+async function renderRecord(id) {
+  const m = await DB.get('measures', id); if (!m) return;
+  const p = peopleCache.find(q => q.id === m.personId) || (await loadPeople()).find(q => q.id === m.personId) || {};
+  S.recView = m; go('record');
+  if (recUrl) { URL.revokeObjectURL(recUrl); recUrl = null; }
+  const V = m.values, U = m.unc || {}, t = (k, label, cls = '') => V[k] == null ? '' : `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(V[k])} <span class="u">${U[k] != null ? `± ${fmt(U[k])} ` : ''}mm</span></div></div>`;
+  let h = `<div class="viewHead" style="margin-bottom:6px"><h1>${esc(p.name || 'Medida')}</h1></div><div class="pinfo"><span>${fdate(m.date)}</span><span>Método: ${METHOD_LABEL[m.method] || ''}</span>${m.frameName ? `<span>Montura: <b>${esc(m.frameName)}</b></span>` : ''}</div>`;
+  h += `<div class="grid2" style="margin-top:14px"><div>`;
+  if (m.image instanceof Blob) { recUrl = URL.createObjectURL(m.image); h += `<img class="recImg" src="${recUrl}" alt="Foto de la medida">`; }
+  else h += `<div class="empty" style="border:1px dashed var(--line);border-radius:12px">Sin foto guardada</div>`;
+  if (m.notes) h += `<p><b>Notas:</b> ${esc(m.notes)}</p>`;
+  h += `</div><div class="res"><div class="tiles">${t('pdFar', 'DIP de lejos', 'main')}${t('monoOD', 'Monocular OD')}${t('monoOS', 'Monocular OI')}${t('hOD', 'Altura OD')}${t('hOS', 'Altura OI')}${t('pdNear', `DIP de cerca a ${fmt((m.params.nearDist || 400) / 10, 0)} cm`)}${t('DBL', 'Puente DBL')}</div>`;
+  if (m.frame) {
+    const F = m.frame;
+    h += `<h3>Montura (boxing)</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr><tr><td>Calibre A</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr><tr><td>Altura B</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr><tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>Descentramiento H (+ nasal)</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>Diámetro mínimo</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr></table>`;
+    if (m.mounting) h += `<div class="note" style="margin-top:6px">${MOUNT_LABEL[m.mounting] || ''}${m.pads != null ? ` · plaquetas: ${m.pads ? 'sí' : 'no'}` : ''}</div>`;
+  }
+  const rx = m.params.rx, rxs = e => !rx[e].s && !rx[e].c ? '<span class="note">sin graduación introducida</span>' : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
+  h += `<h3>Graduación y parámetros</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>OI</td><td>${rxs('os')}</td></tr><tr><td>Vértice</td><td>${fmt(m.values.vertex)} mm${m.vertexMeasured ? ' (medido)' : ''}</td></tr>${m.params.tpl ? `<tr><td>Plantilla</td><td>ancho ${fmt(m.params.tpl.W)}${m.params.tpl.DBL ? ` · A ${fmt(m.params.tpl.Aod)}/${fmt(m.params.tpl.Aos)} · DBL ${fmt(m.params.tpl.DBL)}` : ''}</td></tr>` : ''}${m.camera ? `<tr><td>Cámara</td><td style="font-weight:400">${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
+  for (const f of m.flags || []) h += `<div class="warnbox">${f}</div>`;
+  h += `</div></div>`;
+  $('recordBody').innerHTML = h;
+}
+
+// ---------- Copias de seguridad y exportación ----------
+function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+const blobToDataURL = b => new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(b); });
+const today = () => new Date().toISOString().slice(0, 10);
+async function exportJson() {
+  const people = await loadPeople(), ms = await loadMeasures(), withImg = $('exportImgs').checked;
+  const measures = [];
+  for (const m of ms) measures.push({ ...m, image: withImg && m.image instanceof Blob ? await blobToDataURL(m.image) : null });
+  download(`dipfx-copia-${today()}.json`, new Blob([JSON.stringify({ app: 'dipfx', version: 1, exported: new Date().toISOString(), people, measures })], { type: 'application/json' }));
+  $('dataMsg').innerHTML = `<div class="okbox">Copia de ${people.length} personas y ${measures.length} medidas descargada.</div>`;
+}
+async function exportCsv() {
+  const people = await loadPeople(), ms = await loadMeasures();
+  download(`dipfx-medidas-${today()}.csv`, new Blob(['﻿' + recordsToCSV(people, ms)], { type: 'text/csv;charset=utf-8' }));
+  $('dataMsg').innerHTML = `<div class="okbox">${ms.length} medidas exportadas (se abre con Excel o similar).</div>`;
+}
+async function importJson(file) {
+  let o; try { o = JSON.parse(await file.text()); } catch { $('dataMsg').innerHTML = '<div class="errbox">El archivo no es un JSON válido.</div>'; return; }
+  const r = normalizeImport(o);
+  if (!r.ok) { $('dataMsg').innerHTML = `<div class="errbox">${r.error}</div>`; return; }
+  for (const p of r.people) await DB.put('people', p);
+  for (const m of r.measures) { const im = typeof m.image === 'string' && m.image.startsWith('data:') ? await (await fetch(m.image)).blob() : null; await DB.put('measures', { ...m, image: im }); }
+  $('dataMsg').innerHTML = `<div class="okbox">Importadas ${r.people.length} personas y ${r.measures.length} medidas${r.skipped ? ` (${r.skipped} entradas incompletas descartadas)` : ''}.</div>`;
+  await renderPeople();
+}
+// Preferencias (método, exigencia, voz)
+function savePrefs() { store.set('dipapp.prefs', { mode: S.mode, tol: S.tolKey, voice: S.voice }); }
+function loadPrefs() {
+  const p = store.get('dipapp.prefs'); if (!p) return;
+  if (METHOD_NAME[p.mode]) { S.mode = p.mode; M.mode = p.mode; $('modeSel').value = p.mode; }
+  if (TOLS[p.tol]) { S.tolKey = p.tol; $('tolSel').value = p.tol; }
+  if (typeof p.voice === 'boolean') { S.voice = p.voice; $('voiceChk').checked = p.voice; }
+}
+function setupAppEvents() {
+  document.addEventListener('click', ev => {
+    const nv = ev.target.closest('[data-view]'); if (nv) { go(nv.dataset.view); if (nv.dataset.view === 'people') renderPeople(); return; }
+    const pr = ev.target.closest('[data-person]'); if (pr) { renderPerson(pr.dataset.person); return; }
+    const rc = ev.target.closest('[data-rec]'); if (rc) { renderRecord(rc.dataset.rec); return; }
+    const pk = ev.target.closest('[data-pick]'); if (pk) { wiz.person = pk.dataset.pick; nextAfterPerson(); }
+  });
+  $('peopleSearch').addEventListener('input', renderPeople);
+  $('stepPersonSearch').addEventListener('input', renderStepPerson);
+  $('personAddBtn').addEventListener('click', () => openPersonModal(null, p => renderPerson(p.id)));
+  $('personNewBtn').addEventListener('click', () => openPersonModal(null, p => { wiz.person = p.id; nextAfterPerson(); }));
+  $('personSkip').addEventListener('click', () => { wiz.person = null; nextAfterPerson(); });
+  $('personMeasureBtn').addEventListener('click', () => startMeasure(S.personView));
+  $('personEditBtn').addEventListener('click', () => { const p = peopleCache.find(q => q.id === S.personView); if (p) openPersonModal(p, q => renderPerson(q.id)); });
+  $('personDelBtn').addEventListener('click', async () => {
+    const p = peopleCache.find(q => q.id === S.personView); if (!p) return;
+    const ms = (await DB.byPerson(p.id)) || [];
+    if (!confirm(`¿Borrar a ${p.name} y sus ${ms.length} medidas? No se puede deshacer.`)) return;
+    for (const m of ms) await DB.del('measures', m.id);
+    await DB.del('people', p.id); toast(`${p.name} borrado`); go('people'); renderPeople();
+  });
+  $('pfSave').addEventListener('click', savePersonModal);
+  $('pfCancel').addEventListener('click', () => { $('personModal').classList.add('hidden'); if ($('savePerson').value === '__new') $('savePerson').value = wiz.person || ''; pfCb = null; });
+  $('pfName').addEventListener('keydown', e => { if (e.key === 'Enter') savePersonModal(); });
+  $('savePerson').addEventListener('change', e => { if (e.target.value === '__new') openPersonModal(null, p => { wiz.person = p.id; fillSavePerson(); renderWho(); }); });
+  $('saveBtn').addEventListener('click', saveMeasure);
+  $('recordBack').addEventListener('click', () => S.recView && S.recView.personId ? renderPerson(S.recView.personId) : go('people'));
+  $('recordCopy').addEventListener('click', async () => { const t = S.recView && S.recView.text || ''; try { await navigator.clipboard.writeText(t); toast('Resultados copiados'); } catch { toast('No se pudo copiar'); } });
+  $('recordDel').addEventListener('click', async () => {
+    const m = S.recView; if (!m || !confirm('¿Borrar esta medida? No se puede deshacer.')) return;
+    await DB.del('measures', m.id); toast('Medida borrada'); renderPerson(m.personId);
+  });
+  $('exportJson').addEventListener('click', exportJson);
+  $('exportCsv').addEventListener('click', exportCsv);
+  $('importFile').addEventListener('change', e => { const f = e.target.files[0]; if (f) importJson(f); e.target.value = ''; });
+  $('wipeBtn').addEventListener('click', async () => {
+    if (!confirm('¿Borrar TODAS las personas y medidas de este navegador? No se puede deshacer. Haz antes una copia de seguridad.')) return;
+    await DB.clear('measures'); await DB.clear('people'); await loadPeople();
+    $('dataMsg').innerHTML = '<div class="okbox">Datos borrados.</div>';
+  });
+}
+
 // ---------- Eventos ----------
 function readFovUI() {
   const d = parseFloat($('fovIn').value), ref = parseFloat($('refSel').value);
@@ -2307,16 +2843,17 @@ $('saveFovBtn').addEventListener('click', () => {
   readFovUI(); store.set(fovKey(), { dfov: S.fov.dfov, ref: S.fov.ref, src: S.fov.src, kind: S.fov.kind });
   $('saveFovBtn').textContent = 'Guardado ✓'; setTimeout(() => $('saveFovBtn').textContent = 'Guardar FOV para esta cámara', 1500);
 });
-$('modeSel').addEventListener('change', e => { S.mode = e.target.value; M = { mode: S.mode, caps: [] }; pending.N = pending.G = null; setModeUI(); $('measurePanel').classList.add('hidden'); $('tplPanel').classList.add('hidden'); });
-$('tolSel').addEventListener('change', e => { S.tolKey = e.target.value; });
-$('voiceChk').addEventListener('change', e => { S.voice = e.target.checked; if (!S.voice) try { speechSynthesis.cancel(); } catch { } });
+$('modeSel').addEventListener('change', e => { S.mode = e.target.value; M = { mode: S.mode, caps: [] }; pending.N = pending.G = null; setModeUI(); savePrefs(); });
+$('tolSel').addEventListener('change', e => { S.tolKey = e.target.value; savePrefs(); });
+$('voiceChk').addEventListener('change', e => { S.voice = e.target.checked; savePrefs(); if (!S.voice) try { speechSynthesis.cancel(); } catch { } });
 $('camSel').addEventListener('change', e => { S.deviceId = e.target.value; if (live.running) startCamera(S.step); });
-$('startBtn').addEventListener('click', () => { beep(440, 0.02); M = { mode: S.mode, caps: [] }; if (S.mode === 'frame') openTpl(); else startCamera(); });
+$('newMeasureBtn').addEventListener('click', () => startMeasure(null));
 $('contBtn').addEventListener('click', () => { S.step = 'G'; $('between').classList.add('hidden'); $('stepTitle').textContent = stepText(); resetLive(); speech.say('Segunda foto, con gafas.', true); });
-$('stopBtn').addEventListener('click', () => { stopCamera(); $('livePanel').classList.add('hidden'); });
+$('stopBtn').addEventListener('click', () => { stopCamera(); showStep(S.mode === 'frame' ? 'frame' : 'person'); if (S.mode === 'frame') openTpl(); else renderStepPerson(); });
 $('manualBtn').addEventListener('click', () => { if (live.a && !live.paused) captureBurst(); });
 $('retakeNBtn').addEventListener('click', () => startCamera('N'));
 $('retakeGBtn').addEventListener('click', () => startCamera('G'));
+$('zoomBtn').addEventListener('click', () => { const cap = curCap(); if (!cap) return; cap.full = !cap.full; layoutCanvas(); redraw(); });
 $('imgSel').addEventListener('change', async e => {
   const cap = curCap(); if (!cap || !cap.burst || !cap.burst.stack) return;
   const st = e.target.value === 'stack', cv = st ? cap.burst.stack : cap.burst.best;
@@ -2386,9 +2923,12 @@ $('fileG').addEventListener('change', async e => { const f = e.target.files[0]; 
 setupMeasureEvents();
 setupScrEvents();
 setupTplEvents();
+setupAppEvents();
+loadPrefs();
 setModeUI();
 detectDevice();
 renderScrStatus();
+go('people'); renderPeople();
 if (scrCal().reason === 'none') openScr(true);
 window.addEventListener('resize', () => {
   if (!$('scrPanel').classList.contains('hidden')) scrSync();

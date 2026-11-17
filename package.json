@@ -1,6 +1,6 @@
 {
   "name": "medidor-dip",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "App web para medir DIP de lejos, alturas pupilares y dimensiones/tipo de montura con la webcam",
   "scripts": {
