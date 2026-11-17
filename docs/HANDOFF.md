@@ -1,0 +1,62 @@
+# Traspaso: conversación de diseño (16–17 nov 2026)
+
+Resumen de cómo se llegó al estado actual, para continuar en Claude Code.
+
+## Origen y requisitos del usuario (en sus palabras, resumidos)
+
+1. «¿Puedes, con una foto tipo retrato hecha con la webcam del portátil, saber a qué distancia está mi cara?»
+2. La idea es una **app para medir la DIP y la altura pupilar con las gafas puestas**. El usuario no conoce su DIP ni tiene una foto a distancia medida. Pidió:
+   - detectar el modelo del dispositivo para conocer las specs de su webcam;
+   - **detectar si la cara no está recta y guiar** al usuario;
+   - **no tomar la foto hasta que esté perfectamente alineada**, sin giros y con los ojos a la altura de la cámara;
+   - dar la **DIP de lejos** teniendo en cuenta la **convergencia** al mirar el dispositivo.
+3. Ampliación:
+   - **modo iris con 2 capturas** (sin gafas y con gafas);
+   - usar el **cambio de tamaño del iris** y la **graduación de cada lente** para afinar distancias, DIP y alturas;
+   - calcular las **dimensiones de la montura** e **identificar el montaje, el bisel y si tiene plaquetas**.
+4. Preparar este traspaso para un proyecto en Claude Code.
+
+Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. Dirige el equipo técnico de una empresa de diseños de lentes freeform. Tiene otra app basada en una pinza (clip) para medidas de centrado a partir de fotos, en la que echaba en falta detectar y compensar los giros de cabeza. Esta app ataca ese problema con guiado y bloqueo de postura.
+
+## Decisiones clave y por qué
+
+- **Sin referencia de tamaño conocido no hay escala absoluta.** Se eligió la **tarjeta ID‑1 apoyada en la montura** como método principal, porque deja el FOV como efecto de segundo orden (solo influye en la convergencia). El iris (HVID 11,7 ± 0,45) queda como alternativa sin tarjeta, con un error mayor declarado.
+- **El navegador no expone el modelo del portátil.** Se identifica la cámara por su etiqueta y su ID USB, y en Mac se estima el modelo por la resolución de pantalla. La base de datos de FOV es pequeña y honesta sobre qué es ficha técnica y qué es estimación. Ejemplos: Dell publica 74,9–78,6° en sus portátiles; Logitech C920 78°, C270 55°; Apple no publica el FOV.
+- **El usuario mira al objetivo de la cámara, no a la pantalla.** Así el punto de fijación es exactamente el centro de proyección y la corrección de convergencia es geométrica y exacta.
+- La imagen del ojo, vista a través de la lente, cae sobre la línea de mirada. Por eso el **punto del plano de la lente se mide sin sesgo** sea cual sea la potencia, y solo hay que corregir el **prisma** entre la lente y el centro de rotación (Prentice, con el centro óptico en la posición de lejos).
+- **Tolerancias**: el giro se aprieta (±2° normal) porque desplaza las monoculares unos 0,45 mm/°, y el cabeceo afecta igual a las alturas. Hay modos estricto, normal y flexible.
+- **Voz** (speechSynthesis): el usuario mira a la cámara y no puede leer la pantalla.
+- **Signos de la matriz de MediaPipe** no documentados: se verifican en tiempo de ejecución contra indicadores 2D (nariz frente a contorno facial) y por correlación.
+- **Archivo único y sin build**, para alojarlo fácilmente (GitHub Pages). Las páginas de artefacto de claude.ai no permiten la cámara.
+- **Modo iris de dos fotos**:
+  - k (cambio de distancia) se mide con rasgos que no quedan detrás de las lentes;
+  - el vértice se despeja con un modelo de lente gruesa y se fusiona con un valor previo;
+  - la DIP sale de la foto sin gafas;
+  - las monoculares, las alturas y la montura salen de la foto con gafas.
+- **Clasificación de montura heurística, con corrección manual.** Es imposible garantizarla sin datos reales.
+
+## Errores encontrados y corregidos durante el desarrollo
+
+- Convenio de píxel (centro de píxel en *i* frente a *i*+0,5): sesgo de 0,5 px en los centros del iris. Se unificó a «píxel *i* = coordenada *i*».
+- Emparejamiento de los bordes de la tarjeta con un distractor (pelo):
+  - se añadió homogeneidad del interior y uniformidad a lo ancho de la tarjeta;
+  - se corrigió un **NaN** que bloqueaba el emparejamiento cuando un borde caía en el límite de la ventana de búsqueda.
+- El contorno de la lente saltaba entre el borde interior y el exterior del aro, a las plaquetas o al ojo. Se corrigió con:
+  - una pasada de polaridad constante;
+  - el radio mínimo elíptico;
+  - la intensidad de borde recortada a 1;
+  - el refinado subpíxel.
+
+## Estado de verificación
+
+- 19 pruebas unitarias en verde (óptica, geometría de los dos métodos, visión, contornos y clasificación de 4 tipos de montura).
+- e2e en Chrome sin cabeza, en verde, con resultados frente a la verdad sintética:
+  - **Método tarjeta**: DIP 64,1/64,0; monoculares 31,5/32,5 exactas; alturas 22,5 exactas; A 53,0 y DBL 17,0 exactos (con 0,5 mm de ranura); «aro completo metálico» con plaquetas.
+  - **Método iris** (−5/−4 D, vértice real 13): DIP 64,0; monoculares exactas; alturas 22,7 frente a 22,5; vértice deducido 13,1 y 12,7; «pasta» sin plaquetas.
+- **Pendiente: nada se ha probado con una cámara y una cara reales.**
+
+## Preguntas abiertas para el usuario
+
+- ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?
+- ¿Destino final? Herramienta interna, demo para clientes o integración con la app de la pinza. Esto decide si modularizar y si hacen falta exportaciones (JSON/PDF, formato OMA/VCA para el trazado).
+- ¿Interfaz bilingüe (es/en)?
