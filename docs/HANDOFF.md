@@ -80,6 +80,13 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - Interfaz rehecha: cabecera con Personas / Ajustes / + Nueva medida; asistente por pasos con indicador de progreso; resultados en tarjetas con las cifras clave y los detalles técnicos plegados; editor que amplía la zona de las gafas; ajustes agrupados; diseño adaptado al móvil.
 - Pendiente: reabrir una medida guardada para reeditar marcadores, informe PDF, sincronización entre dispositivos.
 
+## Sesión del 18 nov 2026: logo y plantilla rediseñada
+
+- Logo SVG propio (dos lentes con las pupilas y una cota de DIP debajo), en la cabecera y como favicon.
+- Paso Montura en ordenador: ocupa toda la pantalla y, si el navegador lo permite, entra en pantalla completa. La plantilla queda **en el borde inferior de la pantalla** para apoyar la montura en la base del teclado. La línea de centros se arrastra en vertical (por defecto, 30 mm sobre el borde).
+- Silueta de la montura detrás de las líneas, según el tipo (aro completo, ranurado, al aire), el material (grosor del aro) y las plaquetas. Cotas A, DBL y ancho en chips.
+- En ese paso se eligen tipo de montaje, material (pasta, TR90, metal, titanio, mixta) y plaquetas. Pasan a la revisión como elección manual y se guardan con la medida (CSV con columnas Material y Plaquetas).
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?

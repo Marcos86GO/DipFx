@@ -46,6 +46,16 @@ async def measure_frame(pg, first):
         x=bb['x']+bb['width']/2+66*4; y=bb['y']+bb['height']*0.3
         await pg.mouse.move(x,y); await pg.mouse.down(); await pg.mouse.move(x+20,y); await pg.mouse.move(x+40,y); await pg.mouse.up()
         check('arrastre en la plantilla (mm)',round(float(await pg.input_value('#tW'))-w0,1),10.0,0.15)
+        # en ordenador la plantilla ocupa la pantalla y llega al borde inferior
+        bb=await pg.locator('#tplCv').bounding_box(); vh=pg.viewport_size['height']
+        ok=await pg.locator('#tplPanel.full').count()==1 and abs(bb['y']+bb['height']-vh)<1.5
+        print(f"  {'OK ' if ok else 'FALLO'} plantilla pegada al borde inferior (abajo en {bb['y']+bb['height']:.0f} px de {vh})")
+        if not ok: fails.append('plantilla abajo')
+        # la línea de centros se arrastra en vertical (cerca del borde izquierdo, lejos de las líneas verticales)
+        yl=bb['y']+bb['height']-30*4; await pg.mouse.move(bb['x']+200,yl); await pg.mouse.down(); await pg.mouse.move(bb['x']+200,yl-20); await pg.mouse.up()
+        ymm=await pg.evaluate("JSON.parse(localStorage.getItem('dipapp.tpl')||'{}').yMm")
+        await pg.select_option('#tMount','full'); await pg.select_option('#tMat','acetate'); await pg.select_option('#tPads','no')
+        ymm=await pg.evaluate("JSON.parse(localStorage.getItem('dipapp.tpl')).yMm"); check('línea de centros arrastrada (mm desde abajo)',ymm,35.0,0.3)
         await pg.click('#tplPanel details summary')
         for sel,val in (('#tW','131'),('#tAod','52'),('#tDBL','18'),('#tAos','52')): await pg.fill(sel,val); await pg.dispatch_event(sel,'change')
     else:
@@ -75,6 +85,9 @@ async def main():
         if m: check('tiempo de procesado de la ráfaga (s)',float(m.group(1).replace(',','.')),0,4.0)
         check_common(t,22.5,53.0,'pasta')
         m=re.search(r'diferencia entre referencias (-?\+?\d+,\d) %',t); check('diferencia entre referencias (%)',float(m.group(1).replace(',','.').replace('+','')),0,0.5)
+        sel=[await pg.input_value(x) for x in ('#mountSel','#matSel','#padSel')]; ok=sel==['full-acetate','acetate','no']
+        print(f"  {'OK ' if ok else 'FALLO'} tipo, material y plaquetas de la plantilla en la revisión: {sel}")
+        if not ok: fails.append('tipo de montura elegido')
         await pg.select_option('#imgSel','best'); await pg.wait_for_timeout(1500)
         t2=await pg.input_value('#copyArea'); check('DIP (mejor fotograma)',num1(t2,'DIP lejos'),64.0,0.2)
         await pg.screenshot(path=os.path.join(OUT,'e2e_montura.png'),full_page=True)
@@ -93,6 +106,7 @@ async def main():
         # detalle de una medida guardada
         await pg.click('#personMeasures tbody tr >> nth=0'); await pg.wait_for_selector('#viewRecord:not(.hidden)')
         rb=await pg.inner_text('#recordBody'); check('DIP en la medida guardada',num1(rb,'DIP de lejos'),64.0,0.2)
+        if 'Pasta (acetato)' not in rb or 'plaquetas: no' not in rb: fails.append('material guardado'); print('  FALLO la medida guardada no recoge material y plaquetas')
         if not await pg.locator('#recordBody img.recImg').count(): fails.append('foto guardada'); print('  FALLO la medida no guarda la foto')
         await pg.screenshot(path=os.path.join(OUT,'e2e_registro.png'),full_page=True)
         # persistencia tras recargar y exportación CSV

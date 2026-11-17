@@ -17,7 +17,7 @@ App web de una sola página (`index.html`, sin build) que, con la webcam del por
 4. Todo marcador es **editable a mano**, con lupa y flechas del teclado. Los resultados llevan su **incertidumbre (±)**, calculada por perturbación.
 5. **Guarda un histórico por persona**: fichas de personas (nombre, referencia, fecha de nacimiento, notas), cada una con todas sus medidas (valores, ±, montura, graduación, parámetros y, opcionalmente, la foto con las marcas). Muestra la media y la dispersión de varias medidas. Todo queda **solo en el navegador** (IndexedDB), con copia de seguridad JSON, importación y exportación CSV.
 
-**Interfaz**: cabecera con «Personas», «Ajustes» y «+ Nueva medida». Una medida es un asistente por pasos: Persona → Montura (solo método montura) → Foto → Revisar y guardar. Los detalles técnicos y los parámetros avanzados van plegados. La calibración de la pantalla y la ficha de persona son ventanas modales.
+**Interfaz**: logo SVG propio (cabecera y favicon, en línea). Cabecera con «Personas», «Ajustes» y «+ Nueva medida». Una medida es un asistente por pasos: Persona → Montura (solo método montura) → Foto → Revisar y guardar. Los detalles técnicos y los parámetros avanzados van plegados. La calibración de la pantalla y la ficha de persona son ventanas modales. En ordenador, el paso Montura ocupa toda la pantalla (intenta ponerla en pantalla completa) con la plantilla **pegada al borde inferior**, para apoyar la montura en la base del teclado; dibuja detrás una silueta de la montura que sigue las líneas marcadas y el tipo elegido, y permite indicar **tipo de montaje, material y plaquetas**.
 
 Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un equipo técnico en una empresa de diseños de lentes freeform. **Interfaz y comentarios en español.** El rigor óptico importa más que lo vistoso.
 
@@ -42,12 +42,12 @@ Usuario y destinatario: óptico‑optometrista (España/EE. UU.) que dirige un e
 
 ```bash
 npm run fixtures     # genera imágenes sintéticas en tests/fixtures/out/ (python3, numpy, Pillow; ffmpeg opcional)
-npm test             # 35 pruebas unitarias con node:test sobre la sección CORE
+npm test             # 36 pruebas unitarias con node:test sobre la sección CORE
 npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial simulado (playwright; CHROME_PATH opcional)
 ```
 
 - `tests/lib/extract-core.cjs` extrae la sección entre `// ==CORE START==` y `// ==CORE END==` de `index.html` y exporta todo `function` y `const` de nivel superior. **No rompas esos marcadores** y mantén el CORE **sin DOM**.
-- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla con arrastre, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el histórico (crear persona, dos medidas, resumen, detalle con foto, persistencia tras recargar, CSV), el método tarjeta en vivo y el método iris con fotos subidas guardado en una persona nueva.
+- Las pruebas e2e cubren el método montura en vivo (calibración de pantalla, plantilla a pantalla completa pegada al borde inferior, arrastre de líneas y de la línea de centros, tipo, material y plaquetas, ráfaga apilada, bordes exteriores, cambio a mejor fotograma), el histórico (crear persona, dos medidas, resumen, detalle con foto, persistencia tras recargar, CSV), el método tarjeta en vivo y el método iris con fotos subidas guardado en una persona nueva.
 - Las pruebas e2e sustituyen MediaPipe por `tests/fixtures/out/fake_vision.mjs`, que devuelve puntos coherentes con cada imagen sintética. El detector distingue la imagen por el píxel marcador (1,1): 10 = sin gafas, 240 = con gafas, 128 = tarjeta.
 - Las escenas sintéticas se proyectan con el mismo modelo físico. Por eso validan la coherencia interna y los algoritmos de visión, **no** la exactitud con caras reales. **Nunca se ha probado con una cámara y una cara reales.**
 
@@ -57,13 +57,13 @@ npm run test:e2e     # Chrome sin cabeza: cámara simulada + detector facial sim
   - Geometría: `focalFromDfov`, `rcFromLens` (centro de rotación + Prentice), `cardWidthPx`, `measureCap`, `solveAll`, `solveWithUnc`.
   - Método montura: `tplFromLines`, `tplDNC`, `detectOuterEdge`, `frameScaleZ`.
   - Ráfaga: `nccAt`, `registerShift` (búsqueda entera por NCC + Lucas–Kanade), `similarity2`, `stackRGBA`.
-  - Histórico: `buildRecord` (registro que se guarda), `summarizeHistory`, `recordsToCSV` (`;` y coma decimal), `normalizeImport`.
+  - Histórico: `buildRecord` (registro que se guarda, con `material` y `pads`), `summarizeHistory`, `recordsToCSV` (`;` y coma decimal), `normalizeImport`, `mountingFrom` (tipo + material → montaje del cálculo), `MATERIAL_LABEL`.
   - Óptica: `lensData`, `apparentMag` (lente gruesa), `solveVertexH`, `fuseVertex`.
   - Visión: `detectCard`, `refineEdge`, `refineIris` (ajuste de circunferencia de Kåsa sobre bordes laterales), `detectLensContour` (programación dinámica polar), `rimAnalysis`, `classifyFrame`, `padAnalysis`, `featureScale`.
 - **App**:
   - Navegación: `go(vista)` entre `viewPeople`, `viewPerson`, `viewRecord`, `viewWizard` y `viewSettings`. Asistente: `startMeasure(personId)`, `showStep('person'|'frame'|'photo'|'review')`, estado en `wiz = {person, step, savedId}`.
   - Datos: `DB` (IndexedDB `dipfx` v1; almacenes `people` {id, name, ref, birth, notes, created, updated} y `measures` (registro de `buildRecord`, índice `personId`, `image` como Blob JPEG)). `renderPeople`, `renderPerson`, `renderRecord`, `saveMeasure`, `snapshotBlob`, `exportJson`, `exportCsv`, `importJson`. Preferencias (método, exigencia, voz) en `localStorage` `dipapp.prefs`.
-  - Calibración de la pantalla (`scrCal`, `openScr`; clave `dipapp.screen`) y plantilla de la montura (`openTpl`, `tplDraw`; clave `dipapp.tpl`).
+  - Calibración de la pantalla (`scrCal`, `openScr`; clave `dipapp.screen`) y plantilla de la montura (`openTpl`, `tplDraw`, `tplSilhouette`, `tplLeave`; clave `dipapp.tpl` con líneas, altura de la línea de centros `yMm` desde el borde inferior, tipo, material y plaquetas). Al confirmar, el tipo y el material pasan a `mountSel` (vía `mountingFrom`), `matSel` y `padSel` como elección manual.
   - Detección del dispositivo y base de datos de FOV (`CAM_DB`).
   - Carga de MediaPipe y `analyzeFace`.
   - Bucle en vivo: `evaluate` → `guidance` → cuenta atrás → `captureBurst` → `stackBurst`.

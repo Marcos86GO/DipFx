@@ -17,6 +17,17 @@ test('registro: valores redondeados, montura, parámetros y plantilla limpia', (
   assert.equal(r2.frame, null); assert.equal(r2.params.tpl, null); assert.equal(r2.values.monoOD, null);
 });
 
+test('tipo de montaje y material → montaje del cálculo', () => {
+  assert.equal(C.mountingFrom('full', 'acetate'), 'full-acetate'); assert.equal(C.mountingFrom('full', 'tr90'), 'full-acetate');
+  assert.equal(C.mountingFrom('full', 'titanium'), 'full-metal'); assert.equal(C.mountingFrom('full', ''), 'auto');
+  assert.equal(C.mountingFrom('nylor', 'metal'), 'nylor'); assert.equal(C.mountingFrom('rimless', ''), 'rimless'); assert.equal(C.mountingFrom('auto', 'acetate'), 'auto');
+  const r = C.buildRecord(R, u, p, { material: 'titanium', pads: true });
+  assert.equal(r.material, 'titanium'); assert.equal(r.pads, true);
+  const csv = C.recordsToCSV([{ id: 'p1', name: 'Ana' }], [{ ...r, personId: 'p1' }]).split('\r\n');
+  const h = csv[0].split(';'), v = csv[1].split(';');
+  assert.equal(v[h.indexOf('Material')], 'Titanio'); assert.equal(v[h.indexOf('Plaquetas')], 'sí');
+});
+
 test('resumen de varias medidas: media y desviación típica muestral', () => {
   const recs = [64.0, 64.4, 63.8].map((d, i) => ({ values: { pdFar: d, monoOD: 31.5 + i * 0.1, monoOS: null } }));
   const s = C.summarizeHistory(recs);

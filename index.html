@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Medidor de DIP, alturas y montura</title>
+<title>DipFx · Medidas de centrado</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%2064%2064%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%231b82f5%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230a4a9e%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2215%22%20fill%3D%22url%28%23g%29%22/%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%223.6%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%226.5%22%20y%3D%2217%22%20width%3D%2222%22%20height%3D%2217%22%20rx%3D%226.5%22/%3E%3Crect%20x%3D%2235.5%22%20y%3D%2217%22%20width%3D%2222%22%20height%3D%2217%22%20rx%3D%226.5%22/%3E%3Cpath%20d%3D%22M28.5%2023.5q3.5-3.6%207%200%22/%3E%3C/g%3E%3Ccircle%20cx%3D%2217.5%22%20cy%3D%2225.5%22%20r%3D%222.8%22%20fill%3D%22%23fff%22/%3E%3Ccircle%20cx%3D%2246.5%22%20cy%3D%2225.5%22%20r%3D%222.8%22%20fill%3D%22%23fff%22/%3E%3Cg%20stroke%3D%22%23a9d4ff%22%20stroke-width%3D%222.6%22%20stroke-linecap%3D%22round%22%20fill%3D%22none%22%3E%3Cpath%20d%3D%22M17.5%2044.5H46.5%22/%3E%3Cpath%20d%3D%22M17.5%2040v9M46.5%2040v9%22/%3E%3C/g%3E%3C/svg%3E">
 <style>
 :root{--bg:#f4f6fa;--card:#fff;--ink:#17202e;--mut:#5d6778;--line:#e1e6ee;--acc:#0b63c9;--acc2:#e9f1fc;--ok:#12844a;--bad:#c2362b;--warn:#a86500;--r:14px}
 *{box-sizing:border-box}
@@ -14,8 +15,10 @@ h3{font-size:15px;margin:18px 0 8px}
 .hidden{display:none!important}
 /* cabecera */
 header.top{position:sticky;top:0;z-index:40;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:10px 20px;flex-wrap:wrap}
-.brand{display:flex;align-items:baseline;gap:8px;margin-right:auto}
-.brand b{font-size:19px}
+.brand{display:flex;align-items:center;gap:9px;margin-right:auto}
+.brand .logo{width:34px;height:34px;display:block;flex:0 0 auto;filter:drop-shadow(0 2px 4px rgba(11,99,201,.25))}
+.brand .logo svg{width:100%;height:100%;display:block}
+.brand b{font-size:20px;letter-spacing:-.02em}
 .brand .sub{color:var(--mut);font-size:13px}
 nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 nav .nav{background:none;border-color:transparent;color:var(--mut);font-weight:600}
@@ -143,7 +146,24 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
 /* plantilla y calibración */
 .tplWrap{position:relative;width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 #tplCv,#scrCv{display:block;width:100%;touch-action:none;outline:none}
-#tplCv{cursor:ew-resize}
+#tplCv{cursor:ew-resize;background:#fff}
+.tplHead{display:flex;align-items:flex-start;gap:12px}
+.tplHead .sp{flex:1 1 auto}
+.tplKicker{font-size:12.5px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.05em}
+ol.tplSteps{list-style:none;padding:0;margin:10px 0 4px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+ol.tplSteps li{display:flex;gap:10px;align-items:flex-start;background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px;line-height:1.4}
+ol.tplSteps .n{flex:0 0 26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+@media(max-width:900px){ol.tplSteps{grid-template-columns:1fr}}
+.tplOpts{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-top:12px}
+.tplOpts label.f{flex:1 1 170px}
+.tplVals{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;font-size:15px}
+#tplPanel .tplWrap{margin-top:14px}
+/* en ordenador, la plantilla ocupa la pantalla y queda pegada al borde inferior (la montura se apoya en el teclado) */
+#tplPanel.full{position:fixed;inset:0;margin:0;z-index:70;border:0;border-radius:0;padding:0;display:flex;flex-direction:column;background:var(--bg);box-shadow:none}
+#tplPanel.full .tplTop{flex:1 1 auto;overflow:auto;width:100%;max-width:1180px;margin:0 auto;padding:16px 22px 8px}
+#tplPanel.full .tplTop .actions{margin-top:10px;padding-top:10px}
+#tplPanel.full .tplWrap{flex:0 0 auto;margin:0;border:0;border-top:1px solid var(--line);border-radius:0}
+body.noscroll{overflow:hidden}
 .tplNums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:8px}
 @media(max-width:640px){.tplNums{grid-template-columns:repeat(2,minmax(0,1fr))}}
 /* ventanas modales */
@@ -166,7 +186,7 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
 <body>
 <div id="lookHere" class="hidden">▲ Mira aquí, al objetivo de la cámara ▲</div>
 <header class="top">
-  <div class="brand"><b>DipFx</b><span class="sub">Medidas de centrado con la cámara</span></div>
+  <div class="brand"><span class="logo" aria-hidden="true"><svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lgA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b82f5"/><stop offset="1" stop-color="#0a4a9e"/></linearGradient></defs><rect width="64" height="64" rx="15" fill="url(#lgA)"/><g fill="none" stroke="#fff" stroke-width="3.6" stroke-linejoin="round"><rect x="6.5" y="17" width="22" height="17" rx="6.5"/><rect x="35.5" y="17" width="22" height="17" rx="6.5"/><path d="M28.5 23.5q3.5-3.6 7 0"/></g><circle cx="17.5" cy="25.5" r="2.8" fill="#fff"/><circle cx="46.5" cy="25.5" r="2.8" fill="#fff"/><g stroke="#a9d4ff" stroke-width="2.6" stroke-linecap="round" fill="none"><path d="M17.5 44.5H46.5"/><path d="M17.5 40v9M46.5 40v9"/></g></svg></span><b>Dip<span style="color:var(--acc)">Fx</span></b><span class="sub">Medidas de centrado con la cámara</span></div>
   <nav>
     <button class="nav" data-view="people" type="button">Personas</button>
     <button class="nav" data-view="settings" type="button">Ajustes</button>
@@ -226,29 +246,46 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
     <div class="actions"><button class="link" id="personSkip" type="button">Medir sin asignar ahora (se elige al guardar)</button><span class="sp"></span><span class="note" id="methodNote"></span></div>
   </div>
 
-  <!-- Paso: montura -->
+  <!-- Paso: montura (en ordenador ocupa toda la pantalla, con la plantilla pegada al borde inferior) -->
   <div class="card hidden" id="tplPanel">
-    <h2>Mide la montura sobre la pantalla</h2>
-    <ol class="steps">
-      <li>Abre las varillas y apoya con suavidad el <b>frente de la montura contra la pantalla</b>, con las varillas hacia ti (como si fueras a ponértela). La lente derecha queda a tu derecha.</li>
-      <li>Haz que la <b>línea horizontal</b> pase por el centro de las dos lentes y que el <b>puente</b> quede sobre la línea discontinua.</li>
-      <li>Arrastra las líneas <b style="color:#0b63c9">azules</b> a los <b>bordes exteriores</b> del frente. Si puedes, lleva también las <b style="color:#c46a00">naranjas</b> al <b>borde interior del aro</b> de cada lente: dan una segunda referencia y más precisión.</li>
-      <li>Mira cada línea <b>de frente y con un ojo cerrado</b>. Toca una línea y afínala con las flechas del teclado (0,1 mm; con Mayús, 1 mm).</li>
-    </ol>
-    <div id="tplWarn"></div>
-    <div class="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
-    <div class="row"><label class="chk"><input type="checkbox" id="tplInner" checked> Marcar también el borde interior de cada lente (recomendado)</label></div>
-    <details>
-      <summary>Escribir las medidas a mano (regla o trazador)</summary>
-      <div class="tplNums">
-        <label class="f">Ancho exterior (mm)<input id="tW" type="number" step="0.1"></label>
-        <label class="f tplIn">A lente derecha · OD (mm)<input id="tAod" type="number" step="0.1"></label>
-        <label class="f tplIn">Puente DBL (mm)<input id="tDBL" type="number" step="0.1"></label>
-        <label class="f tplIn">A lente izquierda · OI (mm)<input id="tAos" type="number" step="0.1"></label>
+    <div class="tplTop">
+      <div class="tplHead">
+        <div>
+          <div class="tplKicker" id="tplKicker">Paso 2 · Montura</div>
+          <h2>Mide la montura sobre la pantalla</h2>
+        </div>
+        <span class="sp"></span>
+        <button id="tplFs" type="button">Pantalla completa</button>
       </div>
-    </details>
-    <div id="tplMsg"></div>
-    <div class="actions"><button id="tplCancel" type="button">← Atrás</button><span class="sp"></span><button class="pri big" id="tplOk" type="button">Siguiente: la foto →</button></div>
+      <ol class="tplSteps">
+        <li><span class="n">1</span><span>Abre las varillas y <b>apoya la montura en la base del teclado</b>, con el frente contra la pantalla y las varillas hacia ti. La lente derecha queda a tu derecha.</span></li>
+        <li><span class="n">2</span><span>Centra el puente en la línea discontinua y arrastra la <b>línea horizontal ⇕</b> hasta el centro de las lentes.</span></li>
+        <li><span class="n">3</span><span>Lleva las líneas <b style="color:#0b63c9">azules</b> a los <b>bordes exteriores</b> y las <b style="color:#c46a00">naranjas</b> al <b>borde interior del aro</b>. Míralas de frente, con un ojo cerrado. Las flechas del teclado afinan 0,1 mm.</span></li>
+      </ol>
+      <div class="tplOpts">
+        <label class="f">Tipo de montaje<select id="tMount">
+          <option value="auto">No lo sé (detectar)</option><option value="full">Aro completo</option><option value="nylor">Ranurado (nylon)</option><option value="rimless">Al aire (taladrado)</option>
+        </select></label>
+        <label class="f">Material<select id="tMat">
+          <option value="">No lo sé</option><option value="acetate">Pasta (acetato)</option><option value="tr90">Inyectado (TR90 / nylon)</option><option value="metal">Metal</option><option value="titanium">Titanio</option><option value="mixed">Mixta (pasta y metal)</option>
+        </select></label>
+        <label class="f">Plaquetas<select id="tPads"><option value="auto">No lo sé (detectar)</option><option value="yes">Con plaquetas</option><option value="no">Sin plaquetas</option></select></label>
+        <label class="chk"><input type="checkbox" id="tplInner" checked> Marcar también cada lente</label>
+      </div>
+      <details>
+        <summary>Escribir las medidas a mano (regla o trazador)</summary>
+        <div class="tplNums">
+          <label class="f">Ancho exterior (mm)<input id="tW" type="number" step="0.1"></label>
+          <label class="f tplIn">A lente derecha · OD (mm)<input id="tAod" type="number" step="0.1"></label>
+          <label class="f tplIn">Puente DBL (mm)<input id="tDBL" type="number" step="0.1"></label>
+          <label class="f tplIn">A lente izquierda · OI (mm)<input id="tAos" type="number" step="0.1"></label>
+        </div>
+      </details>
+      <div id="tplWarn"></div>
+      <div id="tplMsg"></div>
+      <div class="actions"><button id="tplCancel" type="button">← Atrás</button><span class="sp"></span><span class="tplVals" id="tplVals"></span><button class="pri big" id="tplOk" type="button">Siguiente: la foto →</button></div>
+    </div>
+    <div class="tplWrap" id="tplWrap"><canvas id="tplCv" tabindex="0"></canvas></div>
   </div>
 
   <!-- Paso: foto -->
@@ -338,6 +375,7 @@ textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Conso
           <option value="nylor">Ranurado / semi‑aro (nylon)</option>
           <option value="rimless">Al aire (taladrado)</option>
         </select></label>
+        <label class="f">Material<select id="matSel"><option value="">No indicado</option><option value="acetate">Pasta (acetato)</option><option value="tr90">Inyectado (TR90 / nylon)</option><option value="metal">Metal</option><option value="titanium">Titanio</option><option value="mixed">Mixta (pasta y metal)</option></select></label>
         <label class="f">Plaquetas<select id="padSel"><option value="auto">Automático</option><option value="yes">Con plaquetas</option><option value="no">Sin plaquetas</option></select></label>
       </div>
       <div id="frameType"></div>
@@ -1340,7 +1378,7 @@ function buildRecord(R, u, p, meta = {}) {
   return {
     id: meta.id, personId: meta.personId ?? null, date: meta.date || new Date().toISOString(), method: R.mode,
     frameName: meta.frameName || '', notes: meta.notes || '',
-    values, unc, frame, mounting: R.mounting || null, pads: meta.pads ?? null,
+    values, unc, frame, mounting: R.mounting || null, material: meta.material || null, pads: meta.pads ?? null,
     vertexMeasured: !!R.vertexMeasured, flags: (R.flags || []).slice(),
     params: {
       rx: { od: rx('od'), os: rx('os') }, index: +p.index || 1.5, vertex: r2(+p.vertex), wrap: +p.wrap || 0, panto: +p.panto || 0,
@@ -1348,6 +1386,14 @@ function buildRecord(R, u, p, meta = {}) {
     },
     camera: meta.camera || null, image: meta.image ?? null, text: meta.text || '',
   };
+}
+// Tipo de montaje y material elegidos por el usuario → montaje que usa el cálculo (ranura/bisel, clasificación).
+// type: 'auto' | 'full' | 'nylor' | 'rimless'; mat: '' | 'acetate' | 'tr90' | 'metal' | 'titanium' | 'mixed'
+const MATERIAL_LABEL = { acetate: 'Pasta (acetato)', tr90: 'Inyectado (TR90 / nylon)', metal: 'Metal', titanium: 'Titanio', mixed: 'Mixta (pasta y metal)' };
+function mountingFrom(type, mat) {
+  if (type === 'nylor' || type === 'rimless') return type;
+  if (type === 'full') return mat === 'acetate' || mat === 'tr90' ? 'full-acetate' : mat === 'metal' || mat === 'titanium' ? 'full-metal' : 'auto';
+  return 'auto';
 }
 // Media, desviación típica (muestral), mínimo y máximo de varias medidas de una persona
 function summarizeHistory(recs, keys = ['pdFar', 'monoOD', 'monoOS']) {
@@ -1379,7 +1425,7 @@ function recordsToCSV(people, measures) {
     ['DIP lejos', V('pdFar')], ['± DIP', m => m.unc ? m.unc.pdFar : null], ['Mono OD', V('monoOD')], ['Mono OI', V('monoOS')],
     ['Altura OD', V('hOD')], ['Altura OI', V('hOS')], ['DIP cerca', V('pdNear')],
     ['A OD', Fr('od', 'A')], ['A OI', Fr('os', 'A')], ['B OD', Fr('od', 'B')], ['B OI', Fr('os', 'B')], ['DBL', V('DBL')],
-    ['ED OD', Fr('od', 'ED')], ['ED OI', Fr('os', 'ED')], ['Montaje', m => m.mounting || ''],
+    ['ED OD', Fr('od', 'ED')], ['ED OI', Fr('os', 'ED')], ['Montaje', m => m.mounting || ''], ['Material', m => MATERIAL_LABEL[m.material] || ''], ['Plaquetas', m => m.pads == null ? '' : m.pads ? 'sí' : 'no'],
     ['Esf OD', Rx('od', 's')], ['Cil OD', Rx('od', 'c')], ['Eje OD', Rx('od', 'a')], ['Esf OI', Rx('os', 's')], ['Cil OI', Rx('os', 'c')], ['Eje OI', Rx('os', 'a')],
     ['Vértice', V('vertex')], ['Notas', m => m.notes || ''],
   ];
@@ -1674,63 +1720,164 @@ function setupScrEvents() {
   $('scrOpen').addEventListener('click', () => openScr(false));
 }
 
-// ---------- Plantilla de la montura (paso 1 del método montura) ----------
+// ---------- Plantilla de la montura (paso del método montura) ----------
+// En ordenador, la plantilla ocupa la pantalla (mejor en pantalla completa) y queda pegada al borde inferior:
+// la montura se apoya en la base del teclado. La línea horizontal (centro de las lentes) se puede arrastrar.
 const TPL_KEYS = ['oL', 'tL', 'nL', 'nR', 'tR', 'oR'];
-const TPL_LAB = { oL: 'exterior', tL: 'OI temporal', nL: 'OI nasal', nR: 'OD nasal', tR: 'OD temporal', oR: 'exterior' };
-const tpl = { lines: null, sel: 'oR', drag: null, typed: false };
+const TPL_LAB = { oL: 'Borde exterior', tL: 'Temporal OI', nL: 'Nasal OI', nR: 'Nasal OD', tR: 'Temporal OD', oR: 'Borde exterior' };
+const tpl = { lines: null, sel: 'oR', drag: null, typed: false, yMm: 30 };
 const tplDefault = () => ({ oL: -66, tL: -61, nL: -9, nR: 9, tR: 61, oR: 66 });
 const tplInner = () => $('tplInner').checked;
+const tplDesktop = () => !S.isMobile && window.innerWidth >= 700;
 function tplValues() { const t = tplFromLines(tpl.lines); return tplInner() ? t : { W: t.W }; }
 function openTpl() {
   showStep('frame'); $('tplMsg').innerHTML = '';
-  if (!tpl.lines) { const sv = store.get(TPL_KEY); tpl.lines = sv && sv.lines ? sv.lines : tplDefault(); if (sv) $('tplInner').checked = sv.inner !== false; }
+  if (!tpl.lines) {
+    const sv = store.get(TPL_KEY);
+    tpl.lines = sv && sv.lines ? sv.lines : tplDefault();
+    if (sv) { $('tplInner').checked = sv.inner !== false; if (sv.yMm > 5) tpl.yMm = sv.yMm; for (const [id, k] of [['tMount', 'mount'], ['tMat', 'mat'], ['tPads', 'pads']]) if (sv[k] != null) $(id).value = sv[k]; }
+  }
   tpl.typed = false;
+  const full = tplDesktop();
+  $('tplPanel').classList.toggle('full', full); document.body.classList.toggle('noscroll', full);
+  $('tplFs').classList.toggle('hidden', !full || !document.documentElement.requestFullscreen);
+  $('tplKicker').textContent = `Paso ${wizSteps().indexOf('frame') + 1} de ${wizSteps().length} · Montura`;
+  if (full && !document.fullscreenElement) tplFullscreen(true);
   tplInnerUI(); tplWarn(); tplLayout(); tplDraw(); tplToInputs();
 }
+function tplFullscreen(on) {
+  try {
+    if (on && !document.fullscreenElement && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(() => { });
+    if (!on && document.fullscreenElement) document.exitFullscreen().catch(() => { });
+  } catch { }
+}
+function tplLeave() { $('tplPanel').classList.remove('full'); document.body.classList.remove('noscroll'); tplFullscreen(false); }
 function tplInnerUI() { for (const el of document.querySelectorAll('.tplIn')) el.classList.toggle('hidden', !tplInner()); }
 function tplWarn() {
   const c = scrCal(), w = [];
-  if (!c.ok) w.push(`<div class="warnbox"><b>${c.reason === 'none' ? 'La pantalla no está calibrada' : 'La pantalla o el zoom han cambiado desde la calibración'}</b>: la plantilla no está a tamaño real. <button type="button" onclick="document.getElementById('scrOpen').click()">Calibrar pantalla</button> o escribe abajo las medidas tomadas con una regla.</div>`);
+  if (!c.ok) w.push(`<div class="warnbox"><b>${c.reason === 'none' ? 'La pantalla no está calibrada' : 'La pantalla o el zoom han cambiado desde la calibración'}</b>: la plantilla no está a tamaño real. <button type="button" onclick="document.getElementById('scrOpen').click()">Calibrar pantalla</button> o escribe las medidas tomadas con una regla.</div>`);
   const cwMm = $('tplCv').parentElement.clientWidth / c.pxPerMm;
   if (cwMm < 150) w.push(`<div class="warnbox">La zona visible mide unos ${fmt(cwMm, 0)} mm de ancho: puede que la montura no quepa. Usa una pantalla más ancha o escribe las medidas.</div>`);
+  if (tplDesktop() && !document.fullscreenElement && document.documentElement.requestFullscreen) w.push('<div class="note" style="margin-top:6px">Consejo: con «Pantalla completa» la plantilla llega justo al borde inferior de la pantalla.</div>');
   $('tplWarn').innerHTML = w.join('');
 }
 function tplLayout() {
   const cv = $('tplCv'), cw = cv.parentElement.clientWidth, dpr = window.devicePixelRatio || 1, k = scrCal().pxPerMm;
-  const ch = Math.round(Math.min(95 * k, Math.max(220, window.innerHeight * 0.55)));
+  const ch = Math.round(Math.min(Math.max(95 * k, 240), window.innerHeight * (tplDesktop() ? 0.56 : 0.6)));
   cv.width = Math.round(cw * dpr); cv.height = Math.round(ch * dpr); cv.style.height = ch + 'px';
+}
+// Geometría de la silueta a partir de las líneas (mm, x a la derecha; y hacia arriba desde el centro de las lentes)
+function tplShape() {
+  const L = tpl.lines, inner = tplInner(), W = L.oR - L.oL, c = (L.oL + L.oR) / 2;
+  let os, od;
+  if (inner) { os = [L.tL, L.nL]; od = [L.nR, L.tR]; }
+  else { const dbl = 18, A = Math.max(30, (W - dbl - 8) / 2); os = [c - dbl / 2 - A, c - dbl / 2]; od = [c + dbl / 2, c + dbl / 2 + A]; }
+  const A = ((os[1] - os[0]) + (od[1] - od[0])) / 2, B = Math.max(26, Math.min(48, 0.72 * A));
+  const type = $('tMount').value, mat = $('tMat').value;
+  const thick = mat === 'acetate' || mat === 'tr90' ? 4 : mat === 'metal' || mat === 'titanium' ? 1.4 : mat === 'mixed' ? 3 : 2.6;
+  const rim = type === 'rimless' ? 0 : thick;
+  return { L, os, od, A, B, rim, type, mat, pads: $('tPads').value };
+}
+function rrect(x, x0, y0, x1, y1, r) {
+  r = Math.max(0, Math.min(r, (x1 - x0) / 2, (y1 - y0) / 2));
+  x.beginPath(); x.moveTo(x0 + r, y0); x.lineTo(x1 - r, y0); x.quadraticCurveTo(x1, y0, x1, y0 + r); x.lineTo(x1, y1 - r); x.quadraticCurveTo(x1, y1, x1 - r, y1);
+  x.lineTo(x0 + r, y1); x.quadraticCurveTo(x0, y1, x0, y1 - r); x.lineTo(x0, y0 + r); x.quadraticCurveTo(x0, y0, x0 + r, y0); x.closePath();
+}
+// Silueta ilustrativa de la montura, detrás de las líneas: sigue las medidas marcadas y el tipo y material elegidos
+function tplSilhouette(x, X, Y, k, sh) {
+  const { L, os, od, B, rim, type, pads } = sh, rLens = Math.min(0.32 * B, 10);
+  const frameCol = 'rgba(29,40,58,0.16)', lensCol = 'rgba(11,99,201,0.05)', edgeCol = 'rgba(29,40,58,0.35)';
+  const lens = (a, b) => rrect(x, X(a), Y(B / 2), X(b), Y(-B / 2), rLens * k);
+  // frente: cada lado llega al borde exterior marcado, a la altura de la línea horizontal
+  if (type !== 'rimless') {
+    const top = type === 'nylor' ? rim : rim, bot = type === 'nylor' ? 0 : rim;
+    x.fillStyle = frameCol;
+    x.save();
+    if (type === 'nylor') { x.beginPath(); x.rect(0, 0, x.canvas.width, Y(-B * 0.12)); x.clip(); }   // ranurado: aro solo arriba
+    rrect(x, X(L.oL), Y(B / 2 + top), X(os[1] + rim), Y(-B / 2 - bot), (rLens + rim) * k); x.fill();
+    rrect(x, X(od[0] - rim), Y(B / 2 + top), X(L.oR), Y(-B / 2 - bot), (rLens + rim) * k); x.fill();
+    x.restore();
+    // puente
+    const by = B / 2 - 6, bh = Math.max(2, Math.min(5, rim + 1));
+    x.fillRect(X(os[1]), Y(by + bh / 2), X(od[0]) - X(os[1]), bh * k);
+    if (type === 'nylor') { x.strokeStyle = edgeCol; x.lineWidth = 1; x.setLineDash([4, 3]); for (const [a, b] of [os, od]) { lens(a, b); x.stroke(); } x.setLineDash([]); }
+  }
+  // lentes
+  for (const [a, b] of [os, od]) {
+    x.save(); lens(a, b); x.clip(); x.clearRect(X(a) - 2, Y(B / 2) - 2, X(b) - X(a) + 4, B * k + 4);
+    x.fillStyle = lensCol; x.fillRect(X(a) - 2, Y(B / 2) - 2, X(b) - X(a) + 4, B * k + 4);
+    // reflejo suave
+    const g = x.createLinearGradient(X(a), Y(B / 2), X(b), Y(-B / 2)); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.45, 'rgba(255,255,255,.55)'); g.addColorStop(0.6, 'rgba(255,255,255,0)');
+    x.fillStyle = g; x.fillRect(X(a), Y(B / 2), X(b) - X(a), B * k); x.restore();
+    if (type === 'rimless') { x.strokeStyle = edgeCol; x.lineWidth = 1.2; lens(a, b); x.stroke(); }
+  }
+  if (type === 'rimless') {
+    x.fillStyle = frameCol; x.fillRect(X(os[1] - 2), Y(B / 2 - 4), X(od[0] + 2) - X(os[1] - 2), 2 * k);
+    x.fillStyle = edgeCol; for (const xm of [os[0] + 3, os[1] - 3, od[0] + 3, od[1] - 3]) { x.beginPath(); x.arc(X(xm), Y(B / 2 - 5), 1.1 * k, 0, 2 * Math.PI); x.fill(); }
+  }
+  // plaquetas
+  if (pads === 'yes') {
+    x.strokeStyle = edgeCol; x.fillStyle = 'rgba(255,255,255,.7)'; x.lineWidth = 1.2;
+    for (const xm of [os[1] - 2.5, od[0] + 2.5]) { x.beginPath(); x.ellipse(X(xm), Y(-5), 2.2 * k, 4.5 * k, 0, 0, 2 * Math.PI); x.fill(); x.stroke(); }
+  }
+}
+function chip(x, txt, cx, cy, col, bold) {
+  x.font = `${bold ? 700 : 600} 12px system-ui`;
+  const w = x.measureText(txt).width + 14, h = 20;
+  x.fillStyle = col; rrect(x, cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2, 10); x.fill();
+  x.fillStyle = '#fff'; x.textBaseline = 'middle'; x.fillText(txt, cx - w / 2 + 7, cy + 0.5); x.textBaseline = 'alphabetic';
 }
 function tplDraw() {
   const cv = $('tplCv'), dpr = window.devicePixelRatio || 1, cw = cv.width / dpr, ch = cv.height / dpr, k = scrCal().pxPerMm, L = tpl.lines;
   const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
-  x.fillStyle = '#fff'; x.fillRect(0, 0, cw, ch);
-  const X = mm => Math.round((cw / 2 + mm * k) * dpr) / dpr + 0.5 / dpr, yc = Math.round(ch * 0.52);
-  // reglas en los bordes superior e inferior (0 en el centro)
-  x.strokeStyle = '#9aa4b2'; x.lineWidth = 1 / dpr; x.fillStyle = '#5b6476'; x.font = '10px system-ui';
+  x.clearRect(0, 0, cw, ch);
+  const bg = x.createLinearGradient(0, 0, 0, ch); bg.addColorStop(0, '#ffffff'); bg.addColorStop(1, '#f3f6fb');
+  x.fillStyle = bg; x.fillRect(0, 0, cw, ch);
+  tpl.yMm = Math.max(12, Math.min((ch - 40) / k, tpl.yMm));
+  const yc = ch - tpl.yMm * k, X = mm => Math.round((cw / 2 + mm * k) * dpr) / dpr + 0.5 / dpr, Y = mm => yc - mm * k;
+  const sh = tplShape();
+  tplSilhouette(x, X, Y, k, sh);
+  // reglas: arriba y en el borde inferior (el de la pantalla)
+  x.strokeStyle = '#a7b1c0'; x.lineWidth = 1 / dpr; x.fillStyle = '#7a8496'; x.font = '10px system-ui';
   const half = Math.floor(cw / 2 / k);
   for (let mm = -half; mm <= half; mm++) {
-    const len = mm % 10 === 0 ? 10 : mm % 5 === 0 ? 6 : 3;
+    const len = mm % 10 === 0 ? 9 : mm % 5 === 0 ? 6 : 3;
     x.beginPath(); x.moveTo(X(mm), 0); x.lineTo(X(mm), len); x.moveTo(X(mm), ch); x.lineTo(X(mm), ch - len); x.stroke();
-    if (mm % 10 === 0 && mm) x.fillText(Math.abs(mm), X(mm) - 6, ch - 13);
+    if (mm % 10 === 0 && mm) x.fillText(Math.abs(mm), X(mm) - 6, ch - 12);
   }
-  x.strokeStyle = '#5b6476'; x.lineWidth = 1;
-  x.beginPath(); x.moveTo(0, yc + 0.5); x.lineTo(cw, yc + 0.5); x.stroke();
-  x.setLineDash([6, 5]); x.beginPath(); x.moveTo(X(0), 14); x.lineTo(X(0), ch - 26); x.stroke(); x.setLineDash([]);
-  x.fillStyle = '#5b6476'; x.font = '11px system-ui'; x.fillText('línea de centros de las lentes', 6, yc - 5); x.fillText('centro del puente', X(0) + 4, 26);
+  // centro del puente y línea de centros
+  x.strokeStyle = '#8c96a8'; x.lineWidth = 1; x.setLineDash([5, 5]);
+  x.beginPath(); x.moveTo(X(0), 14); x.lineTo(X(0), ch - 22); x.stroke(); x.setLineDash([]);
+  const onY = tpl.sel === 'yc';
+  x.strokeStyle = onY ? '#0b63c9' : '#5d6778'; x.lineWidth = onY ? 2 : 1;
+  x.beginPath(); x.moveTo(0, Math.round(yc) + 0.5); x.lineTo(cw, Math.round(yc) + 0.5); x.stroke();
+  chip(x, '⇕ centro de las lentes', 92, yc, onY ? '#0b63c9' : '#5d6778');
+  // líneas de medida con asa
   const keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
   for (const key of keys) {
-    const outer = key[0] === 'o', on = key === tpl.sel, xx = X(L[key]);
-    x.strokeStyle = outer ? '#0b63c9' : '#c46a00'; x.lineWidth = on ? 2 : 1;
-    if (on) { x.fillStyle = outer ? 'rgba(11,99,201,.10)' : 'rgba(196,106,0,.10)'; x.fillRect(xx - 6, 0, 12, ch); }
+    const outer = key[0] === 'o', on = key === tpl.sel, xx = X(L[key]), col = outer ? '#0b63c9' : '#c46a00';
+    if (on) { x.fillStyle = outer ? 'rgba(11,99,201,.08)' : 'rgba(196,106,0,.08)'; x.fillRect(xx - 7, 0, 14, ch); }
+    x.strokeStyle = col; x.lineWidth = on ? 2 : 1.2;
     x.beginPath(); x.moveTo(xx, 0); x.lineTo(xx, ch); x.stroke();
-    x.fillStyle = x.strokeStyle; x.font = (on ? 'bold ' : '') + '11px system-ui';
-    const lab = TPL_LAB[key], tw = x.measureText(lab).width, ty = outer ? 40 : 56;
-    x.fillText(lab, key === 'oL' || key === 'tL' || key === 'nR' ? xx + 4 : xx - tw - 4, ty);
+    const ky = outer ? 34 : 58;
+    x.fillStyle = col; x.beginPath(); x.arc(xx, ky, on ? 8 : 6.5, 0, 2 * Math.PI); x.fill();
+    x.fillStyle = '#fff'; x.beginPath(); x.arc(xx, ky, 2.5, 0, 2 * Math.PI); x.fill();
+    x.fillStyle = col; x.font = `${on ? 700 : 600} 11px system-ui`;
+    const lab = TPL_LAB[key], tw = x.measureText(lab).width, left = key === 'oL' || key === 'tL' || key === 'nR';
+    x.fillText(lab, left ? xx + 12 : xx - tw - 12, ky + 4);
   }
+  // cotas
   const t = tplValues();
-  x.fillStyle = '#1c2230'; x.font = 'bold 13px system-ui';
-  const txt = `Ancho ${fmt(t.W)} mm` + (t.DBL != null ? ` · A OD ${fmt(t.Aod)} · DBL ${fmt(t.DBL)} · A OI ${fmt(t.Aos)}` : '');
-  x.fillText(txt, Math.max(6, cw / 2 - x.measureText(txt).width / 2), yc + 22);
+  if (t.DBL != null) {
+    const cy = 84;
+    chip(x, `A ${fmt(t.Aos)}`, (X(L.tL) + X(L.nL)) / 2, cy, '#c46a00'); chip(x, `DBL ${fmt(t.DBL)}`, (X(L.nL) + X(L.nR)) / 2, cy, '#c46a00'); chip(x, `A ${fmt(t.Aod)}`, (X(L.nR) + X(L.tR)) / 2, cy, '#c46a00');
+  }
+  const dy = t.DBL != null ? 112 : 84, xa = X(L.oL), xb = X(L.oR);
+  x.strokeStyle = '#0b63c9'; x.fillStyle = '#0b63c9'; x.lineWidth = 1.2;
+  x.beginPath(); x.moveTo(xa, dy); x.lineTo(xb, dy); x.stroke();
+  for (const [xx, d] of [[xa, 1], [xb, -1]]) { x.beginPath(); x.moveTo(xx, dy); x.lineTo(xx + 8 * d, dy - 4); x.lineTo(xx + 8 * d, dy + 4); x.closePath(); x.fill(); }
+  chip(x, `Ancho ${fmt(t.W)} mm`, (xa + xb) / 2, dy, '#0b63c9', true);
+  $('tplVals').textContent = `Ancho ${fmt(t.W)}` + (t.DBL != null ? ` · A ${fmt(t.Aod)} / ${fmt(t.Aos)} · DBL ${fmt(t.DBL)}` : '') + ' mm';
 }
 function tplToInputs() {
   const t = tplFromLines(tpl.lines), r1 = v => (Math.round(v * 10) / 10).toFixed(1);
@@ -1745,26 +1892,43 @@ function tplFromInput(id) {
   if (id === 'tAos') L.tL = L.nL - v;
   tpl.typed = true; tplDraw();
 }
-function tplMmAt(ev) { const r = $('tplCv').getBoundingClientRect(); return (ev.clientX - r.left - r.width / 2) / scrCal().pxPerMm; }
+function tplSave() { store.set(TPL_KEY, { lines: tpl.lines, inner: tplInner(), yMm: tpl.yMm, mount: $('tMount').value, mat: $('tMat').value, pads: $('tPads').value }); }
+function tplPos(ev) { const r = $('tplCv').getBoundingClientRect(); return { mm: (ev.clientX - r.left - r.width / 2) / scrCal().pxPerMm, y: ev.clientY - r.top, h: r.height }; }
 function setupTplEvents() {
   const cv = $('tplCv');
   cv.addEventListener('pointerdown', ev => {
-    const mm = tplMmAt(ev), k = scrCal().pxPerMm, keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
+    const q = tplPos(ev), k = scrCal().pxPerMm, keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
     let best = null, bd = 1e9;
-    for (const key of keys) { const d = Math.abs(tpl.lines[key] - mm) * k; if (d < bd) { bd = d; best = key; } }
+    for (const key of keys) { const d = Math.abs(tpl.lines[key] - q.mm) * k; if (d < bd) { bd = d; best = key; } }
+    const yc = q.h - tpl.yMm * k;
     cv.focus();
-    if (best && bd <= 14) { tpl.sel = best; tpl.drag = { key: best, off: tpl.lines[best] - mm }; cv.setPointerCapture(ev.pointerId); }
+    if (best && bd <= 14) { tpl.sel = best; tpl.drag = { key: best, off: tpl.lines[best] - q.mm }; cv.setPointerCapture(ev.pointerId); }
+    else if (Math.abs(q.y - yc) <= 12) { tpl.sel = 'yc'; tpl.drag = { key: 'yc', off: q.y - yc }; cv.setPointerCapture(ev.pointerId); }
     tplDraw();
   });
-  cv.addEventListener('pointermove', ev => { if (!tpl.drag) return; tpl.lines[tpl.drag.key] = tplMmAt(ev) + tpl.drag.off; tplDraw(); tplToInputs(); });
+  cv.addEventListener('pointermove', ev => {
+    if (!tpl.drag) return;
+    const q = tplPos(ev);
+    if (tpl.drag.key === 'yc') tpl.yMm = (q.h - (q.y - tpl.drag.off)) / scrCal().pxPerMm;
+    else { tpl.lines[tpl.drag.key] = q.mm + tpl.drag.off; tplToInputs(); }
+    tplDraw();
+  });
   const end = () => { tpl.drag = null; };
   cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
   cv.addEventListener('keydown', ev => {
-    const d = { ArrowLeft: -1, ArrowRight: 1 }[ev.key]; if (!d || !tpl.sel) return;
+    if (!tpl.sel) return;
+    if (tpl.sel === 'yc') { const d = { ArrowUp: 1, ArrowDown: -1 }[ev.key]; if (!d) return; ev.preventDefault(); tpl.yMm += d * (ev.shiftKey ? 2 : 0.5); tplDraw(); return; }
+    const d = { ArrowLeft: -1, ArrowRight: 1 }[ev.key]; if (!d) return;
     ev.preventDefault(); tpl.lines[tpl.sel] += d * (ev.shiftKey ? 1 : 0.1); tplDraw(); tplToInputs();
   });
   for (const id of ['tW', 'tAod', 'tDBL', 'tAos']) $(id).addEventListener('change', () => tplFromInput(id));
-  $('tplInner').addEventListener('change', () => { tplInnerUI(); if (!tplInner() && tpl.sel[0] !== 'o') tpl.sel = 'oR'; tplDraw(); });
+  for (const id of ['tMount', 'tMat', 'tPads']) $(id).addEventListener('change', () => { tplDraw(); tplSave(); });
+  $('tplInner').addEventListener('change', () => { tplInnerUI(); if (!tplInner() && tpl.sel !== 'yc' && tpl.sel[0] !== 'o') tpl.sel = 'oR'; tplDraw(); });
+  $('tplFs').addEventListener('click', () => { tplFullscreen(!document.fullscreenElement); });
+  document.addEventListener('fullscreenchange', () => {
+    $('tplFs').textContent = document.fullscreenElement ? 'Salir de pantalla completa' : 'Pantalla completa';
+    if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
+  });
   $('tplCancel').addEventListener('click', () => showStep('person'));
   $('tplOk').addEventListener('click', () => {
     const t = tplValues(), err = [];
@@ -1778,7 +1942,9 @@ function setupTplEvents() {
     if (err.length) { $('tplMsg').innerHTML = err.map(e => `<div class="errbox">${e}</div>`).join(''); return; }
     const r1 = v => v == null ? undefined : Math.round(v * 10) / 10;
     S.tpl = { W: r1(t.W), Aod: r1(t.Aod), Aos: r1(t.Aos), DBL: r1(t.DBL) };
-    store.set(TPL_KEY, { lines: tpl.lines, inner: tplInner() });
+    tplSave();
+    // tipo, material y plaquetas: pasan a la revisión como elección manual
+    $('mountSel').value = mountingFrom($('tMount').value, $('tMat').value); $('matSel').value = $('tMat').value; $('padSel').value = $('tPads').value;
     startCamera('G');
   });
 }
@@ -2521,6 +2687,7 @@ function renderFrameType(R, p) {
   const padSel = $('padSel').value, pads = padSel === 'auto' ? padsAuto : padSel === 'yes';
   let h = `<table class="kv" style="margin-top:6px">`;
   h += `<tr><td>Montaje</td><td>${MOUNT_LABEL[mt]}${p.mounting === 'auto' ? ` <span class="note">(confianza ${fa.conf})</span>` : ' <span class="note">(manual)</span>'}</td></tr>`;
+  if ($('matSel').value) h += `<tr><td>Material</td><td>${MATERIAL_LABEL[$('matSel').value]}</td></tr>`;
   h += `<tr><td>Tipo de bisel / canto</td><td>${BEVEL_LABEL[mt]}</td></tr>`;
   h += `<tr><td>Plaquetas</td><td>${pads == null ? '—' : pads ? 'Sí' : 'No'}${padSel === 'auto' && fa.pads ? ` <span class="note">(confianza ${fa.pads.conf}: ${fa.pads.reason})</span>` : ' <span class="note">(manual)</span>'}</td></tr>`;
   const m = fa.metrics || {};
@@ -2540,7 +2707,7 @@ function buildCopy(R, u, p) {
   if (F) {
     t.push(`Montura: A ${fmt(F.od.A)}/${fmt(F.os.A)} · B ${fmt(F.od.B)}/${fmt(F.os.B)} · DBL ${fmt(R.DBL)} · ED ${fmt(F.od.ED)}/${fmt(F.os.ED)} · DNC ${fmt(R.DNC)}`);
     t.push(`Descentramiento H (+nasal) ${sgn(F.od.decH)}/${sgn(F.os.decH)} · V ${sgn(F.od.decV)}/${sgn(F.os.decV)} · Ø mín. ${fmt(F.od.MBS, 0)}/${fmt(F.os.MBS, 0)}`);
-    t.push(`Tipo: ${MOUNT_LABEL[mt]} · ${BEVEL_LABEL[mt]} · plaquetas: ${pads == null ? '—' : pads ? 'sí' : 'no'}`);
+    t.push(`Tipo: ${MOUNT_LABEL[mt]}${$('matSel').value ? ` · ${MATERIAL_LABEL[$('matSel').value]}` : ''} · ${BEVEL_LABEL[mt]} · plaquetas: ${pads == null ? '—' : pads ? 'sí' : 'no'}`);
   }
   if (M.mode === 'frame' && p.tpl) t.push(`Plantilla: ancho ${fmt(p.tpl.W)}${tplDNC(p.tpl) ? ` · A ${fmt(p.tpl.Aod)}/${fmt(p.tpl.Aos)} · DBL ${fmt(p.tpl.DBL)}` : ''}${R.scale && R.scale.disc != null ? ` · diferencia entre referencias ${sgn(R.scale.disc * 100, 1)} %` : ''}`);
   if (G && G.burst) t.push(`Imagen: ${G.ss > 1 ? `promedio de ${G.burst.info.n}/${G.burst.info.of} fotogramas ×${G.ss}` : 'mejor fotograma'}`);
@@ -2568,12 +2735,14 @@ function go(v) {
   for (const x of VIEWS) $('view' + x[0].toUpperCase() + x.slice(1)).classList.toggle('hidden', x !== v);
   for (const b of document.querySelectorAll('nav .nav')) b.classList.toggle('on', b.dataset.view === v || ((v === 'person' || v === 'record') && b.dataset.view === 'people'));
   if (v !== 'wizard' && live.running) stopCamera();
+  if (v !== 'wizard') tplLeave();
   if (S.view !== v) window.scrollTo({ top: 0, behavior: 'instant' });
   S.view = v;
 }
 function wizSteps() { return S.mode === 'frame' ? ['person', 'frame', 'photo', 'review'] : ['person', 'photo', 'review']; }
 function showStep(st) {
   go('wizard');
+  if (st !== 'frame') tplLeave();
   const changed = wiz.step !== st;
   wiz.step = st;
   const map = { person: 'stepPerson', frame: 'tplPanel', photo: 'livePanel', review: 'measurePanel' };
@@ -2590,7 +2759,7 @@ function renderWho() {
 function resetMeasureInputs() {
   for (const id of ['rxOdS', 'rxOdC', 'rxOdA', 'rxOsS', 'rxOsC', 'rxOsA']) $(id).value = '0';
   for (const id of ['rxOdB', 'rxOdT', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs', 'saveFrameName', 'saveNotes', 'calZ']) $(id).value = '';
-  $('mountSel').value = 'auto'; $('padSel').value = 'auto'; $('saveMsg').innerHTML = ''; $('saveBtn').textContent = 'Guardar medida';
+  $('mountSel').value = 'auto'; $('padSel').value = 'auto'; $('matSel').value = ''; $('saveMsg').innerHTML = ''; $('saveBtn').textContent = 'Guardar medida';
 }
 async function startMeasure(personId) {
   beep(440, 0.02);
@@ -2719,7 +2888,7 @@ async function saveMeasure() {
   let image = null;
   if ($('saveImg').checked) try { image = await snapshotBlob(); } catch (e) { console.warn(e); }
   const rec = buildRecord(R, u, p, {
-    id: wiz.savedId || uid(), personId: pid, frameName: $('saveFrameName').value.trim(), notes: $('saveNotes').value.trim(), pads,
+    id: wiz.savedId || uid(), personId: pid, frameName: $('saveFrameName').value.trim(), notes: $('saveNotes').value.trim(), pads, material: $('matSel').value,
     camera: { label: S.camLabel || 'fotos subidas', dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value,
   });
   try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">No se pudo guardar: ${esc(e.message || e)}</div>`; return; }
@@ -2746,7 +2915,7 @@ async function renderRecord(id) {
   if (m.frame) {
     const F = m.frame;
     h += `<h3>Montura (boxing)</h3><table class="kv"><tr><th></th><th>OD</th><th>OI</th></tr><tr><td>Calibre A</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr><tr><td>Altura B</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr><tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>Descentramiento H (+ nasal)</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>Diámetro mínimo</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr></table>`;
-    if (m.mounting) h += `<div class="note" style="margin-top:6px">${MOUNT_LABEL[m.mounting] || ''}${m.pads != null ? ` · plaquetas: ${m.pads ? 'sí' : 'no'}` : ''}</div>`;
+    if (m.mounting) h += `<div class="note" style="margin-top:6px">${MOUNT_LABEL[m.mounting] || ''}${m.material ? ` · ${MATERIAL_LABEL[m.material]}` : ''}${m.pads != null ? ` · plaquetas: ${m.pads ? 'sí' : 'no'}` : ''}</div>`;
   }
   const rx = m.params.rx, rxs = e => !rx[e].s && !rx[e].c ? '<span class="note">sin graduación introducida</span>' : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
   h += `<h3>Graduación y parámetros</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>OI</td><td>${rxs('os')}</td></tr><tr><td>Vértice</td><td>${fmt(m.values.vertex)} mm${m.vertexMeasured ? ' (medido)' : ''}</td></tr>${m.params.tpl ? `<tr><td>Plantilla</td><td>ancho ${fmt(m.params.tpl.W)}${m.params.tpl.DBL ? ` · A ${fmt(m.params.tpl.Aod)}/${fmt(m.params.tpl.Aos)} · DBL ${fmt(m.params.tpl.DBL)}` : ''}</td></tr>` : ''}${m.camera ? `<tr><td>Cámara</td><td style="font-weight:400">${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
@@ -2871,7 +3040,7 @@ $('copyBtn').addEventListener('click', async () => {
   setTimeout(() => $('copyBtn').textContent = 'Copiar resultados', 1800);
 });
 for (const id of ['pOuterOff', 'pVertex', 'pCardOff', 'pGroove', 'pPanto', 'pWrap', 'pNear', 'rxOdS', 'rxOdC', 'rxOdA', 'rxOdB', 'rxOdT', 'rxOsS', 'rxOsC', 'rxOsA', 'rxOsB', 'rxOsT', 'hvidOd', 'hvidOs']) $(id).addEventListener('input', recompute);
-for (const id of ['pIndex', 'mountSel', 'padSel']) $(id).addEventListener('change', recompute);
+for (const id of ['pIndex', 'mountSel', 'padSel', 'matSel']) $(id).addEventListener('change', recompute);
 $('pFov').addEventListener('change', () => {
   const d = parseFloat($('pFov').value); if (!(d > 20 && d < 170)) return;
   Object.assign(S.fov, { dfov: d, src: 'Introducido manualmente', kind: 'manual' });
