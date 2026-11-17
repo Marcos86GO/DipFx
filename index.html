@@ -508,7 +508,6 @@ body.noscroll{overflow:hidden}
         </select></label>
       </div>
       <div class="row"><label class="f">¿Quién hace la foto?<select id="whoSel"><option value="selfie">La propia persona (selfie)</option><option value="operator">Otra persona (óptico), con la cámara trasera</option></select></label></div>
-      <div class="row" style="align-items:center"><span class="note">Posición de la cámara: <span id="camPosStatus">—</span></span><span style="flex:1 1 auto"></span><button id="camPosBtn" type="button">Indicar</button></div>
       <div class="row"><label class="chk"><input type="checkbox" id="voiceChk" checked> Guía por voz (la persona mira a la cámara y no puede leer la pantalla)</label></div>
       <details><summary>Cómo hacer una buena captura</summary>
         <ol>
@@ -528,6 +527,7 @@ body.noscroll{overflow:hidden}
         <label class="f">Referido a<select id="refSel"><option value="1.7778">16:9</option><option value="1.3333">4:3</option></select></label>
       </div>
       <div class="row" style="align-items:center"><span class="note">Origen del FOV: <span id="fovSrc" class="badge est">genérico</span></span><span style="flex:1 1 auto"></span><button id="saveFovBtn" type="button">Guardar FOV</button></div>
+      <div class="row" style="align-items:center"><span class="note">Posición de la cámara respecto a la pantalla: <b id="camPosStatus">—</b><br>Sirve para poner las indicaciones de la foto selfie junto a ella. Si no está indicada, se pregunta en la primera medida.</span><span style="flex:1 1 auto"></span><button id="camPosBtn" type="button">Cambiar</button></div>
       <details><summary>Dispositivo detectado</summary><table class="kv" id="devinfo"><tr><td>Detectando…</td><td></td></tr></table></details>
     </div>
     <div class="card">
@@ -570,16 +570,13 @@ body.noscroll{overflow:hidden}
   </div>
   <div class="note" id="scrVal" style="margin-top:6px"></div>
   <div class="note" style="margin-top:4px">Mira cada extremo de la barra de frente, con un ojo cerrado, para evitar el paralaje. También puedes arrastrar la barra o usar las flechas ← → (0,25 px; con Mayús, 2 px).</div>
-  <h3 style="margin-top:20px">¿Dónde está la cámara?</h3>
-  <p class="note" style="margin:0 0 8px">Toca el punto del borde de la pantalla más cercano a la cámara. Así las indicaciones aparecen junto a ella y los ojos no se desvían durante la foto.</p>
-  <div class="camPick" id="camPickScr"></div>
   <div class="actions"><button id="scrSkip" type="button">Ahora no</button><span class="sp"></span><button class="pri big" id="scrSave" type="button">Guardar calibración</button></div>
 </div></div>
 
 <!-- ===== MODAL: posición de la cámara ===== -->
 <div class="modal hidden" id="camModal"><div class="modalBox sm">
   <h2>¿Dónde está la cámara?</h2>
-  <p class="note">Toca el punto del borde de la pantalla más cercano a la cámara, tal como tienes ahora el dispositivo. Las indicaciones para la foto se mostrarán junto a ella.</p>
+  <p class="note">Toca el punto del borde de la pantalla más cercano a la cámara, tal como tienes ahora el dispositivo. Las indicaciones para la foto se mostrarán junto a ella. Solo se pregunta una vez: queda guardado en Ajustes → Cámara, donde puedes cambiarlo.</p>
   <div class="camPick" id="camPickModal"></div>
   <div class="actions"><button id="camCancel" type="button">Cancelar</button><span class="sp"></span><button class="pri" id="camOk" type="button">Continuar</button></div>
 </div></div>
@@ -1778,9 +1775,6 @@ function openScr(first) {
   if (cw / CSS_PX_MM < 120 && $('scrRef').value === '100') $('scrRef').value = '50';
   scr.lenPx = scrCal().pxPerMm * scrRefMm();
   $('scrSkip').textContent = first ? 'Ahora no' : 'Cerrar';
-  scr.cam = camPos() || (S.isMobile ? null : { edge: 'top', pos: 0.5 });
-  const draw = () => renderCamPick($('camPickScr'), scr.cam, p => { scr.cam = p; draw(); });
-  draw();
   scrSync();
 }
 function scrSync() {
@@ -1824,7 +1818,6 @@ function setupScrEvents() {
   $('scrSave').addEventListener('click', () => {
     const L = scrRefMm();
     store.set(SCR_KEY, { pxPerMm: scr.lenPx / L, refMm: L, ...scrNow(), date: new Date().toLocaleDateString('es-ES') });
-    if (scr.cam) setCamPos(scr.cam);
     $('scrPanel').classList.add('hidden'); renderScrStatus();
     if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
   });
@@ -2074,7 +2067,10 @@ function camText(p) {
   const along = p.pos < 0.3 ? (p.edge === 'top' || p.edge === 'bottom' ? 'a la izquierda' : 'arriba') : p.pos > 0.7 ? (p.edge === 'top' || p.edge === 'bottom' ? 'a la derecha' : 'abajo') : 'en el centro';
   return `${side}, ${along}`;
 }
-function renderCamStatus() { $('camPosStatus').textContent = `${camText(camPos())} (${orientKey().startsWith('portrait') ? 'en vertical' : 'en horizontal'})`; }
+function renderCamStatus() {
+  const m = store.get(CAMPOS_KEY) || {}, ks = Object.keys(m), pretty = k => k.startsWith('portrait') ? 'en vertical' : 'en horizontal';
+  $('camPosStatus').textContent = ks.length ? ks.map(k => `${camText(m[k])} (${pretty(k)})`).join(' · ') : 'sin indicar (se preguntará en la primera medida)';
+}
 function renderCamPick(el, cur, onPick) {
   const portrait = window.innerHeight > window.innerWidth;
   el.style.aspectRatio = portrait ? '10 / 16' : '16 / 10'; el.style.width = portrait ? 'min(220px,100%)' : 'min(340px,100%)';
@@ -3194,7 +3190,7 @@ function setupAppEvents() {
   $('whoSeg').addEventListener('click', e => { const b = e.target.closest('button[data-who]'); if (b) { setWho(b.dataset.who); savePrefs(); } });
   $('whoSel').addEventListener('change', e => { setWho(e.target.value); savePrefs(); });
   $('camPosBtn').addEventListener('click', () => openCamModal(null));
-  $('camOk').addEventListener('click', () => { setCamPos(camTmp); $('camModal').classList.add('hidden'); const cb = camModalCb; camModalCb = null; if (cb) cb(); });
+  $('camOk').addEventListener('click', () => { const first = !camPos(); setCamPos(camTmp); $('camModal').classList.add('hidden'); if (first && camModalCb) toast('Posición de la cámara guardada en Ajustes → Cámara'); const cb = camModalCb; camModalCb = null; if (cb) cb(); });
   $('camCancel').addEventListener('click', () => { $('camModal').classList.add('hidden'); camModalCb = null; });
   $('capFs').addEventListener('click', () => { if (document.fullscreenElement) fsExit(); else fsEnter(); });
   const reorient = () => {

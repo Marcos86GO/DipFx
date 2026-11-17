@@ -62,6 +62,11 @@ async def measure_frame(pg, first):
         w=float(await pg.input_value('#tW')); check('la plantilla recuerda la última montura (mm)',w,131.0,0.05)
     await pg.click('#tplOk')
     if first:
+        # primera medida del dispositivo: se pregunta dónde está la cámara (propuesta: arriba en el centro) y se guarda en Ajustes
+        await pg.wait_for_selector('#camModal:not(.hidden)',timeout=5000); await pg.click('#camOk')
+        st=await pg.text_content('#camPosStatus'); ok='arriba, en el centro' in st
+        print(f"  {'OK ' if ok else 'FALLO'} posición de la cámara guardada en Ajustes: {st}")
+        if not ok: fails.append('posición de la cámara en ajustes')
         # selfie: las indicaciones aparecen pegadas al borde donde está la cámara (arriba en el centro) y con vista previa en espejo
         await pg.wait_for_selector('#livePanel.selfie:not(.hidden)'); await pg.wait_for_timeout(300)
         g=await pg.locator('#guideCard').bounding_box(); vw=pg.viewport_size['width']

@@ -91,7 +91,7 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 
 - Nuevo control «¿Quién hace la foto?»: la propia persona (selfie) u otra persona (óptico, con la cámara trasera de una tablet o móvil). Se elige en el primer paso o en Ajustes y se recuerda.
 - Selfie: las indicaciones (icono grande y una frase) y una vista previa pequeña se ponen pegadas al borde de la pantalla donde está la cámara, para que los ojos no se desvíen. Cuando la cabeza está bien, se oculta la vista previa, se pide «Mira a la cámara» con una flecha hacia ella, se espera a que la mirada llegue y se asiente, y se dispara la ráfaga (sin cuenta atrás en pantalla).
-- Posición de la cámara: se pide al calibrar la pantalla (12 puntos en el borde de un esquema de pantalla) y se guarda por orientación; si falta, se pregunta antes de la primera foto selfie y al girar la tablet.
+- Posición de la cámara: en Ajustes → Cámara (12 puntos en el borde de un esquema de pantalla). Si falta, se pregunta solo en la primera medida selfie del dispositivo (y la primera vez en cada orientación de una tablet) y se guarda en Ajustes. No se pide al calibrar la pantalla.
 - Óptico: imagen grande sin espejo, una sola indicación muy visible (mover la tablet, pedir a la persona que gire la cabeza…), nivel tipo horizonte artificial y comprobaciones resumidas en puntos.
 - Tablet o móvil (selfie u óptico): se exige el dispositivo vertical (±3°) y sin girar respecto al suelo (±1,5°), a partir del sensor de orientación. Después, cara y cámara enfrentadas y alineadas con las comprobaciones de siempre.
 - Sin probar en una tablet real: los signos del sensor y la cámara trasera están por validar.
