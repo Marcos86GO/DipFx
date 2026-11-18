@@ -47,6 +47,9 @@ label.chk input{width:auto;margin:0}
 .row>label.f{flex:1 1 120px;min-width:0}
 .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
 .actions .sp{flex:1 1 auto}
+/* Barra de acciones de una medida guardada: arriba y siempre visible bajo la cabecera */
+.recBar{position:sticky;top:var(--hdrH,58px);z-index:30;display:flex;gap:8px;flex-wrap:wrap;align-items:center;background:var(--bg,#f6f7f9);padding:8px 0;margin:-4px 0 4px}
+.recBar .sp{flex:1 1 auto}
 .note{font-size:13px;color:var(--mut)}
 .warnbox{background:#fff7ea;border:1px solid #f0d6a8;color:#6b4300;border-radius:10px;padding:9px 12px;font-size:13.5px;margin-top:8px}
 .errbox{background:#fdeeed;border:1px solid #f2bbb6;color:#7d1d16;border-radius:10px;padding:9px 12px;font-size:13.5px;margin-top:8px}
@@ -290,16 +293,17 @@ body.noscroll{overflow:hidden}
 
 <!-- ===== MEDIDA GUARDADA ===== -->
 <section class="view hidden" id="viewRecord">
-  <button class="link" type="button" id="recordBack">← Volver</button>
-  <div class="card" style="margin-top:8px" id="recordBody"></div>
-  <div class="actions" style="border:none">
+  <div class="recBar" id="recordBar">
+    <button class="link" type="button" id="recordBack">← Volver</button>
+    <span class="sp"></span>
     <button class="pri" id="recordEdit" type="button">Editar</button>
     <button id="recordJson" type="button">Exportar JSON</button>
     <button id="recordOma" type="button">Exportar OMA</button>
     <button id="recordSend" type="button">Enviar al laboratorio</button>
     <button id="recordCopy" type="button">Copiar resultados</button>
-    <span class="sp"></span><button class="danger" id="recordDel" type="button">Borrar esta medida</button>
+    <button class="danger" id="recordDel" type="button">Borrar esta medida</button>
   </div>
+  <div class="card" style="margin-top:8px" id="recordBody"></div>
 </section>
 
 <!-- ===== NUEVA MEDIDA (asistente) ===== -->
@@ -593,6 +597,12 @@ body.noscroll{overflow:hidden}
       <div class="row"><label class="f">Importar una copia de seguridad<input type="file" id="importFile" accept="application/json,.json"></label></div>
       <div class="row"><button class="danger" id="wipeBtn" type="button">Borrar todos los datos</button></div>
       <div id="dataMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Registro de actividad</h2>
+      <p class="note">La app anota lo que hace (pasos, cámara, análisis, guardado, errores), sin nombres ni fotos. Si algo falla, descarga el registro y compártelo para poder diagnosticarlo.</p>
+      <div class="row"><button id="logDownload" type="button">Descargar el registro</button><button id="logCopy" type="button">Copiar</button><button class="danger" id="logClear" type="button">Vaciar</button></div>
+      <p class="note" id="logStatus"></p>
     </div>
     <div class="card">
       <h2>Envío al laboratorio (LMS)</h2>
@@ -1747,6 +1757,28 @@ function normalizeImport(o) {
   const measures = o.measures.filter(m => m && typeof m.id === 'string' && typeof m.personId === 'string' && m.values && typeof m.values === 'object');
   return { ok: true, people, measures, skipped: o.people.length - people.length + o.measures.length - measures.length };
 }
+// ---------- Registro de actividad (diagnóstico) ----------
+// Cada entrada: {t: ISO, lvl: 'info'|'warn'|'error', ev: nombre del evento, msg: texto breve}. Sin nombres de personas ni fotos.
+const LOG_MAX = 800;
+// Convierte cualquier dato en un texto breve para el registro (errores con su pila resumida, objetos en JSON recortado)
+function logMsg(v, max = 600) {
+  let t;
+  if (v == null) t = '';
+  else if (typeof v === 'string') t = v;
+  else if (v instanceof Error || (v && v.message && v.stack)) t = `${v.name || 'Error'}: ${v.message}${v.stack ? ' @ ' + String(v.stack).split('\n').slice(1, 4).map(x => x.trim()).join(' | ') : ''}`;
+  else { try { t = JSON.stringify(v, (k, x) => typeof x === 'number' && !Number.isInteger(x) ? Math.round(x * 1000) / 1000 : x); } catch { t = String(v); } }
+  t = String(t).replace(/\s+/g, ' ').trim();
+  return t.length > max ? t.slice(0, max) + '…' : t;
+}
+// Añade una entrada y conserva solo las últimas `max`
+function logPush(arr, e, max = LOG_MAX) { arr.push(e); if (arr.length > max) arr.splice(0, arr.length - max); return arr; }
+// Texto para compartir: cabecera con los datos del entorno y una línea por entrada
+function logToText(entries, meta = {}) {
+  const head = ['DipFx — registro de actividad / activity log'];
+  for (const [k, v] of Object.entries(meta)) head.push(`${k}: ${logMsg(v, 2000)}`);
+  const lines = entries.map(e => `${e.t} ${String(e.lvl || 'info').toUpperCase().padEnd(5)} ${e.ev}${e.msg ? ' — ' + e.msg : ''}`);
+  return head.join('\n') + '\n' + '-'.repeat(60) + '\n' + lines.join('\n') + '\n';
+}
 // ==CORE END==
 
 // ======================================================================
@@ -1755,6 +1787,37 @@ function normalizeImport(o) {
 // Idioma de la interfaz: Lg('texto en español', 'English text')
 let LANG = 'es';
 const Lg = (es, en) => LANG === 'en' ? en : es;
+const APP_VERSION = '0.8.1';
+// Registro de actividad: en localStorage 'dipapp.log' (últimas LOG_MAX entradas). Se descarga en Ajustes → Registro de actividad.
+const LOG_KEY = 'dipapp.log';
+let LOGS = [];
+try { LOGS = JSON.parse(localStorage.getItem(LOG_KEY) || '[]'); if (!Array.isArray(LOGS)) LOGS = []; } catch { LOGS = []; }
+let logTimer = null;
+function logSave() {
+  clearTimeout(logTimer); logTimer = null;
+  for (let i = 0; i < 4; i++) {
+    try { localStorage.setItem(LOG_KEY, JSON.stringify(LOGS)); return; } catch { LOGS.splice(0, Math.ceil(LOGS.length / 2)); }   // sin espacio: descarta la mitad más antigua
+  }
+}
+function logEvt(lvl, ev, data) {
+  try {
+    logPush(LOGS, { t: new Date().toISOString(), lvl, ev, msg: logMsg(data) });
+    if (lvl === 'error') logSave(); else if (!logTimer) logTimer = setTimeout(logSave, 400);
+    if (typeof logCountUI === 'function') logCountUI();
+  } catch { }
+}
+// Envuelve una función asíncrona: anota su inicio (con un resumen de los argumentos) y cualquier error que lance
+function logWrap(name, fn, sum) {
+  return async function (...a) {
+    try { logEvt('info', name, sum ? sum(...a) : ''); } catch { }
+    try { return await fn.apply(this, a); } catch (e) { logEvt('error', name, e); throw e; }
+  };
+}
+window.addEventListener('error', e => logEvt('error', 'window.error', e.error || `${e.message} (${e.filename}:${e.lineno}:${e.colno})`));
+window.addEventListener('unhandledrejection', e => logEvt('error', 'promise', e.reason));
+for (const k of ['error', 'warn']) { const orig = console[k].bind(console); console[k] = (...a) => { logEvt(k, 'console', a.map(x => logMsg(x, 300)).join(' ')); orig(...a); }; }
+window.addEventListener('pagehide', () => { logEvt('info', 'app.close', ''); logSave(); });
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') logSave(); });
 const FAST = /[?&]e2e\b/.test(location.search);   // pruebas e2e: acorta las esperas de la guía por voz
 if (FAST) window.__dipfx = { get lastRes() { return lastRes; }, get M() { return M; }, get wiz() { return wiz; } };
 const $ = id => document.getElementById(id);
@@ -1900,8 +1963,8 @@ async function loadMP() {
 async function makeLandmarker(mode) {
   await loadMP();
   const opts = d => ({ baseOptions: { modelAssetPath: MODEL_URL, delegate: d }, runningMode: mode, numFaces: 1, outputFaceBlendshapes: true, outputFacialTransformationMatrixes: true });
-  try { return await FaceLandmarker.createFromOptions(fileset, opts('GPU')); }
-  catch { return await FaceLandmarker.createFromOptions(fileset, opts('CPU')); }
+  try { const r = await FaceLandmarker.createFromOptions(fileset, opts('GPU')); logEvt('info', 'mediapipe', `${mode} GPU`); return r; }
+  catch (e) { logEvt('warn', 'mediapipe', `GPU no disponible, se usa la CPU: ${logMsg(e, 200)}`); const r = await FaceLandmarker.createFromOptions(fileset, opts('CPU')); logEvt('info', 'mediapipe', `${mode} CPU`); return r; }
 }
 async function getImageLandmarker() { if (!S.lmI) S.lmI = await makeLandmarker('IMAGE'); return S.lmI; }
 
@@ -2569,6 +2632,7 @@ async function openCamera(facing) {
     S.maxRes = caps.width && caps.height ? `${caps.width.max}×${caps.height.max}` : '';
     S.deviceId = S.track.getSettings().deviceId || S.deviceId;
     S.camLabel = S.track.label || Lg('Cámara', 'Camera');
+    { const st = S.track.getSettings ? S.track.getSettings() : {}; logEvt('info', 'camera.open', { facing, label: S.camLabel, w: st.width, h: st.height, fps: st.frameRate, max: S.maxRes }); }
     S.facing = S.track.getSettings().facingMode || facing;
     const video = $('video');
     video.srcObject = S.stream; await video.play();
@@ -2724,6 +2788,7 @@ function showGuide(kind, text, ok) {
   const key = kind + '|' + text + '|' + ok;
   if (live.gKey === key) return;
   live.gKey = key;
+  if (live.logKey !== kind + ok) { live.logKey = kind + ok; logEvt('info', 'guide', `${kind}${ok ? ' ok' : ''}: ${text}`); }
   $('guideIcon').innerHTML = icon(kind); $('guideIcon').classList.toggle('ok', !!ok);
   $('msg').textContent = text; $('msg').className = ok ? 'ok' : 'bad';
   if (S.who === 'selfie') placeGuide();
@@ -3461,6 +3526,7 @@ const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString
 const fdate = iso => { try { return new Date(iso).toLocaleString(Lg('es-ES', 'en-US'), { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } catch { return iso; } };
 function toast(t) { const el = $('toast'); el.textContent = t; el.classList.remove('hidden'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add('hidden'), 2800); }
 function go(v) {
+  if (S.view !== v) logEvt('info', 'view', v);
   for (const x of VIEWS) $('view' + x[0].toUpperCase() + x.slice(1)).classList.toggle('hidden', x !== v);
   for (const b of document.querySelectorAll('nav .nav')) b.classList.toggle('on', b.dataset.view === v || ((v === 'person' || v === 'record') && b.dataset.view === 'people'));
   if (v !== 'wizard' && live.running) stopCamera();
@@ -3519,19 +3585,37 @@ function afterFrame() { if (S.pers) openWrap(); else startCamera(); }
 // ---------- Datos: IndexedDB (solo en este navegador) ----------
 const DB = {
   db: null,
+  // Abre la base de datos en la versión que tenga, sin subirla: así una ventana con otra versión de la app abierta
+  // a la vez no la bloquea (una actualización de versión esperaría a que se cerraran todas las demás).
+  // Solo se crean almacenes si faltan (base de datos nueva). Lo que no sean personas y medidas va en otras bases de datos.
   open() {
     if (this.db) return Promise.resolve(this.db);
-    return new Promise((res, rej) => {
-      const r = indexedDB.open('dipfx', 2);
+    if (this._p) return this._p;
+    const need = ['people', 'measures'];
+    const openV = v => new Promise((res, rej) => {
+      const r = v ? indexedDB.open('dipfx', v) : indexedDB.open('dipfx');
       r.onupgradeneeded = () => {
         const d = r.result;
-        if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');   // v2: ajustes que no caben en localStorage (carpeta del LMS)
         if (!d.objectStoreNames.contains('people')) d.createObjectStore('people', { keyPath: 'id' });
         if (!d.objectStoreNames.contains('measures')) d.createObjectStore('measures', { keyPath: 'id' }).createIndex('personId', 'personId');
       };
-      r.onsuccess = () => { this.db = r.result; res(this.db); };
+      let late = false;
+      r.onblocked = () => { late = true; rej(new Error('blocked')); };
+      r.onsuccess = () => { if (late) r.result.close(); else res(r.result); };
       r.onerror = () => rej(r.error);
     });
+    this._p = (async () => {
+      let d = await openV();
+      if (need.some(n => !d.objectStoreNames.contains(n))) { const v = d.version + 1; d.close(); d = await openV(v); }
+      d.onversionchange = () => { d.close(); this.db = null; this._p = null; };   // deja que otra ventana actualice si lo necesita
+      this.db = d; return d;
+    })();
+    this._p.catch(e => {
+      this._p = null;
+      logEvt('error', 'db.open', e);
+      toast(e && e.message === 'blocked' ? Lg('Hay otra ventana de la app abierta. Ciérrala y recarga esta página.', 'Another window of the app is open. Close it and reload this page.') : Lg('No se puede abrir el almacenamiento del navegador.', 'The browser storage cannot be opened.'));
+    });
+    return this._p;
   },
   async tx(store, mode, fn) {
     const d = await this.open();
@@ -3547,8 +3631,28 @@ const DB = {
   del(st, id) { return this.tx(st, 'readwrite', s => s.delete(id)); },
   clear(st) { return this.tx(st, 'readwrite', s => s.clear()); },
   byPerson(id) { return this.tx('measures', 'readonly', s => s.index('personId').getAll(id)); },
-  kvGet(k) { return this.tx('kv', 'readonly', s => s.get(k)); },
-  kvSet(k, v) { return this.tx('kv', 'readwrite', s => s.put(v, k)); },
+  kvGet(k) { return KV.get(k); },
+  kvSet(k, v) { return KV.set(k, v); },
+};
+// Ajustes que no caben en localStorage (el permiso de la carpeta del LMS), en una base de datos aparte para no
+// tener que cambiar nunca la versión de la principal
+const KV = {
+  db: null,
+  open() {
+    if (this.db) return Promise.resolve(this.db);
+    return new Promise((res, rej) => {
+      const r = indexedDB.open('dipfx-kv', 1);
+      r.onupgradeneeded = () => { if (!r.result.objectStoreNames.contains('kv')) r.result.createObjectStore('kv'); };
+      r.onsuccess = () => { this.db = r.result; this.db.onversionchange = () => { this.db.close(); this.db = null; }; res(this.db); };
+      r.onerror = () => rej(r.error); r.onblocked = () => rej(new Error('blocked'));
+    });
+  },
+  async op(mode, fn) {
+    const d = await this.open();
+    return new Promise((res, rej) => { const t = d.transaction('kv', mode), r = fn(t.objectStore('kv')); t.oncomplete = () => res(r.result); t.onerror = () => rej(t.error); });
+  },
+  get(k) { return this.op('readonly', s => s.get(k)).catch(e => { logEvt('warn', 'kv.get', e); return undefined; }); },
+  set(k, v) { return this.op('readwrite', s => s.put(v, k)); },
 };
 let peopleCache = [];
 async function loadPeople() {
@@ -3647,7 +3751,8 @@ async function saveMeasure() {
   });
   rec.state = state;
   if (ed) { rec.editedAt = new Date().toISOString(); rec.original = ed.original || { date: ed.date, values: ed.values, frame: ed.frame, pers: ed.pers || null }; if (ed.job) rec.job = ed.job; }
-  try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">${Lg('No se pudo guardar', 'Could not save')}: ${esc(e.message || e)}</div>`; return; }
+  logEvt('info', 'measure.save', { id: rec.id, person: pid, method: rec.method, edited: !!ed, pdFar: rec.values && rec.values.pdFar, img: !!image, state: !!state });
+  try { await DB.put('measures', rec); } catch (e) { logEvt('error', 'measure.save', e); $('saveMsg').innerHTML = `<div class="errbox">${Lg('No se pudo guardar', 'Could not save')}: ${esc(e.message || e)}</div>`; return; }
   const was = wiz.savedId; wiz.savedId = rec.id; wiz.person = pid;
   const name = (peopleCache.find(q => q.id === pid) || {}).name || '';
   toast(was ? Lg('Medida actualizada', 'Measurement updated') : Lg(`Medida guardada en la ficha de ${name}`, `Measurement saved to ${name}’s record`));
@@ -3792,7 +3897,9 @@ async function doJob() {
     await DB.put('measures', upd); S.recView = upd;
     $('jobModal').classList.add('hidden'); toast(msg); jobCtx = null;
     if (S.view === 'record') renderRecord(upd.id);
+    logEvt('info', 'job.done', { action, mode: c.mode, fmt: file.name.split('.').pop(), id: rec.id });
   } catch (e) {
+    logEvt('error', 'job', { action, mode: c.mode, err: logMsg(e, 300) });
     $('jobMsg').innerHTML = `<div class="errbox">${Lg('No se pudo enviar', 'Could not send')}: ${esc(e.message || e)}${c.mode === 'http' ? `<br>${Lg('Comprueba que la pasarela acepta peticiones de esta página (CORS) y que usa https.', 'Check that the gateway accepts requests from this page (CORS) and uses https.')}` : ''}</div>`;
   }
 }
@@ -4201,6 +4308,10 @@ const I18N_EN = {
 "Exportar OMA": "Export OMA",
 "Enviar al laboratorio": "Send to the lab",
 "Envío al laboratorio (LMS)": "Send to the lab (LMS)",
+"Registro de actividad": "Activity log",
+"La app anota lo que hace (pasos, cámara, análisis, guardado, errores), sin nombres ni fotos. Si algo falla, descarga el registro y compártelo para poder diagnosticarlo.": "The app records what it does (steps, camera, analysis, saving, errors), without names or photos. If something goes wrong, download the log and share it so the problem can be diagnosed.",
+"Descargar el registro": "Download the log",
+"Vaciar": "Clear",
 "Las medidas se exportan en formato OMA (DCS de The Vision Council) o JSON. Para enviarlas sin descargar archivos, elige una carpeta de importación que vigile tu LMS (Innovations, DVI, RxUniverse…) o la dirección de una pasarela HTTP.": "Measurements are exported as OMA (The Vision Council’s DCS) or JSON. To send them without downloading files, choose an import folder watched by your LMS (Innovations, DVI, RxUniverse…) or the address of an HTTP gateway.",
 "Formato": "Format",
 "OMA (DCS)": "OMA (DCS)",
@@ -4225,6 +4336,23 @@ const I18N_EN = {
 "Guardar cambios": "Save changes"
 };
 const I18N_TXT = new WeakMap(), I18N_ATTR = new WeakMap();
+// ---------- Registro de actividad: tarjeta de Ajustes ----------
+function logCountUI() { const el = $('logStatus'); if (el) el.textContent = Lg(`Versión ${APP_VERSION} · ${LOGS.length} entradas guardadas en este navegador.`, `Version ${APP_VERSION} · ${LOGS.length} entries stored in this browser.`); }
+async function logReport() {
+  const meta = { [Lg('versión', 'version')]: APP_VERSION, [Lg('fecha', 'date')]: new Date().toISOString(), url: location.origin + location.pathname, [Lg('navegador', 'browser')]: navigator.userAgent,
+    [Lg('pantalla', 'screen')]: `${screen.width}×${screen.height} @${devicePixelRatio} · ${Lg('ventana', 'window')} ${innerWidth}×${innerHeight}`, [Lg('instalada', 'installed')]: matchMedia('(display-mode: standalone)').matches,
+    [Lg('idioma', 'language')]: `${LANG} (${navigator.language})`, [Lg('ajustes', 'settings')]: { mode: S.mode, who: S.who, pers: S.pers, fov: S.fov && { dfov: S.fov.dfov, src: S.fov.src }, cam: S.camLabel || null },
+    [Lg('calibración de pantalla', 'screen calibration')]: scrCal() };
+  try { const d = await DB.open(); meta['IndexedDB'] = { v: d.version, stores: [...d.objectStoreNames] }; meta[Lg('datos', 'data')] = { people: (await DB.all('people')).length, measures: (await DB.all('measures')).length }; } catch (e) { meta['IndexedDB'] = 'ERROR ' + logMsg(e, 200); }
+  try { const q = navigator.storage && navigator.storage.estimate && await navigator.storage.estimate(); if (q) meta[Lg('almacenamiento', 'storage')] = `${(q.usage / 1e6).toFixed(1)} / ${(q.quota / 1e6).toFixed(0)} MB`; } catch { }
+  return logToText(LOGS, meta);
+}
+function setupLogEvents() {
+  $('logDownload').addEventListener('click', async () => { logSave(); download(`dipfx-registro-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-')}.txt`, new Blob([await logReport()], { type: 'text/plain' })); });
+  $('logCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(await logReport()); toast(Lg('Registro copiado', 'Log copied')); } catch (e) { toast(Lg('No se pudo copiar; usa «Descargar el registro».', 'Could not copy; use “Download the log”.')); } });
+  $('logClear').addEventListener('click', () => { if (!confirm(Lg('¿Vaciar el registro de actividad?', 'Clear the activity log?'))) return; LOGS = []; logSave(); logEvt('info', 'log.clear', ''); });
+  logCountUI();
+}
 function translateStatic() {
   const en = LANG === 'en', tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let n = tw.nextNode(); n; n = tw.nextNode()) {
@@ -4246,6 +4374,7 @@ function applyLang(lang) {
   LANG = lang === 'en' ? 'en' : 'es';
   document.documentElement.lang = LANG; $('langSel').value = LANG;
   translateStatic();
+  if (typeof logCountUI === 'function') logCountUI();
   setModeUI(); renderScrStatus(); renderCamStatus(); renderDevInfo(); syncFovUI(); lmsUI();
   if (S.view === 'people') renderPeople();
   if (S.view === 'person' && S.personView) renderPerson(S.personView);
@@ -4365,11 +4494,23 @@ async function processFiles() {
 $('fileN').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.N = await fileToCanvas(f); e.target.value = ''; processFiles(); });
 $('fileG').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; pending.G = await fileToCanvas(f); e.target.value = ''; processFiles(); });
 
+// Registro: funciones principales del flujo (se envuelven antes de conectar los eventos)
+startMeasure = logWrap('measure.start', startMeasure, pid => ({ person: pid || null, mode: S.mode, who: S.who, pers: !!S.pers }));
+saveMeasure = logWrap('measure.saveClick', saveMeasure);
+editRecord = logWrap('measure.edit', editRecord, r => ({ id: r && r.id, state: !!(r && r.state) }));
+captureBurst = logWrap('capture.burst', captureBurst, () => ({ W: S.W, H: S.H, mode: S.mode, who: S.who }));
+analyzeCapture = logWrap('capture.analyze', analyzeCapture, (cv, pose, kind) => ({ kind, W: cv && cv.width, H: cv && cv.height }));
+processFiles = logWrap('upload.process', processFiles);
+openCamera = logWrap('camera.request', openCamera, f => f);
+importJson = logWrap('data.import', importJson, f => f && { size: f.size });
+exportJson = logWrap('data.export', exportJson);
+renderRecord = logWrap('record.open', renderRecord, id => id);
 setupMeasureEvents();
 setupScrEvents();
 setupTplEvents();
 setupAppEvents();
 setupWrapEvents();
+setupLogEvents();
 lmsUI();
 setWho('selfie');
 LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
@@ -4378,10 +4519,15 @@ renderCamStatus();
 setModeUI();
 detectDevice();
 renderScrStatus();
+logEvt('info', 'app.start', { v: APP_VERSION, lang: LANG, ua: navigator.userAgent, scr: `${screen.width}×${screen.height}@${devicePixelRatio}`, win: `${innerWidth}×${innerHeight}`, standalone: matchMedia('(display-mode: standalone)').matches, mode: S.mode, who: S.who });
+DB.open().then(d => logEvt('info', 'db.open', { v: d.version, stores: [...d.objectStoreNames] })).catch(() => { });
 go('people');
 applyLang(LANG);
 if (scrCal().reason === 'none') openScr(true);
+const hdrSync = () => document.documentElement.style.setProperty('--hdrH', document.querySelector('header.top').offsetHeight + 'px');
+hdrSync();
 window.addEventListener('resize', () => {
+  hdrSync();
   if (!$('scrPanel').classList.contains('hidden')) scrSync();
   if (!$('tplPanel').classList.contains('hidden')) { tplWarn(); tplLayout(); tplDraw(); }
 });

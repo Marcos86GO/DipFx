@@ -112,6 +112,13 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - Límite: el navegador no puede hablar DCS por TCP. Para una conexión directa con Innovations, DVI o RxUniverse hace falta un puente local y sus especificaciones. La correspondencia de etiquetas DCS está por verificar con un LMS real.
 - IndexedDB pasa a la versión 2 (almacén `kv`).
 
+## Sesión del 18 nov 2026: incidente de datos «desaparecidos», registro de actividad
+
+- Incidente: con la 0.8.0, el usuario tenía varias ventanas de la app abiertas (una con la versión anterior). La 0.8.0 subía la base de datos a la versión 2; esa subida espera a que se cierren las demás conexiones, así que la app no listaba personas ni guardaba nada, sin avisar. Los datos no se perdieron.
+- Arreglo (0.8.1): la base de datos se abre sin número de versión y no se sube nunca; el almacén `kv` pasa a una base de datos aparte (`dipfx-kv`). Si algo bloquea la apertura, se avisa y queda en el registro. Prueba e2e de compatibilidad con datos de la versión 1 y 2, con y sin otra ventana abierta.
+- **Registro de actividad** en Ajustes, para que el usuario lo comparta cuando haya un problema.
+- Los botones de una medida guardada (Editar, Exportar, Enviar…) van en una barra fija arriba.
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?

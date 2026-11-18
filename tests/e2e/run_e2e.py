@@ -80,6 +80,45 @@ async def measure_frame(pg, first):
         if not ok: fails.append('fase mirar a la cámara')
     await pg.wait_for_selector('#measurePanel:not(.hidden)',timeout=40000); await pg.wait_for_timeout(800)
     return await pg.input_value('#copyArea')
+
+# Compatibilidad: datos guardados por versiones anteriores (BD versión 1 y versión 2 con almacén kv),
+# también con otra pestaña que tiene la BD abierta. Deben aparecer y la app debe seguir guardando.
+SEED_JS="""async ([ver, holdOpen]) => {
+  const d = await new Promise((res, rej) => { const r = indexedDB.open('dipfx', ver);
+    r.onupgradeneeded = () => { const db = r.result; db.createObjectStore('people', { keyPath: 'id' });
+      db.createObjectStore('measures', { keyPath: 'id' }).createIndex('personId', 'personId'); if (ver >= 2) db.createObjectStore('kv'); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  await new Promise(res => { const t = d.transaction(['people', 'measures'], 'readwrite');
+    t.objectStore('people').put({ id: 'p_old', name: 'Persona Antigua', ref: 'R-1', birth: '', notes: '', created: '2026-11-01T10:00:00Z', updated: '2026-11-01T10:00:00Z' });
+    t.objectStore('measures').put({ id: 'm_old', personId: 'p_old', date: '2026-11-01T10:05:00Z', method: 'frame', values: { pdFar: 63.5, monoOD: 31.5, monoOS: 32, hOD: 22, hOS: 22.5 }, unc: {}, frame: {}, params: {}, flags: [] });
+    t.oncomplete = res; });
+  if (holdOpen) window.__held = d; else d.close(); return d.version; }"""
+async def compat(p, ver, hold):
+    kw={}
+    if os.environ.get('CHROME_PATH'): kw['executable_path']=os.environ['CHROME_PATH']
+    b=await p.chromium.launch(**kw); ctx=await b.new_context(viewport={'width':1400,'height':1000},locale='es-ES')
+    await ctx.route('https://cdn.jsdelivr.net/**',lambda r:r.abort())
+    other=await ctx.new_page(); await other.goto(f'http://127.0.0.1:{PORT}/package.json'); await other.evaluate(SEED_JS,[ver,hold])
+    await ctx.add_init_script("try{localStorage.setItem('dipapp.screen',JSON.stringify({pxmm:4,sw:screen.width,sh:screen.height,dpr:devicePixelRatio}))}catch(e){}")
+    pg=await ctx.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
+    await pg.goto(f'http://127.0.0.1:{PORT}/index.html'); await pg.wait_for_timeout(800)
+    if await pg.is_visible('#scrPanel'): await pg.click('#scrSave'); await pg.wait_for_timeout(200)
+    await pg.click('nav [data-view=people]'); await pg.wait_for_timeout(400)
+    tag=f"BD v{ver}{' y otra pestaña abierta' if hold else ''}"
+    rows=await pg.locator('#peopleTable tbody tr').all_inner_texts()
+    ok=any('Persona Antigua' in r for r in rows); print(f"  {'OK ' if ok else 'FALLO'} {tag}: se ven las personas guardadas")
+    if not ok: fails.append(f'compat {tag}: personas')
+    if ok:
+        await pg.click('#peopleTable tbody tr >> nth=0'); await pg.wait_for_timeout(300)
+        n=await pg.locator('#personMeasures tbody tr').count(); ok=n==1; print(f"  {'OK ' if ok else 'FALLO'} {tag}: se ven sus medidas ({n})")
+        if not ok: fails.append(f'compat {tag}: medidas')
+    await pg.click('#newMeasureBtn'); await pg.wait_for_selector('#stepPerson:not(.hidden)')
+    await pg.click('#personNewBtn'); await pg.fill('#pfName','Persona Nueva'); await pg.click('#pfSave'); await pg.wait_for_timeout(500)
+    await pg.goto(f'http://127.0.0.1:{PORT}/index.html'); await pg.wait_for_timeout(800)
+    n=await pg.locator('#peopleTable tbody tr').count(); ok=n==2; print(f"  {'OK ' if ok else 'FALLO'} {tag}: se puede crear una persona nueva ({n} personas)")
+    if not ok: fails.append(f'compat {tag}: crear persona')
+    if errs: fails.append(f'compat {tag}: errores JS'); print('  Errores JS:',errs)
+    await b.close()
 async def main():
     async with async_playwright() as p:
         # ---------- método montura (por defecto) con fichas de personas ----------
@@ -126,6 +165,14 @@ async def main():
         if 'Pasta (acetato)' not in rb or 'plaquetas: no' not in rb: fails.append('material guardado'); print('  FALLO la medida guardada no recoge material y plaquetas')
         if not await pg.locator('#recordBody img.recImg').count(): fails.append('foto guardada'); print('  FALLO la medida no guarda la foto')
         await pg.screenshot(path=os.path.join(OUT,'e2e_registro.png'),full_page=True)
+        be=await pg.locator('#recordEdit').bounding_box(); bb=await pg.locator('#recordBody').bounding_box()
+        ok=be['y']<bb['y'] and be['y']<200; print(f"  {'OK ' if ok else 'FALLO'} botones de la medida arriba (y={be['y']:.0f})")
+        if not ok: fails.append('botones arriba')
+        await pg.mouse.wheel(0,2000); await pg.wait_for_timeout(300)
+        ok=await pg.locator('#recordEdit').is_visible() and (await pg.locator('#recordEdit').bounding_box())['y']<200
+        print(f"  {'OK ' if ok else 'FALLO'} los botones siguen visibles al desplazarse"); 
+        if not ok: fails.append('barra fija')
+        await pg.mouse.wheel(0,-2000); await pg.wait_for_timeout(200)
         # editar la medida guardada: con un ancho de plantilla un 1 % mayor la DIP crece un 1 %
         d0=num1(rb,'DIP de lejos')
         await pg.click('#recordEdit'); await pg.wait_for_selector('#measurePanel:not(.hidden)'); await pg.wait_for_timeout(500)
@@ -185,6 +232,15 @@ async def main():
         if not ok: fails.append('exportación CSV'); print(csv[:2])
         await pg.screenshot(path=os.path.join(OUT,'e2e_ajustes.png'),full_page=True)
         if errs: fails.append('errores JS (montura)'); print('Errores JS:',errs)
+        # registro de actividad
+        await pg.click('nav [data-view=settings]'); await pg.wait_for_timeout(200)
+        async with pg.expect_download() as dl: await pg.click('#logDownload')
+        lg=open(await (await dl.value).path(),encoding='utf-8').read()
+        need=['app.start','db.open','camera.open','capture.burst','capture.analyze','measure.save','record.open','job.done','view —']
+        miss=[k for k in need if k not in lg]; ok=not miss and 'Ana Pérez' not in lg and 'secreto' not in lg and '"stores":["measures","people"]' in lg
+        print(f"  {'OK ' if ok else 'FALLO'} registro de actividad ({len(lg.splitlines())} líneas){' faltan '+str(miss) if miss else ''}")
+        if not ok: fails.append('registro de actividad'); print(lg[:1500])
+        open(os.path.join(OUT,'e2e_registro_actividad.txt'),'w').write(lg)
         await b.close()
         # ---------- método tarjeta e iris ----------
         b,pg,errs=await page_with_camera(p,'card.y4m','?e2e')
@@ -284,5 +340,7 @@ async def main():
         await pg.screenshot(path=os.path.join(OUT,'e2e_ajustes_es.png'),full_page=True)
         if errs: fails.append('errores JS'); print('Errores JS:',errs)
         await b.close()
+        print('Compatibilidad con datos de versiones anteriores:')
+        for ver,hold in ((1,False),(1,True),(2,False),(2,True)): await compat(p,ver,hold)
 asyncio.run(main())
 print('\nRESULTADO:', 'TODO OK' if not fails else 'FALLOS: '+', '.join(fails)); sys.exit(1 if fails else 0)
