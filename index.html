@@ -81,6 +81,7 @@ label.chk input{width:auto;margin:0;accent-color:var(--acc)}
 .badge{display:inline-block;font-size:12.5px;padding:2px 8px;border-radius:var(--r);background:var(--acc2);color:var(--ink);font-weight:600}
 .badge.est{background:#fff3df;color:#7a4b00}
 .badge.cal{background:#e5f4eb;color:#0d6a3a}
+.badge.mut{background:var(--gray1);color:var(--mut);font-weight:400}
 details{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;background:#fff}
 details>summary{cursor:pointer;font-weight:600;list-style-position:inside}
 details>summary::marker{color:var(--acc)}
@@ -163,7 +164,7 @@ table.kv th:first-child{text-align:left}
 .res table.kv td:not(:first-child){text-align:right;font-weight:600}
 #frameType td{font-weight:400!important}
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-top:8px}
-.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:1px;margin-right:4px;vertical-align:-1px;background:var(--c)}
+.legend span::before{content:"";display:inline-block;width:12px;height:4px;border-radius:1px;margin-right:6px;vertical-align:3px;background:var(--c);outline:1px solid rgba(19,5,0,.3)}
 .savebox{background:var(--gray1);border-radius:var(--r);padding:16px;margin-top:16px}
 textarea#copyArea{width:100%;height:190px;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace;margin-top:8px}
 .rxgrid{display:grid;grid-template-columns:34px repeat(5,minmax(0,1fr));gap:4px 6px;align-items:center;font-size:13.5px;color:var(--mut)}
@@ -268,6 +269,19 @@ body.noscroll{overflow:hidden}
 .modalBox.sm{width:min(480px,100%)}
 /* registro guardado */
 .recImg{width:100%;border-radius:var(--r);display:block;background:var(--black)}
+/* medida guardada: foto y datos de la toma a la izquierda; resultados en tres bloques numerados a la derecha */
+.recGrid{display:grid;grid-template-columns:minmax(0,1fr) 400px;grid-template-rows:auto 1fr;grid-template-areas:"photo res" "extra res";gap:20px 28px;align-items:start}
+.recGrid .rPhoto{grid-area:photo}.recGrid .res{grid-area:res}.recGrid .rExtra{grid-area:extra}
+.rExtra>h3:first-child{margin-top:0}
+@media(max-width:960px){.recGrid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"photo" "res" "extra"}}
+.rExtra td:last-child{overflow-wrap:anywhere}
+.recGrid .res table.kv td:not(:first-child){white-space:nowrap}
+.recSec+.recSec{margin-top:28px}
+.recSec>h3{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid var(--ink);font-size:18px}
+.recSec>h3 .n{width:24px;height:24px;flex:none;border-radius:var(--r);display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;font-size:13px}
+.res .pm{font-size:13px;color:var(--mut);font-weight:400}
+.res table.kv td.c{text-align:center}
+.res table.kv.pers td:last-child{width:1%;white-space:nowrap;padding-left:10px}
 .scrollx{overflow-x:auto}
 @media(max-width:640px){
   header.top{padding:8px 14px;gap:8px}
@@ -378,7 +392,7 @@ body.noscroll{overflow:hidden}
       <ol class="tplSteps">
         <li><span class="n">1</span><span>Abre las varillas y <b>apoya la montura en la base del teclado</b>, con el frente contra la pantalla y las varillas hacia ti. La lente derecha queda a tu derecha.</span></li>
         <li><span class="n">2</span><span>Centra el puente en la línea discontinua y arrastra la <b>línea horizontal ⇕</b> hasta el centro de las lentes.</span></li>
-        <li><span class="n">3</span><span>Lleva las líneas <b style="color:var(--acc)">azules</b> a los <b>bordes exteriores</b> y las <b style="color:#c46a00">naranjas</b> al <b>borde interior del aro</b>. Míralas de frente, con un ojo cerrado. Las flechas del teclado afinan 0,1 mm.</span></li>
+        <li><span class="n">3</span><span>Lleva las líneas <b style="color:var(--acc)">azules</b> a los <b>bordes exteriores</b> y las <b style="color:var(--magenta)">magenta</b> al <b>borde interior del aro</b>. Míralas de frente, con un ojo cerrado. Las flechas del teclado afinan 0,1 mm.</span></li>
       </ol>
       <div class="tplOpts">
         <label class="f">Tipo de montaje<select id="tMount">
@@ -475,7 +489,7 @@ body.noscroll{overflow:hidden}
           <canvas id="loupe" width="210" height="210" class="hidden"></canvas>
         </div>
         <div class="legend">
-          <span style="--c:#22d36b">Iris / pupila</span><span style="--c:#25b8ff" id="lgCard">Tarjeta</span><span style="--c:#00e5ff" id="lgOuter">Borde exterior de la montura</span><span style="--c:#ffae00">Contorno de la lente</span><span style="--c:#ff4fd8">Centro (puente / nariz)</span>
+          <span style="--c:#00f2ff">Iris / pupila</span><span style="--c:#0062ff" id="lgCard">Tarjeta</span><span style="--c:#0062ff" id="lgOuter">Borde exterior de la montura</span><span style="--c:#e535ba">Recuadro de la lente</span><span style="--c:#ffffff">Centro (puente / nariz)</span>
         </div>
         <div class="row"><span id="imgSelWrap"><label class="f" style="width:260px">Imagen de medida<select id="imgSel"><option value="stack">Promedio de la ráfaga</option><option value="best">Mejor fotograma</option></select></label></span><span style="flex:1 1 auto"></span><button id="zoomBtn" type="button">Ver la foto completa</button></div>
         <details><summary id="autoSum">Notas de la detección automática</summary><div id="autoMsg"></div></details>
@@ -1824,7 +1838,7 @@ function logToText(entries, meta = {}) {
 // Idioma de la interfaz: Lg('texto en español', 'English text')
 let LANG = 'es';
 const Lg = (es, en) => LANG === 'en' ? en : es;
-const APP_VERSION = '0.9.0';
+const APP_VERSION = '0.9.1';
 // Registro de actividad: en localStorage 'dipapp.log' (últimas LOG_MAX entradas). Se descarga en Ajustes → Registro de actividad.
 const LOG_KEY = 'dipapp.log';
 let LOGS = [];
@@ -2268,8 +2282,8 @@ function tplDraw() {
   // líneas de medida con asa
   const keys = tplInner() ? TPL_KEYS : ['oL', 'oR'];
   for (const key of keys) {
-    const outer = key[0] === 'o', on = key === tpl.sel, xx = X(L[key]), col = outer ? '#0062ff' : '#c46a00';
-    if (on) { x.fillStyle = outer ? 'rgba(0,98,255,.08)' : 'rgba(196,106,0,.08)'; x.fillRect(xx - 7, 0, 14, ch); }
+    const outer = key[0] === 'o', on = key === tpl.sel, xx = X(L[key]), col = outer ? '#0062ff' : '#e535ba';
+    if (on) { x.fillStyle = outer ? 'rgba(0,98,255,.08)' : 'rgba(229,53,186,.08)'; x.fillRect(xx - 7, 0, 14, ch); }
     x.strokeStyle = col; x.lineWidth = on ? 2 : 1.2;
     x.beginPath(); x.moveTo(xx, 0); x.lineTo(xx, ch); x.stroke();
     const ky = outer ? 34 : 58;
@@ -2283,7 +2297,7 @@ function tplDraw() {
   const t = tplValues();
   if (t.DBL != null) {
     const cy = 84;
-    chip(x, `A ${fmt(t.Aos)}`, (X(L.tL) + X(L.nL)) / 2, cy, '#c46a00'); chip(x, `DBL ${fmt(t.DBL)}`, (X(L.nL) + X(L.nR)) / 2, cy, '#c46a00'); chip(x, `A ${fmt(t.Aod)}`, (X(L.nR) + X(L.tR)) / 2, cy, '#c46a00');
+    chip(x, `A ${fmt(t.Aos)}`, (X(L.tL) + X(L.nL)) / 2, cy, '#e535ba'); chip(x, `DBL ${fmt(t.DBL)}`, (X(L.nL) + X(L.nR)) / 2, cy, '#e535ba'); chip(x, `A ${fmt(t.Aod)}`, (X(L.nR) + X(L.tR)) / 2, cy, '#e535ba');
   }
   const dy = t.DBL != null ? 112 : 84, xa = X(L.oL), xb = X(L.oR);
   x.strokeStyle = '#0062ff'; x.fillStyle = '#0062ff'; x.lineWidth = 1.2;
@@ -2453,18 +2467,18 @@ function wrapDraw() {
   const ux = mR.x - mL.x, uy = mR.y - mL.y, ul = Math.hypot(ux, uy) || 1;
   x.setLineDash([6, 5]); x.strokeStyle = '#0062ff'; x.lineWidth = 1.2;
   x.beginPath(); x.moveTo(mL.x - ux / ul * 60, mL.y - uy / ul * 60); x.lineTo(mR.x + ux / ul * 60, mR.y + uy / ul * 60); x.stroke(); x.setLineDash([]);
-  x.strokeStyle = '#c46a00'; x.lineWidth = 2;
+  x.strokeStyle = '#e535ba'; x.lineWidth = 2;
   for (const [a, b] of [[P.tL, P.nL], [P.nR, P.tR]]) { x.beginPath(); x.moveTo(a.x, a.y); x.lineTo(b.x, b.y); x.stroke(); }
   for (const key of WR_KEYS) {
     const q = P[key], on = key === wr.sel;
-    x.fillStyle = '#c46a00'; x.beginPath(); x.arc(q.x, q.y, on ? 10 : 8, 0, 2 * Math.PI); x.fill();
+    x.fillStyle = '#e535ba'; x.beginPath(); x.arc(q.x, q.y, on ? 10 : 8, 0, 2 * Math.PI); x.fill();
     x.fillStyle = '#fff'; x.beginPath(); x.arc(q.x, q.y, 3, 0, 2 * Math.PI); x.fill();
-    x.fillStyle = '#c46a00'; x.font = `${on ? 700 : 600} 12px "Source Sans Pro", system-ui, sans-serif`;
+    x.fillStyle = '#e535ba'; x.font = `${on ? 700 : 600} 12px "Source Sans Pro", system-ui, sans-serif`;
     const lab = Lg(...WR_LAB[key]), tw = x.measureText(lab).width;
     x.fillText(lab, key[1] === 'L' ? q.x - tw / 2 : q.x - tw / 2, q.y - 16);
   }
   if (w) {
-    chip(x, `${fmt(w.os, 1)}°`, mL.x, mL.y + 30, '#c46a00', true); chip(x, `${fmt(w.od, 1)}°`, mR.x, mR.y + 30, '#c46a00', true);
+    chip(x, `${fmt(w.os, 1)}°`, mL.x, mL.y + 30, '#e535ba', true); chip(x, `${fmt(w.od, 1)}°`, mR.x, mR.y + 30, '#e535ba', true);
     $('wrapVals').textContent = `${Lg('Galbe', 'Wrap')} OD ${fmt(w.od, 1)}° · ${Lg('OI', 'OS')} ${fmt(w.os, 1)}° · ${Lg('media', 'mean')} ${fmt(w.mean, 1)}°`;
   }
 }
@@ -3100,8 +3114,8 @@ function outerDetect(cap, img, mmpx0) {
     cap.outerAuto[e] = !!ok;
   }
   cap.outer0 = { ...cap.outer };
-  if (!cap.outerAuto.od || !cap.outerAuto.os) cap.alerts.push(Lg('No encontré con seguridad algún borde exterior de la montura: arrastra la línea azul claro hasta el borde exterior del aro, a la altura del centro de la lente.', 'An outer edge of the frame was not found reliably: drag the light blue line to the outer edge of the rim, at the height of the lens centre.'));
-  cap.notes.push(Lg('Comprueba las líneas azul claro: deben tocar el borde exterior del frente a la altura del centro de cada lente, igual que marcaste en la plantilla. De ellas sale la escala.', 'Check the light blue lines: they must touch the outer edge of the front at the height of each lens centre, as marked on the template. The scale comes from them.'));
+  if (!cap.outerAuto.od || !cap.outerAuto.os) cap.alerts.push(Lg('No encontré con seguridad algún borde exterior de la montura: arrastra la línea azul hasta el borde exterior del aro, a la altura del centro de la lente.', 'An outer edge of the frame was not found reliably: drag the blue line to the outer edge of the rim, at the height of the lens centre.'));
+  cap.notes.push(Lg('Comprueba las líneas azules: deben tocar el borde exterior del frente a la altura del centro de cada lente, igual que marcaste en la plantilla. De ellas sale la escala.', 'Check the blue lines: they must touch the outer edge of the front at the height of each lens centre, as marked on the template. The scale comes from them.'));
 }
 function frameDetect(cap, img, mmpx) {
   const c = { x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 };
@@ -3138,9 +3152,9 @@ function frameDetect(cap, img, mmpx) {
   const fa = classifyFrame(rim.od, rim.os, det.od, det.os);
   fa.pads = padAnalysis(img, cap, mmpx, fa, rim.od, rim.os);
   cap.frameAuto = fa;
-  if (cap.boxFlags.od === 'default' || cap.boxFlags.os === 'default') cap.alerts.push(Lg('No pude delimitar el contorno de alguna lente (habitual en monturas al aire). He colocado un recuadro típico: ajusta los cuatro lados de cada recuadro naranja a los bordes de la lente.', 'A lens outline could not be found (common with rimless frames). A typical box has been placed: adjust the four sides of each orange box to the lens edges.'));
-  if (cap.boxFlags.od === 'bottom' || cap.boxFlags.os === 'bottom') cap.alerts.push(Lg('El borde inferior de la lente no es visible (nylon o al aire): lo he estimado. Arrastra el lado inferior del recuadro naranja hasta el punto más bajo de la lente; las alturas dependen de ello.', 'The bottom edge of the lens is not visible (nylon or rimless): it has been estimated. Drag the bottom side of the orange box to the lowest point of the lens; the heights depend on it.'));
-  cap.notes.push(Lg('Comprueba el recuadro naranja de cada lente: sus lados deben tocar los puntos extremos del borde de la lente (borde interior del aro).', 'Check the orange box of each lens: its sides must touch the extreme points of the lens edge (inner edge of the rim).'));
+  if (cap.boxFlags.od === 'default' || cap.boxFlags.os === 'default') cap.alerts.push(Lg('No pude delimitar el contorno de alguna lente (habitual en monturas al aire). He colocado un recuadro típico: ajusta los cuatro lados de cada recuadro magenta a los bordes de la lente.', 'A lens outline could not be found (common with rimless frames). A typical box has been placed: adjust the four sides of each magenta box to the lens edges.'));
+  if (cap.boxFlags.od === 'bottom' || cap.boxFlags.os === 'bottom') cap.alerts.push(Lg('El borde inferior de la lente no es visible (nylon o al aire): lo he estimado. Arrastra el lado inferior del recuadro magenta hasta el punto más bajo de la lente; las alturas dependen de ello.', 'The bottom edge of the lens is not visible (nylon or rimless): it has been estimated. Drag the bottom side of the magenta box to the lowest point of the lens; the heights depend on it.'));
+  cap.notes.push(Lg('Comprueba el recuadro magenta de cada lente: sus lados deben tocar los puntos extremos del borde de la lente (borde interior del aro).', 'Check the magenta box of each lens: its sides must touch the extreme points of the lens edge (inner edge of the rim).'));
 }
 
 // ---------- Pantalla de medición ----------
@@ -3297,81 +3311,101 @@ function moveHandle(cap, k, dx, dy) {
     case 'crm': R.x1 += dx; R.x2 += dx; R.y1 += dy; R.y2 += dy; break;
   }
 }
+// Marcas sobre la foto, con la paleta de IOT: azul = bordes exteriores y tarjeta; magenta = recuadro de la lente;
+// cian = iris y centro de la pupila; blanco = línea de centros (puente / nariz). Cada trazo lleva un ribete
+// (claro u oscuro) para que se lea sobre la piel, el pelo o una montura oscura.
+const MK = { outer: '#0062ff', card: '#0062ff', box: '#e535ba', iris: '#00f2ff', mid: '#ffffff' };
+const MK_LIGHT = 'rgba(255,255,255,.92)', MK_DARK = 'rgba(19,5,0,.55)';
+function mkLine(ctx, path, col, lw, halo, dash) {
+  ctx.save(); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash(dash || []);
+  ctx.beginPath(); path();
+  ctx.strokeStyle = halo; ctx.lineWidth = lw + 2 * Math.max(1, lw * 0.55); ctx.stroke();
+  ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.stroke();
+  ctx.restore();
+}
+// Asa: punto blanco con aro del color de su marca (relleno del color si está seleccionada). En la lupa, solo el aro, para ver el píxel.
+function mkHandle(ctx, x, y, r, col, on, isLoupe) {
+  const ink = col === MK.mid ? '#130500' : col;
+  ctx.save(); ctx.beginPath(); ctx.arc(x, y, r, 0, 2 * Math.PI);
+  if (isLoupe) { ctx.strokeStyle = MK_DARK; ctx.lineWidth = 4; ctx.stroke(); ctx.strokeStyle = on ? '#fff' : col; ctx.lineWidth = 1.8; ctx.stroke(); }
+  else {
+    const rw = Math.max(1.5, r * 0.36);
+    ctx.fillStyle = on ? col : '#fff'; ctx.fill();
+    ctx.strokeStyle = on ? '#fff' : ink; ctx.lineWidth = rw; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, r + rw / 2 + 0.5, 0, 2 * Math.PI); ctx.strokeStyle = MK_DARK; ctx.lineWidth = 1; ctx.stroke();
+  }
+  ctx.restore();
+}
+// Etiqueta plana (como las de la plantilla de IOT): fondo de color y texto blanco; x es el centro, o el borde izquierdo si left
+function mkChip(ctx, txt, x, y, d, bg, left) {
+  ctx.save(); ctx.font = `600 ${12 * d}px "Source Sans Pro", system-ui, sans-serif`;
+  const w = ctx.measureText(txt).width + 12 * d, h = 18 * d, x0 = left ? x : x - w / 2;
+  ctx.fillStyle = bg; rrect(ctx, x0, y - h / 2, x0 + w, y + h / 2, 2 * d); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x0 + 6 * d, y + 0.5 * d);
+  ctx.restore();
+}
 function drawScene(ctx, cap, ox, oy, k, cw, ch, isLoupe) {
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cw, ch);
   ctx.imageSmoothingEnabled = !isLoupe;
   ctx.drawImage(cap.cv, ox, oy, cw / k, ch / k, 0, 0, cw, ch);
   const T = p => [(p.x - ox) * k, (p.y - oy) * k];
   if (cap.prof) { drawProfileMarks(ctx, cap, T, k, isLoupe); return; }
-  const dpr = cap.dpr || 1, lw = isLoupe ? 1.5 : Math.max(1.5, 1.6 * dpr), r0 = isLoupe ? 9 : 7 * dpr;
-  ctx.lineWidth = lw;
+  const dpr = cap.dpr || 1, d = isLoupe ? 1 : dpr, lw = isLoupe ? 1.5 : Math.max(1.5, 1.6 * dpr), r0 = isLoupe ? 9 : 7 * dpr;
+  // punto principal: referencia discreta
   const [cx, cy] = T({ x: (cap.W - 1) / 2, y: (cap.H - 1) / 2 });
-  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([6, 6]);
-  ctx.beginPath(); ctx.moveTo(cx - 20, cy); ctx.lineTo(cx + 20, cy); ctx.moveTo(cx, cy - 20); ctx.lineTo(cx, cy + 20); ctx.stroke(); ctx.setLineDash([]);
-  if (cap.card) {
-    ctx.strokeStyle = '#25b8ff';
-    for (const L of [cap.card.L, cap.card.R]) { const [a1, b1] = T({ x: L.x1, y: L.y1 }), [a2, b2] = T({ x: L.x2, y: L.y2 }); ctx.beginPath(); ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.stroke(); }
+  ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = d; ctx.setLineDash([4 * d, 4 * d]);
+  ctx.beginPath(); ctx.moveTo(cx - 16 * d, cy); ctx.lineTo(cx + 16 * d, cy); ctx.moveTo(cx, cy - 16 * d); ctx.lineTo(cx, cy + 16 * d); ctx.stroke(); ctx.restore();
+  if (cap.card) for (const ln of [cap.card.L, cap.card.R]) {
+    const [a1, b1] = T({ x: ln.x1, y: ln.y1 }), [a2, b2] = T({ x: ln.x2, y: ln.y2 });
+    mkLine(ctx, () => { ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); }, MK.card, lw, MK_LIGHT);
   }
   if (cap.box) {
+    // recuadro de cada lente (sin el contorno detectado, que solo sirve para colocarlo)
     for (const e of ['od', 'os']) {
-      const b = cap.box[e];
-      if (cap.contour && cap.contourOK[e]) {
-        ctx.strokeStyle = 'rgba(255,174,0,.55)'; ctx.lineWidth = lw * 0.8; ctx.beginPath();
-        mapContour(cap, e).forEach((q, i) => { const [x, y] = T(toImgUV(cap, q.x, q.y)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-        ctx.closePath(); ctx.stroke(); ctx.lineWidth = lw;
-      }
-      ctx.strokeStyle = '#ffae00'; ctx.beginPath();
-      [[b.n, b.top], [b.t, b.top], [b.t, b.bot], [b.n, b.bot]].forEach(([u, v], i) => { const [x, y] = T(toImgUV(cap, u, v)); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
-      ctx.closePath(); ctx.stroke();
+      const b = cap.box[e], pts = [[b.n, b.top], [b.t, b.top], [b.t, b.bot], [b.n, b.bot]].map(([u, v]) => T(toImgUV(cap, u, v)));
+      mkLine(ctx, () => { pts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); }, MK.box, lw, MK_LIGHT);
     }
-    if (cap.outer && M.mode === 'frame') {
-      ctx.strokeStyle = '#00e5ff';
-      for (const e of ['od', 'os']) {
-        const b = cap.box[e], hb = (b.bot - b.top) * 0.18, mv = (b.top + b.bot) / 2;
-        const [a1, b1] = T(toImgUV(cap, cap.outer[e], b.top - hb)), [a2, b2] = T(toImgUV(cap, cap.outer[e], b.bot + hb));
-        ctx.beginPath(); ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.stroke();
-        const [c1, d1] = T(toImgUV(cap, b.t, mv)), [c2, d2] = T(toImgUV(cap, cap.outer[e], mv));
-        ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(c1, d1); ctx.lineTo(c2, d2); ctx.stroke(); ctx.setLineDash([]);
-      }
+    // bordes exteriores: barra con remates y conector desde el lado temporal del recuadro
+    if (cap.outer && M.mode === 'frame') for (const e of ['od', 'os']) {
+      const b = cap.box[e], hb = (b.bot - b.top) * 0.18, mv = (b.top + b.bot) / 2;
+      const [a1, b1] = T(toImgUV(cap, cap.outer[e], b.top - hb)), [a2, b2] = T(toImgUV(cap, cap.outer[e], b.bot + hb));
+      const [c1, d1] = T(toImgUV(cap, b.t, mv)), [c2, d2] = T(toImgUV(cap, cap.outer[e], mv));
+      mkLine(ctx, () => { ctx.moveTo(c1, d1); ctx.lineTo(c2, d2); }, MK.outer, lw, MK_LIGHT, [4 * d, 3 * d]);
+      const tl = Math.hypot(a2 - a1, b2 - b1) || 1, nx = -(b2 - b1) / tl * 5 * d, ny = (a2 - a1) / tl * 5 * d;
+      mkLine(ctx, () => { ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.moveTo(a1 - nx, b1 - ny); ctx.lineTo(a1 + nx, b1 + ny); ctx.moveTo(a2 - nx, b2 - ny); ctx.lineTo(a2 + nx, b2 + ny); }, MK.outer, lw, MK_LIGHT);
     }
+    // línea de centros (entre los lados nasales)
     const xc = (cap.box.od.n + cap.box.os.n) / 2, v0 = Math.min(cap.box.od.top, cap.box.os.top), v1 = Math.max(cap.box.od.bot, cap.box.os.bot);
     const [a1, b1] = T(toImgUV(cap, xc, v0)), [a2, b2] = T(toImgUV(cap, xc, v1));
-    ctx.strokeStyle = '#ff4fd8'; ctx.setLineDash([8, 5]); ctx.beginPath(); ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); ctx.stroke(); ctx.setLineDash([]);
+    mkLine(ctx, () => { ctx.moveTo(a1, b1); ctx.lineTo(a2, b2); }, MK.mid, lw, MK_DARK, [8 * d, 6 * d]);
   }
   if (cap.bridge) {
     const [bx, by] = T(cap.bridge), hh = (cap.iris.od.r * 2) * 2 * k;
-    ctx.strokeStyle = '#ff4fd8'; ctx.setLineDash([8, 5]); ctx.beginPath(); ctx.moveTo(bx, by - hh); ctx.lineTo(bx, by + hh); ctx.stroke(); ctx.setLineDash([]);
+    mkLine(ctx, () => { ctx.moveTo(bx, by - hh); ctx.lineTo(bx, by + hh); }, MK.mid, lw, MK_DARK, [8 * d, 6 * d]);
   }
-  ctx.strokeStyle = '#22d36b';
+  // iris: circunferencia y retícula con hueco en el centro (deja ver el centro de la pupila)
   for (const e of ['od', 'os']) {
-    const ir = cap.iris[e], [px, py] = T(ir), rr = ir.r * k;
-    ctx.beginPath(); ctx.arc(px, py, rr, 0, 2 * Math.PI); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(px - rr * 0.4, py); ctx.lineTo(px + rr * 0.4, py); ctx.moveTo(px, py - rr * 0.4); ctx.lineTo(px, py + rr * 0.4); ctx.stroke();
+    const ir = cap.iris[e], [px, py] = T(ir), rr = ir.r * k, g = rr * 0.16, t = rr * 0.42;
+    mkLine(ctx, () => ctx.arc(px, py, rr, 0, 2 * Math.PI), MK.iris, lw, MK_DARK);
+    mkLine(ctx, () => { for (const [ux, uy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { ctx.moveTo(px + ux * g, py + uy * g); ctx.lineTo(px + ux * t, py + uy * t); } }, MK.iris, lw, MK_DARK);
   }
-  for (const h of handles(cap)) {
-    const [hx, hy] = T(h);
-    ctx.fillStyle = h.k === sel ? '#fff' : 'rgba(255,255,255,.4)'; ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(hx, hy, h.k === sel ? r0 * 0.55 : r0 * 0.35, 0, 2 * Math.PI); ctx.fill(); ctx.stroke();
-  }
-  if (!isLoupe) {
-    ctx.font = `${13 * dpr}px "Source Sans Pro", system-ui, sans-serif`; ctx.fillStyle = '#fff';
-    for (const [e, lab] of [['od', 'OD'], ['os', Lg('OI', 'OS')]]) { const [x, y] = T(cap.iris[e]); ctx.fillText(lab, x - 9 * dpr, y + cap.iris[e].r * k + 16 * dpr); }
-  }
+  const hcol = key => { const a = key.split(':')[0]; return a === 'ic' || a === 'ir' ? MK.iris : a === 'bx' ? MK.box : a === 'ox' ? MK.outer : a === 'br' ? MK.mid : MK.card; };
+  for (const h of handles(cap)) { const [hx, hy] = T(h), on = h.k === sel; mkHandle(ctx, hx, hy, on ? r0 * 0.7 : r0 * 0.45, hcol(h.k), on, isLoupe); }
+  if (!isLoupe) for (const [e, lab] of [['od', 'OD'], ['os', Lg('OI', 'OS')]]) { const [x, y] = T(cap.iris[e]); mkChip(ctx, lab, x, y + cap.iris[e].r * k + 17 * dpr, dpr, MK.outer); }
 }
-// Marcas de la foto de perfil: frente de la montura (T–B), vertical de referencia, córnea (C) y lente (P)
+// Marcas de la foto de perfil: frente de la montura (T–B, azul), vertical de referencia, córnea (C, cian) y lente (P, magenta)
 function drawProfileMarks(ctx, cap, T, k, isLoupe) {
-  const q = cap.prof, dpr = cap.dpr || 1, lw = isLoupe ? 1.5 : Math.max(1.5, 1.6 * dpr), r0 = isLoupe ? 9 : 7 * dpr;
+  const q = cap.prof, dpr = cap.dpr || 1, d = isLoupe ? 1 : dpr, lw = isLoupe ? 1.5 : Math.max(1.5, 1.6 * dpr), r0 = isLoupe ? 9 : 7 * dpr;
   const [tx, ty] = T(q.T), [bx, by] = T(q.B), [cx, cy] = T(q.C), [px, py] = T(q.P);
-  ctx.lineWidth = lw;
-  ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(tx, by + 20 * dpr); ctx.stroke(); ctx.setLineDash([]);
-  ctx.strokeStyle = '#00e5ff'; ctx.beginPath(); ctx.moveTo(tx, ty); ctx.lineTo(bx, by); ctx.stroke();
-  ctx.strokeStyle = '#ffae00'; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+  mkLine(ctx, () => { ctx.moveTo(tx, ty); ctx.lineTo(tx, by + 20 * dpr); }, 'rgba(255,255,255,.8)', Math.max(1, lw * 0.7), MK_DARK, [6 * d, 5 * d]);
+  mkLine(ctx, () => { ctx.moveTo(tx, ty); ctx.lineTo(bx, by); }, MK.outer, lw, MK_LIGHT);
+  mkLine(ctx, () => { ctx.moveTo(cx, cy); ctx.lineTo(px, py); }, MK.box, lw, MK_LIGHT, [4 * d, 3 * d]);
   const lab = { T: Lg('arriba', 'top'), B: Lg('abajo', 'bottom'), C: Lg('córnea', 'cornea'), P: Lg('lente', 'lens') };
+  const col = { T: MK.outer, B: MK.outer, C: MK.iris, P: MK.box };
   for (const key of ['T', 'B', 'C', 'P']) {
     const [hx, hy] = T(q[key]), on = sel === 'pf:' + key;
-    ctx.fillStyle = key === 'C' ? '#22d36b' : key === 'P' ? '#ffae00' : '#00e5ff';
-    ctx.beginPath(); ctx.arc(hx, hy, on ? r0 * 0.75 : r0 * 0.55, 0, 2 * Math.PI); ctx.fill(); ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.stroke(); ctx.lineWidth = lw;
-    if (!isLoupe) { ctx.font = `${12 * dpr}px "Source Sans Pro", system-ui, sans-serif`; ctx.fillStyle = '#fff'; ctx.fillText(lab[key], hx + 9 * dpr, hy - 7 * dpr); }
+    mkHandle(ctx, hx, hy, on ? r0 * 0.75 : r0 * 0.55, col[key], on, isLoupe);
+    if (!isLoupe) mkChip(ctx, lab[key], hx + 10 * dpr, hy - 14 * dpr, dpr, MK.outer, true);
   }
 }
 function redraw() {
@@ -3769,7 +3803,9 @@ function snapshotBlob() {
   const x0 = Math.max(0, cx - 1.35 * ipd), x1 = Math.min(cap.W, cx + 1.35 * ipd), y0 = Math.max(0, cy - up * ipd), y1 = Math.min(cap.H, cy + 0.85 * ipd);
   const k = Math.min(1, 1400 / (x1 - x0)), cw = Math.round((x1 - x0) * k), ch = Math.round((y1 - y0) * k);
   const cv = document.createElement('canvas'); cv.width = cw; cv.height = ch;
-  const prev = sel; sel = null; drawScene(cv.getContext('2d'), cap, x0, y0, k, cw, ch, false); sel = prev;
+  // las marcas se dibujan a la escala con que se verá la foto en la ficha (unos 700 px de ancho)
+  const prev = sel, pd = cap.dpr; sel = null; cap.dpr = Math.max(1, cw / 700);
+  try { drawScene(cv.getContext('2d'), cap, x0, y0, k, cw, ch, false); } finally { sel = prev; cap.dpr = pd; }
   return new Promise(r => cv.toBlob(bl => r(bl), 'image/jpeg', 0.85));
 }
 async function saveMeasure() {
@@ -3953,22 +3989,45 @@ async function renderRecord(id) {
   let h = `<div class="viewHead" style="margin-bottom:6px"><h1>${esc(p.name || Lg('Medida', 'Measurement'))}</h1></div><div class="pinfo"><span>${fdate(m.date)}</span><span>${Lg('Método', 'Method')}: ${Lg(METHOD_LABEL[m.method], METHOD_LABEL_EN[m.method]) || ''}</span>${m.frameName ? `<span>${Lg('Montura', 'Frame')}: <b>${esc(m.frameName)}</b></span>` : ''}</div>`;
   if (m.editedAt) h += `<div class="note" style="margin-top:6px">${Lg(`Editada el ${fdate(m.editedAt)}${m.manualValues ? ' (valores corregidos a mano)' : ''}.`, `Edited on ${fdate(m.editedAt)}${m.manualValues ? ' (values corrected by hand)' : ''}.`)}${m.original && m.original.values ? ` ${Lg('Original', 'Original')}: ${Lg('DIP', 'PD')} ${fmt(m.original.values.pdFar)} · mono ${fmt(m.original.values.monoOD)} / ${fmt(m.original.values.monoOS)}${m.original.values.hOD != null ? ` · ${Lg('alturas', 'heights')} ${fmt(m.original.values.hOD)} / ${fmt(m.original.values.hOS)}` : ''}.` : ''}</div>`;
   if (m.sentAt) h += `<div class="note">${Lg(`Enviada al laboratorio el ${fdate(m.sentAt)}`, `Sent to the lab on ${fdate(m.sentAt)}`)}${m.job ? ` · JOB ${esc(m.job)}` : ''}.</div>`;
-  h += `<div class="grid2" style="margin-top:14px"><div>`;
+  // Foto y datos de la toma a la izquierda; a la derecha, los resultados en tres bloques:
+  // 1 posición pupilar, 2 montura, 3 personalización (panto, galbe y vértice)
+  h += `<div class="recGrid" style="margin-top:14px"><div class="rPhoto">`;
   if (m.image instanceof Blob) { recUrl = URL.createObjectURL(m.image); h += `<img class="recImg" src="${recUrl}" alt="${Lg('Foto de la medida', 'Measurement photo')}">`; }
   else h += `<div class="empty" style="border:1px dashed var(--line2);border-radius:var(--r)">${Lg('Sin foto guardada', 'No photo saved')}</div>`;
+  h += `</div><div class="res">`;
+  const sec = (n, title, body) => `<section class="recSec"><h3><span class="n">${n}</span>${title}</h3>${body}</section>`;
+  const pm = (v, u, unit = 'mm', d = 1) => v == null ? '—' : `${fmt(v, d)}${u != null ? ` <span class="pm">± ${fmt(u, d)}</span>` : ''}${unit ? ` <span class="pm">${unit}</span>` : ''}`;
+  const src = ok => ok ? `<span class="badge">${Lg('medido', 'measured')}</span>` : `<span class="badge mut" title="${Lg('Valor usado en el cálculo', 'Value used in the calculation')}">${Lg('no medido', 'not measured')}</span>`;
+  // 1 · Posición pupilar: monoculares, DIP binocular y alturas
+  const nearCm = fmt((m.params.nearDist || 400) / 10, 0);
+  let s1 = `<div class="tiles">${t('monoOD', 'Mono OD')}${t('monoOS', Lg('Mono OI', 'Mono OS'))}${t('pdFar', Lg('DIP de lejos · binocular', 'Distance PD · binocular'), 'main')}${t('hOD', Lg('Altura pupilar OD', 'Pupil height OD'))}${t('hOS', Lg('Altura pupilar OI', 'Pupil height OS'))}</div>`;
+  if (V.pdNear != null) s1 += `<table class="kv" style="margin-top:8px"><tr><td>${Lg(`DIP de cerca a ${nearCm} cm`, `Near PD at ${nearCm} cm`)}</td><td>${pm(V.pdNear, U.pdNear)}</td></tr>${V.monoNearOD != null ? `<tr><td>${Lg('Mono de cerca OD / OI', 'Near mono OD / OS')}</td><td>${fmt(V.monoNearOD)} / ${fmt(V.monoNearOS)} <span class="pm">mm</span></td></tr>` : ''}</table>`;
+  h += sec(1, Lg('Posición pupilar', 'Pupil position'), s1);
+  // 2 · Montura: dimensiones boxing y puente
+  const F = m.frame, tp = m.params.tpl;
+  let s2 = '';
+  if (F || V.DBL != null) {
+    s2 += `<table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr>`;
+    if (F) s2 += `<tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${pm(F.od.A, U.A_od, '')}</td><td>${pm(F.os.A, U.A_os, '')}</td></tr><tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
+    if (V.DBL != null) s2 += `<tr><td>${Lg('Puente DBL', 'DBL bridge')}</td><td colspan="2" class="c">${pm(V.DBL, U.DBL, '')}</td></tr>`;
+    if (V.DNC != null) s2 += `<tr><td>${Lg('Distancia entre centros', 'Distance between centres')}</td><td colspan="2" class="c">${fmt(V.DNC)}</td></tr>`;
+    if (F) s2 += `<tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>${Lg('Diámetro mínimo', 'Minimum blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
+    s2 += `</table><div class="note" style="margin-top:4px">${Lg('Medidas en mm.', 'Measurements in mm.')}</div>`;
+  } else s2 += `<div class="note">${Lg('Sin datos de la montura en esta medida.', 'No frame data in this measurement.')}</div>`;
+  if (m.mounting) s2 += `<div class="note" style="margin-top:6px">${mountLabel(m.mounting) || ''}${m.material ? ` · ${matLabel(m.material)}` : ''}${m.pads != null ? ` · ${Lg('plaquetas', 'nose pads')}: ${m.pads ? Lg('sí', 'yes') : 'no'}` : ''}</div>`;
+  if (tp) s2 += `<div class="note" style="margin-top:4px">${Lg('Plantilla', 'Template')}: ${Lg('ancho', 'width')} ${fmt(tp.W)}${tp.DBL ? ` · A ${fmt(tp.Aod)} / ${fmt(tp.Aos)} · DBL ${fmt(tp.DBL)}` : ''} mm</div>`;
+  h += sec(2, Lg('Montura', 'Frame'), s2);
+  // 3 · Personalización: lo medido (foto de perfil, plantilla del galbe, método iris) o el valor supuesto en el cálculo
+  const z = m.pers || {}, P = m.params;
+  const panto = z.panto != null ? [`${fmt(z.panto)}° <span class="pm">± ${fmt(z.pantoSd)}</span>`, true] : [`${fmt(P.panto || 0)}°`, false];
+  const wrap = z.wrapOd != null ? [`OD ${fmt(z.wrapOd)}° · ${OI} ${fmt(z.wrapOs)}°`, true] : [`${fmt(P.wrap || 0)}°`, false];
+  const bvd = z.bvd != null ? [pm(z.bvd, z.bvdSd), true] : m.vertexMeasured ? [pm(V.vertex, U.vertex), true] : [pm(V.vertex != null ? V.vertex : P.vertex, null), false];
+  h += sec(3, Lg('Personalización', 'Personalisation'), `<table class="kv pers">${[[Lg('Ángulo pantoscópico', 'Pantoscopic tilt'), panto], [Lg('Galbe', 'Wrap angle'), wrap], [Lg('Distancia al vértice (BVD)', 'Back vertex distance (BVD)'), bvd]].map(([k, [v, ok]]) => `<tr><td>${k}</td><td>${v}</td><td>${src(ok)}</td></tr>`).join('')}</table>`);
+  h += `</div><div class="rExtra">`;
+  // Graduación, cámara, notas y avisos, debajo de la foto
+  const rx = P.rx, rxs = e => !rx[e].s && !rx[e].c ? `<span class="note">${Lg('sin graduación introducida', 'no prescription entered')}</span>` : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
+  h += `<h3>${Lg('Graduación y datos de la toma', 'Prescription and capture details')}</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>${OI}</td><td>${rxs('os')}</td></tr>${m.camera ? `<tr><td>${Lg('Cámara', 'Camera')}</td><td>${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
   if (m.notes) h += `<p><b>${Lg('Notas', 'Notes')}:</b> ${esc(m.notes)}</p>`;
-  h += `</div><div class="res"><div class="tiles">${t('pdFar', Lg('DIP de lejos', 'Distance PD'), 'main')}${t('monoOD', 'Monocular OD')}${t('monoOS', Lg('Monocular OI', 'Monocular OS'))}${t('hOD', Lg('Altura OD', 'Height OD'))}${t('hOS', Lg('Altura OI', 'Height OS'))}${t('pdNear', Lg(`DIP de cerca a ${fmt((m.params.nearDist || 400) / 10, 0)} cm`, `Near PD at ${fmt((m.params.nearDist || 400) / 10, 0)} cm`))}${t('DBL', Lg('Puente DBL', 'DBL bridge'))}</div>`;
-  if (m.frame) {
-    const F = m.frame;
-    h += `<h3>${Lg('Montura (boxing)', 'Frame (boxing)')}</h3><table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr><tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr><tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr><tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>${Lg('Diámetro mínimo', 'Minimum blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr></table>`;
-    if (m.mounting) h += `<div class="note" style="margin-top:6px">${mountLabel(m.mounting) || ''}${m.material ? ` · ${matLabel(m.material)}` : ''}${m.pads != null ? ` · ${Lg('plaquetas', 'nose pads')}: ${m.pads ? Lg('sí', 'yes') : 'no'}` : ''}</div>`;
-  }
-  const rx = m.params.rx, rxs = e => !rx[e].s && !rx[e].c ? `<span class="note">${Lg('sin graduación introducida', 'no prescription entered')}</span>` : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;
-  h += `<h3>${Lg('Graduación y parámetros', 'Prescription and parameters')}</h3><table class="kv"><tr><td>OD</td><td>${rxs('od')}</td></tr><tr><td>${OI}</td><td>${rxs('os')}</td></tr><tr><td>${Lg('Vértice', 'Vertex')}</td><td>${fmt(m.values.vertex)} mm${m.vertexMeasured ? Lg(' (medido)', ' (measured)') : ''}</td></tr>${m.params.tpl ? `<tr><td>${Lg('Plantilla', 'Template')}</td><td>${Lg('ancho', 'width')} ${fmt(m.params.tpl.W)}${m.params.tpl.DBL ? ` · A ${fmt(m.params.tpl.Aod)}/${fmt(m.params.tpl.Aos)} · DBL ${fmt(m.params.tpl.DBL)}` : ''}</td></tr>` : ''}${m.camera ? `<tr><td>${Lg('Cámara', 'Camera')}</td><td style="font-weight:400">${esc(m.camera.label)} · FOV ${fmt(m.camera.dfov)}°</td></tr>` : ''}</table>`;
-  if (m.pers) {
-    const z = m.pers;
-    h += `<h3>${Lg('Personalización', 'Personalisation')}</h3><table class="kv">${z.panto != null ? `<tr><td>${Lg('Ángulo pantoscópico', 'Pantoscopic tilt')}</td><td>${fmt(z.panto)}° ± ${fmt(z.pantoSd)}</td></tr><tr><td>${Lg('Distancia al vértice', 'Back vertex distance')}</td><td>${fmt(z.bvd)} ± ${fmt(z.bvdSd)} mm</td></tr>` : ''}${z.wrapOd != null ? `<tr><td>${Lg('Galbe', 'Wrap angle')}</td><td>OD ${fmt(z.wrapOd)}° · ${Lg('OI', 'OS')} ${fmt(z.wrapOs)}°</td></tr>` : ''}</table>`;
-  }
   for (const f of (LANG === 'en' && m.flagsEn ? m.flagsEn : m.flags) || []) h += `<div class="warnbox">${f}</div>`;
   h += `</div></div>`;
   $('recordBody').innerHTML = h;
@@ -4138,7 +4197,7 @@ const I18N_EN = {
 "a los": "lines to the",
 "bordes exteriores": "outer edges",
 "y las": "and the",
-"naranjas": "orange ones",
+"magenta": "magenta ones",
 "al": "to the",
 "borde interior del aro": "inner edge of the rim",
 ". Míralas de frente, con un ojo cerrado. Las flechas del teclado afinan 0,1 mm.": ". Look at them straight on, with one eye closed. The arrow keys fine-tune by 0.1 mm.",
@@ -4194,7 +4253,7 @@ const I18N_EN = {
 "Iris / pupila": "Iris / pupil",
 "Tarjeta": "Card",
 "Borde exterior de la montura": "Outer edge of the frame",
-"Contorno de la lente": "Lens outline",
+"Recuadro de la lente": "Lens box",
 "Centro (puente / nariz)": "Centre (bridge / nose)",
 "Imagen de medida": "Measurement image",
 "Promedio de la ráfaga": "Burst average",

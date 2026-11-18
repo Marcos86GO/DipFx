@@ -127,6 +127,15 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - La sección CORE no cambia.
 - Corregido de paso: al abrir la ficha de una persona, el nombre recibía el foco a los 30 ms aunque ya se estuviera escribiendo en otro campo, y lo escrito acababa en el nombre (la e2e lo destapó: «Ana PérezH-0012»). Ahora solo se enfoca si el foco no está ya en la ficha.
 
+## Sesión del 17 nov 2026: ficha de la medida en tres bloques y marcas con la paleta de IOT (0.9.1)
+
+- Petición del usuario: al abrir una medida guardada, agrupar los datos en 1 posición pupilar (mono, DIP binocular, altura pupilar), 2 montura (dimensiones y DBL) y 3 personalización (panto, galbe y vértice); poner las marcas de medida con colores modernos y de la plantilla de IOT, y quitar el contorno que se veía dentro de la montura.
+- `renderRecord`: tres bloques numerados (cabecera con el número en un cuadro IOT Blue y filete negro). En la posición pupilar, las monoculares, la DIP binocular en el bloque azul y las alturas, por ese orden, y la DIP de cerca debajo. La personalización se muestra siempre: lo medido (perfil, galbe, vértice del método iris) con «medido» y su ±, y si no, el valor usado en el cálculo con «no medido». La graduación y la cámara pasan debajo de la foto. En móvil, una columna sin desbordar.
+- Marcas (`drawScene`, `drawProfileMarks`, con `MK`, `mkLine`, `mkHandle` y `mkChip`): azul IOT para bordes exteriores y tarjeta, magenta para el recuadro de la lente, cian para el iris y blanco discontinuo para la línea de centros. Todos los trazos llevan ribete. Las barras de los bordes exteriores tienen remates y conector discontinuo. El iris lleva una retícula con hueco en el centro. Las etiquetas OD/OI son rótulos planos en azul. El contorno detectado de la lente ya no se dibuja (sigue calculándose para colocar el recuadro).
+- La plantilla de la montura y la del galbe pasan el naranja a magenta, igual que la foto. Se actualizan la leyenda («Recuadro de la lente»), el texto del paso 3 de la plantilla y los avisos que nombraban «naranja» o «azul claro».
+- `snapshotBlob` dibuja las marcas a la escala con que se ve la foto en la ficha (unos 700 px de ancho), para que las etiquetas no salgan diminutas.
+- La sección CORE no cambia.
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?
