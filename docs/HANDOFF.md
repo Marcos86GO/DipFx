@@ -119,6 +119,14 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - **Registro de actividad** en Ajustes, para que el usuario lo comparta cuando haya un problema.
 - Los botones de una medida guardada (Editar, Exportar, Enviar…) van en una barra fija arriba.
 
+## Sesión del 17 nov 2026: identidad corporativa de IOT (0.9.0)
+
+- El usuario pidió adaptar el aspecto de la app al diseño corporativo de la plantilla `IOT_PPT_Template_2026.pptx`. De su diapositiva de guía de marca salen la paleta (IOT Blue #0062FF, IOT Black #130500, tonos del azul al 70/40/20/10 %, Cool Gray 9/7/3/2 y los secundarios magenta, violeta y cian) y la tipografía (Source Sans Pro: titulares Semibold, texto Light).
+- Cambios solo de estilo: variables de color en `:root`, Source Sans Pro (jsdelivr, con `local()` primero), formas planas y rectas, cabecera en IOT Blue con el logotipo de IOT en blanco (vectorizado del PNG de la plantilla con OpenCV), favicon plano, pasos del asistente con el actual subrayado en azul, cabeceras de tabla con filete negro, resultado principal y primera estadística de la ficha en un bloque IOT Blue. Los lienzos de la plantilla usan el azul y los grises corporativos y la misma fuente.
+- Decisiones: el texto va en Regular (400) y no en Light, que en pantalla y a 14–16 px se lee peor; el Light queda para entradillas y la segunda mitad de «DipFx». Se mantienen el verde, el rojo y el ámbar de estado y los colores de las marcas sobre la foto, porque son funcionales y los textos de ayuda los nombran.
+- La sección CORE no cambia.
+- Corregido de paso: al abrir la ficha de una persona, el nombre recibía el foco a los 30 ms aunque ya se estuviera escribiendo en otro campo, y lo escrito acababa en el nombre (la e2e lo destapó: «Ana PérezH-0012»). Ahora solo se enfoca si el foco no está ya en la ficha.
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?
