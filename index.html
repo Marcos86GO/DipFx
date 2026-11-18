@@ -275,7 +275,8 @@ body.noscroll{overflow:hidden}
 .rExtra>h3:first-child{margin-top:0}
 @media(max-width:960px){.recGrid{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;grid-template-areas:"photo" "res" "extra"}}
 .rExtra td:last-child{overflow-wrap:anywhere}
-.recGrid .res table.kv td:not(:first-child){white-space:nowrap}
+.recSec table.kv td:not(:first-child){white-space:nowrap}
+#results{margin-top:12px}
 .recSec+.recSec{margin-top:28px}
 .recSec>h3{display:flex;align-items:center;gap:10px;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid var(--ink);font-size:18px}
 .recSec>h3 .n{width:24px;height:24px;flex:none;border-radius:var(--r);display:inline-flex;align-items:center;justify-content:center;background:var(--blue);color:#fff;font-size:13px}
@@ -1838,7 +1839,7 @@ function logToText(entries, meta = {}) {
 // Idioma de la interfaz: Lg('texto en español', 'English text')
 let LANG = 'es';
 const Lg = (es, en) => LANG === 'en' ? en : es;
-const APP_VERSION = '0.9.1';
+const APP_VERSION = '0.9.2';
 // Registro de actividad: en localStorage 'dipapp.log' (últimas LOG_MAX entradas). Se descarga en Ajustes → Registro de actividad.
 const LOG_KEY = 'dipapp.log';
 let LOGS = [];
@@ -3455,6 +3456,49 @@ function setupMeasureEvents() {
 }
 const fmt = (v, d = 1) => v == null || !isFinite(v) ? '—' : v.toLocaleString(LANG === 'en' ? 'en-US' : 'es-ES', { minimumFractionDigits: d, maximumFractionDigits: d });
 const sgn = (v, d = 1) => v == null || !isFinite(v) ? '—' : (v > 0 ? '+' : '') + fmt(v, d);
+// Resultados en tres bloques numerados, comunes a la revisión y a la medida guardada:
+// 1 posición pupilar, 2 montura y 3 personalización (panto, galbe y vértice: lo medido o el valor usado en el cálculo).
+// o = { V: valores, U: ±, F: montura {od, os}, pers, P: parámetros (nearDist, panto, wrap, vertex), vertexMeasured, vertexSd,
+//       heights (false: sin alturas), pdLabel, monoNose (monoculares desde la nariz), pupilNote, frameNote: HTML extra }
+function resultBlocks(o) {
+  const V = o.V, U = o.U || {}, F = o.F, P = o.P || {}, z = o.pers || {}, OI = Lg('OI', 'OS');
+  const sec = (n, title, body) => `<section class="recSec"><h3><span class="n">${n}</span>${title}</h3>${body}</section>`;
+  const pm = (v, u, unit = 'mm', d = 1) => v == null ? '—' : `${fmt(v, d)}${u != null ? ` <span class="pm">± ${fmt(u, d)}</span>` : ''}${unit ? ` <span class="pm">${unit}</span>` : ''}`;
+  const t = (k, label, cls = '') => V[k] == null ? '' : `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(V[k])} <span class="u">${U[k] != null ? `± ${fmt(U[k])} ` : ''}mm</span></div></div>`;
+  const src = ok => ok ? `<span class="badge">${Lg('medido', 'measured')}</span>` : `<span class="badge mut" title="${Lg('Valor usado en el cálculo', 'Value used in the calculation')}">${Lg('no medido', 'not measured')}</span>`;
+  // 1 · Posición pupilar: monoculares, DIP binocular y alturas; debajo, la DIP de cerca
+  const nose = o.monoNose ? Lg(' (desde la nariz)', ' (from the nose)') : '', nearCm = fmt((P.nearDist || 400) / 10, 0);
+  let s1 = `<div class="tiles">${t('monoOD', 'Mono OD' + nose)}${t('monoOS', Lg('Mono OI', 'Mono OS') + nose)}${t('pdFar', o.pdLabel || Lg('DIP de lejos · binocular', 'Distance PD · binocular'), 'main')}`;
+  if (o.heights !== false) s1 += t('hOD', Lg('Altura pupilar OD', 'Pupil height OD')) + t('hOS', Lg('Altura pupilar OI', 'Pupil height OS'));
+  s1 += `</div>`;
+  if (V.pdNear != null) s1 += `<table class="kv" style="margin-top:8px"><tr><td>${Lg(`DIP de cerca a ${nearCm} cm`, `Near PD at ${nearCm} cm`)}</td><td>${pm(V.pdNear, U.pdNear)}</td></tr>${V.monoNearOD != null ? `<tr><td>${Lg('Mono de cerca OD / OI', 'Near mono OD / OS')}</td><td>${fmt(V.monoNearOD)} / ${fmt(V.monoNearOS)} <span class="pm">mm</span></td></tr>` : ''}</table>`;
+  if (o.pupilNote) s1 += o.pupilNote;
+  let h = sec(1, Lg('Posición pupilar', 'Pupil position'), s1);
+  // 2 · Montura: dimensiones boxing y puente
+  let s2 = '';
+  if (F || V.DBL != null) {
+    s2 += `<table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr>`;
+    if (F) s2 += `<tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${pm(F.od.A, U.A_od, '')}</td><td>${pm(F.os.A, U.A_os, '')}</td></tr><tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
+    if (V.DBL != null) s2 += `<tr><td>${Lg('Puente DBL', 'DBL bridge')}</td><td colspan="2" class="c">${pm(V.DBL, U.DBL, '')}</td></tr>`;
+    if (V.DNC != null) s2 += `<tr><td>${Lg('Distancia entre centros', 'Distance between centres')}</td><td colspan="2" class="c">${fmt(V.DNC)}</td></tr>`;
+    if (F) {
+      s2 += `<tr><td>${Lg('Diámetro efectivo ED', 'Effective diameter ED')}</td><td>${fmt(F.od.ED)}${F.od.edEst ? '*' : ''}</td><td>${fmt(F.os.ED)}${F.os.edEst ? '*' : ''}</td></tr>`;
+      s2 += `<tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr>`;
+      if (F.od.decV != null) s2 += `<tr><td>${Lg('Descentramiento V (+ arriba)', 'Vertical decentration (+ up)')}</td><td>${sgn(F.od.decV)}</td><td>${sgn(F.os.decV)}</td></tr>`;
+      s2 += `<tr><td>${Lg('Diámetro mínimo de lente', 'Minimum lens blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
+      if (V.DBL != null && isFinite(F.od.A) && isFinite(F.os.A)) s2 += `<tr><td>${Lg('Marcado probable', 'Probable marking')}</td><td colspan="2" class="c">${Math.round((F.od.A + F.os.A) / 2)}□${Math.round(V.DBL)}</td></tr>`;
+    }
+    s2 += `</table><div class="note" style="margin-top:4px">${Lg('Medidas en mm.', 'Measurements in mm.')}${F && (F.od.edEst || F.os.edEst) ? ` ${Lg('* ED estimado a partir de A y B (contorno incompleto).', '* ED estimated from A and B (incomplete outline).')}` : ''}</div>`;
+  } else s2 += `<div class="note">${Lg('Sin datos de la montura en esta medida.', 'No frame data in this measurement.')}</div>`;
+  if (o.frameNote) s2 += o.frameNote;
+  h += sec(2, Lg('Montura', 'Frame'), s2);
+  // 3 · Personalización: lo medido (foto de perfil, plantilla del galbe, método iris) o el valor usado en el cálculo
+  const panto = z.panto != null ? [`${fmt(z.panto)}° <span class="pm">± ${fmt(z.pantoSd)}</span>`, true] : [`${fmt(+P.panto || 0)}°`, false];
+  const wrap = z.wrapOd != null ? [`OD ${fmt(z.wrapOd)}° · ${OI} ${fmt(z.wrapOs)}°`, true] : [`${fmt(+P.wrap || 0)}°`, false];
+  const bvd = z.bvd != null ? [pm(z.bvd, z.bvdSd), true] : o.vertexMeasured ? [pm(V.vertex, o.vertexSd != null ? o.vertexSd : U.vertex), true] : [pm(V.vertex != null && isFinite(V.vertex) ? V.vertex : +P.vertex, null), false];
+  h += sec(3, Lg('Personalización', 'Personalisation'), `<table class="kv pers">${[[Lg('Ángulo pantoscópico', 'Pantoscopic tilt'), panto], [Lg('Galbe', 'Wrap angle'), wrap], [Lg('Distancia al vértice (BVD)', 'Back vertex distance (BVD)'), bvd]].map(([k, [v, ok]]) => `<tr><td>${k}</td><td>${v}</td><td>${src(ok)}</td></tr>`).join('')}</table>`);
+  return h;
+}
 function recompute() {
   if (!M.caps.length) return;
   const p = params();
@@ -3464,35 +3508,16 @@ function recompute() {
   lastRes = { R, u, p };
   const G = M.caps.find(c => c.id === 'G'), N = M.caps.find(c => c.id === 'N');
   const noRx = [p.rx.od.s, p.rx.od.c, p.rx.os.s, p.rx.os.c].every(v => !v);
-  const tile = (k, label, cls = '') => `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(R[k])} <span class="u">± ${fmt(u[k])} mm</span></div></div>`;
   const OI = Lg('OI', 'OS');
   let h = '';
   if (M.mode === 'iris' && G && noRx) h += `<div class="warnbox" style="margin:0 0 10px">${Lg('<b>Introduce la graduación de cada lente</b> en «Graduación de las gafas» (debajo): con ella se calcula el vértice real y se corrige el efecto prismático.', '<b>Enter the prescription of each lens</b> in “Prescription of the glasses” (below): it is used to compute the real vertex and to correct the prismatic effect.')}</div>`;
-  h += `<div class="tiles">`;
-  h += tile('pdFar', Lg(`DIP de lejos${M.mode === 'iris' ? ' (foto sin gafas)' : ''}`, `Distance PD${M.mode === 'iris' ? ' (photo without glasses)' : ''}`), 'main');
-  h += tile('monoOD', G ? Lg('Monocular OD', 'Monocular OD') : Lg('Monocular OD (desde la nariz)', 'Monocular OD (from the nose)')) + tile('monoOS', G ? Lg('Monocular OI', 'Monocular OS') : Lg('Monocular OI (desde la nariz)', 'Monocular OS (from the nose)'));
-  if (G) h += tile('hOD', Lg('Altura OD', 'Height OD')) + tile('hOS', Lg('Altura OI', 'Height OS'));
-  h += `<div class="tile"><div class="k">${Lg(`DIP de cerca a ${fmt(p.nearDist / 10, 0)} cm`, `Near PD at ${fmt(p.nearDist / 10, 0)} cm`)}</div><div class="v">${fmt(R.pdNear)} <span class="u">mm</span></div></div>`;
-  if (R.DBL != null) h += tile('DBL', Lg('Puente DBL', 'DBL bridge'));
-  const pz = R.pers, ptile = (label, v, sd, unit) => `<div class="tile"><div class="k">${label}</div><div class="v">${fmt(v)} <span class="u">${sd != null ? `± ${fmt(sd)} ` : ''}${unit}</span></div></div>`;
-  if (pz && pz.panto != null) h += ptile(Lg('Ángulo pantoscópico', 'Pantoscopic tilt'), pz.panto, pz.pantoSd, '°') + ptile(Lg('Distancia al vértice', 'Back vertex distance'), pz.bvd, pz.bvdSd, 'mm');
-  if (pz && pz.wrapOd != null) h += ptile(Lg('Galbe', 'Wrap angle') + ` (OD ${fmt(pz.wrapOd)} · ${OI} ${fmt(pz.wrapOs)})`, (pz.wrapOd + pz.wrapOs) / 2, 1, '°');
-  h += `</div>`;
-  if (M.mode !== 'iris' && noRx) h += `<div class="note" style="margin-top:8px">${Lg('¿Las gafas tienen graduación? Introdúcela en «Graduación de las gafas» para corregir el efecto prismático.', 'Do the glasses have a prescription? Enter it in “Prescription of the glasses” to correct the prismatic effect.')}</div>`;
-  const F = R.frame || (R.G && R.G.frame);
-  if (F) {
-    h += `<h3>${Lg('Montura (boxing)', 'Frame (boxing)')}</h3><table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr>`;
-    h += `<tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${fmt(F.od.A)}</td><td>${fmt(F.os.A)}</td></tr>`;
-    h += `<tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
-    h += `<tr><td>${Lg('Diámetro efectivo ED', 'Effective diameter ED')}</td><td>${fmt(F.od.ED)}${F.od.edEst ? '*' : ''}</td><td>${fmt(F.os.ED)}${F.os.edEst ? '*' : ''}</td></tr>`;
-    h += `<tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr>`;
-    h += `<tr><td>${Lg('Descentramiento V (+ arriba)', 'Vertical decentration (+ up)')}</td><td>${sgn(F.od.decV)}</td><td>${sgn(F.os.decV)}</td></tr>`;
-    h += `<tr><td>${Lg('Diámetro mínimo de lente', 'Minimum lens blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
-    const Am = (F.od.A + F.os.A) / 2;
-    h += `<tr><td>${Lg('Marcado probable', 'Probable marking')}</td><td colspan="2">${Math.round(Am)}□${Math.round(R.DBL)}</td></tr>`;
-    h += `</table>`;
-    if (F.od.edEst || F.os.edEst) h += `<div class="note">${Lg('* ED estimado a partir de A y B (contorno incompleto).', '* ED estimated from A and B (incomplete outline).')}</div>`;
-  }
+  const F = R.frame || (R.G && R.G.frame), V = {};
+  for (const k of REC_KEYS) V[k] = R[k] != null && isFinite(R[k]) ? R[k] : null;
+  h += resultBlocks({
+    V, U: u, F, pers: R.pers, P: p, vertexMeasured: R.vertexMeasured, vertexSd: R.vertexSd, heights: !!G, monoNose: !G,
+    pdLabel: M.mode === 'iris' ? Lg('DIP de lejos · foto sin gafas', 'Distance PD · photo without glasses') : null,
+    pupilNote: M.mode !== 'iris' && noRx ? `<div class="note" style="margin-top:8px">${Lg('¿Las gafas tienen graduación? Introdúcela en «Graduación de las gafas» para corregir el efecto prismático.', 'Do the glasses have a prescription? Enter it in “Prescription of the glasses” to correct the prismatic effect.')}</div>` : '',
+  });
   for (const fl of (LANG === 'en' ? R.flagsEn : R.flags)) h += `<div class="errbox">${fl}</div>`;
   $('results').innerHTML = h;
   // detalles técnicos
@@ -3985,7 +4010,7 @@ async function renderRecord(id) {
   const p = peopleCache.find(q => q.id === m.personId) || (await loadPeople()).find(q => q.id === m.personId) || {};
   S.recView = m; go('record');
   if (recUrl) { URL.revokeObjectURL(recUrl); recUrl = null; }
-  const V = m.values, U = m.unc || {}, OI = Lg('OI', 'OS'), t = (k, label, cls = '') => V[k] == null ? '' : `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(V[k])} <span class="u">${U[k] != null ? `± ${fmt(U[k])} ` : ''}mm</span></div></div>`;
+  const V = m.values, U = m.unc || {}, OI = Lg('OI', 'OS');
   let h = `<div class="viewHead" style="margin-bottom:6px"><h1>${esc(p.name || Lg('Medida', 'Measurement'))}</h1></div><div class="pinfo"><span>${fdate(m.date)}</span><span>${Lg('Método', 'Method')}: ${Lg(METHOD_LABEL[m.method], METHOD_LABEL_EN[m.method]) || ''}</span>${m.frameName ? `<span>${Lg('Montura', 'Frame')}: <b>${esc(m.frameName)}</b></span>` : ''}</div>`;
   if (m.editedAt) h += `<div class="note" style="margin-top:6px">${Lg(`Editada el ${fdate(m.editedAt)}${m.manualValues ? ' (valores corregidos a mano)' : ''}.`, `Edited on ${fdate(m.editedAt)}${m.manualValues ? ' (values corrected by hand)' : ''}.`)}${m.original && m.original.values ? ` ${Lg('Original', 'Original')}: ${Lg('DIP', 'PD')} ${fmt(m.original.values.pdFar)} · mono ${fmt(m.original.values.monoOD)} / ${fmt(m.original.values.monoOS)}${m.original.values.hOD != null ? ` · ${Lg('alturas', 'heights')} ${fmt(m.original.values.hOD)} / ${fmt(m.original.values.hOS)}` : ''}.` : ''}</div>`;
   if (m.sentAt) h += `<div class="note">${Lg(`Enviada al laboratorio el ${fdate(m.sentAt)}`, `Sent to the lab on ${fdate(m.sentAt)}`)}${m.job ? ` · JOB ${esc(m.job)}` : ''}.</div>`;
@@ -3995,34 +4020,11 @@ async function renderRecord(id) {
   if (m.image instanceof Blob) { recUrl = URL.createObjectURL(m.image); h += `<img class="recImg" src="${recUrl}" alt="${Lg('Foto de la medida', 'Measurement photo')}">`; }
   else h += `<div class="empty" style="border:1px dashed var(--line2);border-radius:var(--r)">${Lg('Sin foto guardada', 'No photo saved')}</div>`;
   h += `</div><div class="res">`;
-  const sec = (n, title, body) => `<section class="recSec"><h3><span class="n">${n}</span>${title}</h3>${body}</section>`;
-  const pm = (v, u, unit = 'mm', d = 1) => v == null ? '—' : `${fmt(v, d)}${u != null ? ` <span class="pm">± ${fmt(u, d)}</span>` : ''}${unit ? ` <span class="pm">${unit}</span>` : ''}`;
-  const src = ok => ok ? `<span class="badge">${Lg('medido', 'measured')}</span>` : `<span class="badge mut" title="${Lg('Valor usado en el cálculo', 'Value used in the calculation')}">${Lg('no medido', 'not measured')}</span>`;
-  // 1 · Posición pupilar: monoculares, DIP binocular y alturas
-  const nearCm = fmt((m.params.nearDist || 400) / 10, 0);
-  let s1 = `<div class="tiles">${t('monoOD', 'Mono OD')}${t('monoOS', Lg('Mono OI', 'Mono OS'))}${t('pdFar', Lg('DIP de lejos · binocular', 'Distance PD · binocular'), 'main')}${t('hOD', Lg('Altura pupilar OD', 'Pupil height OD'))}${t('hOS', Lg('Altura pupilar OI', 'Pupil height OS'))}</div>`;
-  if (V.pdNear != null) s1 += `<table class="kv" style="margin-top:8px"><tr><td>${Lg(`DIP de cerca a ${nearCm} cm`, `Near PD at ${nearCm} cm`)}</td><td>${pm(V.pdNear, U.pdNear)}</td></tr>${V.monoNearOD != null ? `<tr><td>${Lg('Mono de cerca OD / OI', 'Near mono OD / OS')}</td><td>${fmt(V.monoNearOD)} / ${fmt(V.monoNearOS)} <span class="pm">mm</span></td></tr>` : ''}</table>`;
-  h += sec(1, Lg('Posición pupilar', 'Pupil position'), s1);
-  // 2 · Montura: dimensiones boxing y puente
-  const F = m.frame, tp = m.params.tpl;
-  let s2 = '';
-  if (F || V.DBL != null) {
-    s2 += `<table class="kv"><tr><th></th><th>OD</th><th>${OI}</th></tr>`;
-    if (F) s2 += `<tr><td>${Lg('Calibre A', 'A (eye size)')}</td><td>${pm(F.od.A, U.A_od, '')}</td><td>${pm(F.os.A, U.A_os, '')}</td></tr><tr><td>${Lg('Altura B', 'B (height)')}</td><td>${fmt(F.od.B)}</td><td>${fmt(F.os.B)}</td></tr>`;
-    if (V.DBL != null) s2 += `<tr><td>${Lg('Puente DBL', 'DBL bridge')}</td><td colspan="2" class="c">${pm(V.DBL, U.DBL, '')}</td></tr>`;
-    if (V.DNC != null) s2 += `<tr><td>${Lg('Distancia entre centros', 'Distance between centres')}</td><td colspan="2" class="c">${fmt(V.DNC)}</td></tr>`;
-    if (F) s2 += `<tr><td>ED</td><td>${fmt(F.od.ED)}</td><td>${fmt(F.os.ED)}</td></tr><tr><td>${Lg('Descentramiento H (+ nasal)', 'Horizontal decentration (+ nasal)')}</td><td>${sgn(F.od.decH)}</td><td>${sgn(F.os.decH)}</td></tr><tr><td>${Lg('Diámetro mínimo', 'Minimum blank size')}</td><td>${fmt(F.od.MBS, 0)}</td><td>${fmt(F.os.MBS, 0)}</td></tr>`;
-    s2 += `</table><div class="note" style="margin-top:4px">${Lg('Medidas en mm.', 'Measurements in mm.')}</div>`;
-  } else s2 += `<div class="note">${Lg('Sin datos de la montura en esta medida.', 'No frame data in this measurement.')}</div>`;
-  if (m.mounting) s2 += `<div class="note" style="margin-top:6px">${mountLabel(m.mounting) || ''}${m.material ? ` · ${matLabel(m.material)}` : ''}${m.pads != null ? ` · ${Lg('plaquetas', 'nose pads')}: ${m.pads ? Lg('sí', 'yes') : 'no'}` : ''}</div>`;
-  if (tp) s2 += `<div class="note" style="margin-top:4px">${Lg('Plantilla', 'Template')}: ${Lg('ancho', 'width')} ${fmt(tp.W)}${tp.DBL ? ` · A ${fmt(tp.Aod)} / ${fmt(tp.Aos)} · DBL ${fmt(tp.DBL)}` : ''} mm</div>`;
-  h += sec(2, Lg('Montura', 'Frame'), s2);
-  // 3 · Personalización: lo medido (foto de perfil, plantilla del galbe, método iris) o el valor supuesto en el cálculo
-  const z = m.pers || {}, P = m.params;
-  const panto = z.panto != null ? [`${fmt(z.panto)}° <span class="pm">± ${fmt(z.pantoSd)}</span>`, true] : [`${fmt(P.panto || 0)}°`, false];
-  const wrap = z.wrapOd != null ? [`OD ${fmt(z.wrapOd)}° · ${OI} ${fmt(z.wrapOs)}°`, true] : [`${fmt(P.wrap || 0)}°`, false];
-  const bvd = z.bvd != null ? [pm(z.bvd, z.bvdSd), true] : m.vertexMeasured ? [pm(V.vertex, U.vertex), true] : [pm(V.vertex != null ? V.vertex : P.vertex, null), false];
-  h += sec(3, Lg('Personalización', 'Personalisation'), `<table class="kv pers">${[[Lg('Ángulo pantoscópico', 'Pantoscopic tilt'), panto], [Lg('Galbe', 'Wrap angle'), wrap], [Lg('Distancia al vértice (BVD)', 'Back vertex distance (BVD)'), bvd]].map(([k, [v, ok]]) => `<tr><td>${k}</td><td>${v}</td><td>${src(ok)}</td></tr>`).join('')}</table>`);
+  const tp = m.params.tpl, P = m.params;
+  let frameNote = '';
+  if (m.mounting) frameNote += `<div class="note" style="margin-top:6px">${mountLabel(m.mounting) || ''}${m.material ? ` · ${matLabel(m.material)}` : ''}${m.pads != null ? ` · ${Lg('plaquetas', 'nose pads')}: ${m.pads ? Lg('sí', 'yes') : 'no'}` : ''}</div>`;
+  if (tp) frameNote += `<div class="note" style="margin-top:4px">${Lg('Plantilla', 'Template')}: ${Lg('ancho', 'width')} ${fmt(tp.W)}${tp.DBL ? ` · A ${fmt(tp.Aod)} / ${fmt(tp.Aos)} · DBL ${fmt(tp.DBL)}` : ''} mm</div>`;
+  h += resultBlocks({ V, U, F: m.frame, pers: m.pers, P, vertexMeasured: m.vertexMeasured, frameNote });
   h += `</div><div class="rExtra">`;
   // Graduación, cámara, notas y avisos, debajo de la foto
   const rx = P.rx, rxs = e => !rx[e].s && !rx[e].c ? `<span class="note">${Lg('sin graduación introducida', 'no prescription entered')}</span>` : `${sgn(rx[e].s, 2)}${rx[e].c ? ` ${sgn(rx[e].c, 2)} × ${rx[e].a}°` : ''}`;

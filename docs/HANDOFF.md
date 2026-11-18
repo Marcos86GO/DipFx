@@ -136,6 +136,13 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - `snapshotBlob` dibuja las marcas a la escala con que se ve la foto en la ficha (unos 700 px de ancho), para que las etiquetas no salgan diminutas.
 - La sección CORE no cambia.
 
+## Sesión del 17 nov 2026: los mismos tres bloques en la revisión (0.9.2)
+
+- A petición del usuario, los resultados del paso «Revisar y guardar» se agrupan igual que la medida guardada. Las dos vistas usan la misma función, `resultBlocks(o)`, con los valores sin redondear en la revisión y los guardados en la ficha.
+- La tabla de la montura reúne lo que antes estaba repartido: A con su ±, B, DBL, distancia entre centros, ED (con * si es estimado), descentramientos H y V, diámetro mínimo y marcado probable. En el método iris, la DIP se rotula «foto sin gafas» y, sin foto con gafas, las monoculares «desde la nariz».
+- e2e: se adaptan dos comprobaciones a las etiquetas nuevas (`Galbe … OD x,x` y `Pupil height OS`).
+- Observación pendiente: la ficha muestra los valores guardados con dos decimales y luego redondeados a uno, así que alguna cifra puede diferir en 0,1 de la revisión (p. ej. 29,55 → 29,6 frente a 29,549 → 29,5). No se ha tocado para no cambiar el formato del registro.
+
 ## Preguntas abiertas para el usuario
 
 - ¿Hay acceso a equipos de referencia (pupilómetro, centrador digital, trazador de monturas) para crear un banco de fotos reales etiquetadas?

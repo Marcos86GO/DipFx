@@ -284,7 +284,7 @@ async def main():
         ok='Ángulo pantoscópico' in res and 'Distancia al vértice' in res and 'Galbe' in res and 'Foto de perfil' in tabs and await pg.is_disabled('#pVertex')
         print(f"  {'OK ' if ok else 'FALLO'} resultados de personalización y pestaña de perfil")
         if not ok: fails.append('resultados de personalización'); print(res, errs)
-        m=re.search(r'Galbe \(OD (-?\d+,\d)',res); check('galbe OD en resultados',float(m.group(1).replace(',','.')),w1,0.15)
+        m=re.search(r'Galbe\s+OD (-?\d+,\d)',res); check('galbe OD en resultados',float(m.group(1).replace(',','.')),w1,0.15)
         await pg.select_option('#savePerson','__new'); await pg.fill('#pfName','Marta'); await pg.click('#pfSave'); await pg.wait_for_timeout(300)
         await pg.click('#saveBtn'); await pg.wait_for_selector('#viewPerson:not(.hidden)')
         await pg.click('#personMeasures tbody tr >> nth=0'); await pg.wait_for_selector('#viewRecord:not(.hidden)')
@@ -325,7 +325,7 @@ async def main():
         await pg.wait_for_timeout(800)
         for sel,val in (('#rxOdS','-5'),('#rxOsS','-4')): await pg.fill(sel,val); await pg.dispatch_event(sel,'input')
         await pg.wait_for_timeout(400); t=await pg.input_value('#copyArea'); res=await pg.inner_text('#results')
-        m=re.search(r'Distance PD: (\d+\.\d)',t); ok=m and abs(float(m.group(1))-64.0)<=0.2 and 'Distance PD' in res and 'Height OS' in res
+        m=re.search(r'Distance PD: (\d+\.\d)',t); ok=m and abs(float(m.group(1))-64.0)<=0.2 and 'Distance PD' in res and 'Pupil height OS' in res
         print(f"  {'OK ' if ok else 'FALLO'} resultados y texto copiado en inglés ({m.group(0) if m else t[:60]})")
         if not ok: fails.append('inglés: resultados')
         async with pg.expect_download() as dl:
