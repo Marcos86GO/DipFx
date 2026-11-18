@@ -292,7 +292,14 @@ body.noscroll{overflow:hidden}
 <section class="view hidden" id="viewRecord">
   <button class="link" type="button" id="recordBack">← Volver</button>
   <div class="card" style="margin-top:8px" id="recordBody"></div>
-  <div class="actions" style="border:none"><button id="recordCopy" type="button">Copiar resultados</button><span class="sp"></span><button class="danger" id="recordDel" type="button">Borrar esta medida</button></div>
+  <div class="actions" style="border:none">
+    <button class="pri" id="recordEdit" type="button">Editar</button>
+    <button id="recordJson" type="button">Exportar JSON</button>
+    <button id="recordOma" type="button">Exportar OMA</button>
+    <button id="recordSend" type="button">Enviar al laboratorio</button>
+    <button id="recordCopy" type="button">Copiar resultados</button>
+    <span class="sp"></span><button class="danger" id="recordDel" type="button">Borrar esta medida</button>
+  </div>
 </section>
 
 <!-- ===== NUEVA MEDIDA (asistente) ===== -->
@@ -441,6 +448,7 @@ body.noscroll{overflow:hidden}
             <div class="row"><label class="f">Montura (marca, modelo; opcional)<input id="saveFrameName" type="text" placeholder="p. ej. Acetato negro 52□18"></label></div>
             <div class="row"><label class="f">Notas (opcional)<input id="saveNotes" type="text"></label></div>
             <div class="row"><label class="chk"><input type="checkbox" id="saveImg" checked> Guardar también la foto con las marcas</label></div>
+            <div class="note hidden" id="editingNote" style="margin-top:8px"></div>
             <div class="row"><button class="pri big" id="saveBtn" type="button" style="flex:1 1 auto">Guardar medida</button></div>
             <div id="saveMsg"></div>
           </div>
@@ -587,6 +595,22 @@ body.noscroll{overflow:hidden}
       <div id="dataMsg"></div>
     </div>
     <div class="card">
+      <h2>Envío al laboratorio (LMS)</h2>
+      <p class="note">Las medidas se exportan en formato OMA (DCS de The Vision Council) o JSON. Para enviarlas sin descargar archivos, elige una carpeta de importación que vigile tu LMS (Innovations, DVI, RxUniverse…) o la dirección de una pasarela HTTP.</p>
+      <div class="row" style="margin-top:0">
+        <label class="f">Formato<select id="lmsFmt"><option value="oma">OMA (DCS)</option><option value="json">JSON</option></select></label>
+        <label class="f">Envío<select id="lmsMode"><option value="">Solo descargar el archivo</option><option value="folder">Carpeta de importación del LMS</option><option value="http">Pasarela HTTP</option></select></label>
+      </div>
+      <div class="row hidden" id="lmsFolderRow" style="align-items:center"><button id="lmsPick" type="button">Elegir carpeta</button><span class="note" id="lmsFolderName"></span></div>
+      <div class="hidden" id="lmsHttpRow">
+        <div class="row"><label class="f">Dirección (URL)<input id="lmsUrl" type="url" placeholder="https://…"></label></div>
+        <div class="row"><label class="f">Cabecera de autenticación (opcional)<input id="lmsHdr" type="text" placeholder="Authorization"></label><label class="f">Valor<input id="lmsKey" type="password" autocomplete="off"></label></div>
+      </div>
+      <div class="row"><label class="f">Laboratorio o LMS (para recordarlo)<input id="lmsName" type="text" placeholder="Innovations, DVI, RxUniverse…"></label></div>
+      <div class="row"><label class="chk"><input type="checkbox" id="lmsWithName"> Incluir el nombre de la persona en el archivo</label></div>
+      <div id="lmsMsg"></div>
+    </div>
+    <div class="card">
       <h2>Analizar fotos ya hechas</h2>
       <p class="note">Para revisar fotos hechas con esta misma cámara, sin recortar. Útil para depurar.</p>
       <div class="row">
@@ -626,6 +650,24 @@ body.noscroll{overflow:hidden}
   <p class="note">Toca el punto del borde de la pantalla más cercano a la cámara, tal como tienes ahora el dispositivo. Las indicaciones para la foto se mostrarán junto a ella. Solo se pregunta una vez: queda guardado en Ajustes → Cámara, donde puedes cambiarlo.</p>
   <div class="camPick" id="camPickModal"></div>
   <div class="actions"><button id="camCancel" type="button">Cancelar</button><span class="sp"></span><button class="pri" id="camOk" type="button">Continuar</button></div>
+</div></div>
+
+<!-- ===== MODAL: exportar o enviar una medida (número de trabajo) ===== -->
+<div class="modal hidden" id="jobModal"><div class="modalBox sm">
+  <h2 id="jobTitle">Enviar al laboratorio</h2>
+  <p class="note" id="jobNote"></p>
+  <div class="row"><label class="f">Nº de trabajo o pedido en el LMS (JOB)<input id="jobNum" type="text" autocomplete="off"></label></div>
+  <div id="jobMsg"></div>
+  <div class="actions"><button id="jobCancel" type="button">Cancelar</button><span class="sp"></span><button class="pri" id="jobOk" type="button">Enviar</button></div>
+</div></div>
+
+<!-- ===== MODAL: corregir los valores de una medida antigua (sin estado editable) ===== -->
+<div class="modal hidden" id="valModal"><div class="modalBox">
+  <h2>Corregir los valores</h2>
+  <p class="note">Esta medida se guardó con una versión anterior, sin las fotos ni los marcadores editables: puedes corregir los valores a mano. Se conservan los originales.</p>
+  <div class="tplNums" id="valGrid" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
+  <div class="row"><label class="f">Montura<input id="valFrame" type="text"></label><label class="f">Notas<input id="valNotes" type="text"></label></div>
+  <div class="actions"><button id="valCancel" type="button">Cancelar</button><span class="sp"></span><button class="pri" id="valOk" type="button">Guardar cambios</button></div>
 </div></div>
 
 <!-- ===== MODAL: persona ===== -->
@@ -1557,7 +1599,7 @@ function wrapFromPoints(q) {
 }
 
 // ---------- Histórico: registros de medida, resumen, exportación (sin DOM) ----------
-const REC_KEYS = ['pdFar', 'monoOD', 'monoOS', 'hOD', 'hOS', 'pdNear', 'DBL', 'DNC', 'Z', 'vertex'];
+const REC_KEYS = ['pdFar', 'monoOD', 'monoOS', 'hOD', 'hOS', 'pdNear', 'monoNearOD', 'monoNearOS', 'DBL', 'DNC', 'Z', 'vertex'];
 const r2 = v => v == null || !isFinite(v) ? null : Math.round(v * 100) / 100;
 // Registro que se guarda en el histórico a partir del resultado de solveWithUnc (R, u) y los parámetros p
 function buildRecord(R, u, p, meta = {}) {
@@ -1639,6 +1681,64 @@ function recordsToCSV(people, measures, lang = 'es') {
   const rows = measures.slice().sort((a, b) => ((byId.get(a.personId) || {}).name || '').localeCompare((byId.get(b.personId) || {}).name || '', 'es') || (a.date < b.date ? -1 : 1));
   const sep = en ? ',' : ';';
   return [cols.map(c => csvCell(c[0], lang)).join(sep), ...rows.map(m => cols.map(c => csvCell(c[1](m), lang)).join(sep))].join('\r\n');
+}
+// ---------- Exportación de una medida: OMA (DCS de The Vision Council) y JSON ----------
+// OMA: líneas ETIQUETA=valor, ojo derecho;ojo izquierdo, terminadas en CR LF. Se usan etiquetas DCS conocidas
+// (JOB, DO, SPH, CYL, AX, IPD, NPD, SEGHT, HBOX, VBOX, FED, DBL, BVD, PANTO, ZTILT) y, para el resto, etiquetas propias
+// con el prefijo «_DIPFX_». BVD, PANTO y ZTILT solo se envían si se midieron (no se mandan valores supuestos).
+// Contrastar con la versión de DCS que use el LMS (la vigente es la 3.14).
+const omaNum = (v, d = 2) => v == null || v === '' || !isFinite(v) ? null : (+v).toFixed(d);
+const omaTxt = t => String(t == null ? '' : t).replace(/[;=\r\n]/g, ' ').trim();
+function recordToOMA(rec, person = {}, o = {}) {
+  const V = rec.values || {}, F = rec.frame, Pz = rec.pers || {}, rx = rec.params && rec.params.rx, out = [];
+  const add = (k, v) => { if (v != null && v !== '') out.push(`${k}=${v}`); };
+  const pair = (r, l, d = 2) => { const a = omaNum(r, d), b = omaNum(l, d); return a == null && b == null ? null : `${a == null ? '' : a};${b == null ? '' : b}`; };
+  add('JOB', omaTxt(o.job || (rec.id || '').slice(0, 8)));
+  add('DO', 'B');
+  if (rx && rx.od && rx.os && (rx.od.s || rx.od.c || rx.os.s || rx.os.c)) {
+    add('SPH', pair(rx.od.s, rx.os.s)); add('CYL', pair(rx.od.c, rx.os.c)); add('AX', `${Math.round(+rx.od.a || 0)};${Math.round(+rx.os.a || 0)}`);
+  }
+  add('IPD', pair(V.monoOD, V.monoOS));
+  add('NPD', pair(V.monoNearOD, V.monoNearOS));
+  add('SEGHT', pair(V.hOD, V.hOS));
+  if (F) { add('HBOX', pair(F.od.A, F.os.A)); add('VBOX', pair(F.od.B, F.os.B)); add('FED', pair(F.od.ED, F.os.ED)); }
+  add('DBL', omaNum(V.DBL));
+  const bvd = Pz.bvd != null ? Pz.bvd : rec.vertexMeasured ? V.vertex : null;
+  if (bvd != null) add('BVD', pair(bvd, bvd));
+  if (Pz.panto != null) add('PANTO', pair(Pz.panto, Pz.panto, 1));
+  if (Pz.wrapOd != null) add('ZTILT', pair(Pz.wrapOd, Pz.wrapOs, 1));
+  add('_DIPFX_PD', omaNum(V.pdFar)); add('_DIPFX_NEARPD', omaNum(V.pdNear));
+  if (rec.unc) { add('_DIPFX_UNC_PD', omaNum(rec.unc.pdFar)); add('_DIPFX_UNC_IPD', pair(rec.unc.monoOD, rec.unc.monoOS)); add('_DIPFX_UNC_SEGHT', pair(rec.unc.hOD, rec.unc.hOS)); }
+  add('_DIPFX_METHOD', rec.method); add('_DIPFX_DATE', rec.date ? String(rec.date).slice(0, 19) : null);
+  if (person.ref) add('_DIPFX_REF', omaTxt(person.ref));
+  if (o.withName && person.name) add('_DIPFX_NAME', omaTxt(person.name));
+  if (rec.frameName) add('_DIPFX_FRAME', omaTxt(rec.frameName));
+  add('_DIPFX_MOUNT', rec.mounting); add('_DIPFX_MATERIAL', rec.material);
+  if (rec.pads != null) add('_DIPFX_PADS', rec.pads ? 1 : 0);
+  return out.join('\r\n') + '\r\n';
+}
+// JSON de una medida, con unidades explícitas (mm y grados)
+function recordToJSON(rec, person = {}) {
+  const V = rec.values || {}, U = rec.unc || {}, F = rec.frame, Pz = rec.pers || {}, pr = rec.params || {};
+  const val = (v, sd) => v == null ? null : sd == null ? v : { value: v, sd };
+  return {
+    format: 'dipfx-measurement', version: 1, units: { length: 'mm', angle: 'deg' },
+    person: { name: person.name || '', ref: person.ref || '' }, date: rec.date, editedAt: rec.editedAt || null, method: rec.method,
+    centration: {
+      pdFar: val(V.pdFar, U.pdFar), monoOD: val(V.monoOD, U.monoOD), monoOS: val(V.monoOS, U.monoOS),
+      heightOD: val(V.hOD, U.hOD), heightOS: val(V.hOS, U.hOS), pdNear: V.pdNear ?? null, monoNearOD: V.monoNearOD ?? null, monoNearOS: V.monoNearOS ?? null, nearDistance: pr.nearDist ?? null,
+    },
+    frame: {
+      name: rec.frameName || '', mounting: rec.mounting || null, material: rec.material || null, pads: rec.pads ?? null,
+      boxing: F ? { od: { A: F.od.A, B: F.od.B, ED: F.od.ED }, os: { A: F.os.A, B: F.os.B, ED: F.os.ED } } : null, DBL: V.DBL ?? null, DNC: V.DNC ?? null,
+    },
+    positionOfWear: {
+      vertex: Pz.bvd != null ? { value: Pz.bvd, sd: Pz.bvdSd, measured: true } : { value: V.vertex ?? null, measured: !!rec.vertexMeasured },
+      pantoscopicTilt: Pz.panto != null ? { value: Pz.panto, sd: Pz.pantoSd, measured: true } : { value: pr.panto ?? null, measured: false },
+      wrap: Pz.wrapOd != null ? { od: Pz.wrapOd, os: Pz.wrapOs, measured: true } : { od: pr.wrap ?? null, os: pr.wrap ?? null, measured: false },
+    },
+    prescription: pr.rx || null, lensIndex: pr.index ?? null, camera: rec.camera || null, notes: rec.notes || '', flags: rec.flags || [],
+  };
 }
 // Valida una copia de seguridad importada: {app: 'dipfx', people: [...], measures: [...]}
 function normalizeImport(o) {
@@ -3407,7 +3507,7 @@ function resetMeasureInputs() {
 async function startMeasure(personId) {
   beep(440, 0.02);
   if (live.running) stopCamera();
-  M = { mode: S.mode, caps: [] }; lastRes = null; wiz.person = personId || null; wiz.savedId = null; wiz.step = null; wiz.wrap = null; wiz.profDone = false;
+  M = { mode: S.mode, caps: [] }; lastRes = null; wiz.person = personId || null; wiz.savedId = null; wiz.step = null; wiz.wrap = null; wiz.profDone = false; wiz.editing = null;
   resetMeasureInputs();
   await loadPeople();
   if (personId) nextAfterPerson(); else { showStep('person'); renderStepPerson(); $('stepPersonSearch').value = ''; }
@@ -3422,9 +3522,10 @@ const DB = {
   open() {
     if (this.db) return Promise.resolve(this.db);
     return new Promise((res, rej) => {
-      const r = indexedDB.open('dipfx', 1);
+      const r = indexedDB.open('dipfx', 2);
       r.onupgradeneeded = () => {
         const d = r.result;
+        if (!d.objectStoreNames.contains('kv')) d.createObjectStore('kv');   // v2: ajustes que no caben en localStorage (carpeta del LMS)
         if (!d.objectStoreNames.contains('people')) d.createObjectStore('people', { keyPath: 'id' });
         if (!d.objectStoreNames.contains('measures')) d.createObjectStore('measures', { keyPath: 'id' }).createIndex('personId', 'personId');
       };
@@ -3446,6 +3547,8 @@ const DB = {
   del(st, id) { return this.tx(st, 'readwrite', s => s.delete(id)); },
   clear(st) { return this.tx(st, 'readwrite', s => s.clear()); },
   byPerson(id) { return this.tx('measures', 'readonly', s => s.index('personId').getAll(id)); },
+  kvGet(k) { return this.tx('kv', 'readonly', s => s.get(k)); },
+  kvSet(k, v) { return this.tx('kv', 'readwrite', s => s.put(v, k)); },
 };
 let peopleCache = [];
 async function loadPeople() {
@@ -3514,6 +3617,9 @@ async function fillSavePerson() {
   $('savePerson').innerHTML = `<option value="">${Lg('— Elige una persona —', '— Choose a person —')}</option>` + ppl.map(p => `<option value="${p.id}">${esc(p.name)}${p.ref ? ` · ${esc(p.ref)}` : ''}</option>`).join('') + `<option value="__new">${Lg('+ Nueva persona…', '+ New person…')}</option>`;
   $('savePerson').value = wiz.person || '';
   $('saveBtn').textContent = wiz.savedId ? Lg('Actualizar la medida guardada', 'Update the saved measurement') : Lg('Guardar medida', 'Save measurement');
+  const ed = wiz.editing && wiz.editing.id === wiz.savedId ? wiz.editing : null;
+  $('editingNote').classList.toggle('hidden', !ed);
+  if (ed) $('editingNote').textContent = Lg(`Editando la medida del ${fdate(ed.date)}. Al guardar se actualiza y se conservan los valores originales.`, `Editing the measurement of ${fdate(ed.date)}. Saving updates it and keeps the original values.`);
 }
 function snapshotBlob() {
   const cap = M.caps.find(c => c.id === 'G') || M.caps[0]; if (!cap) return Promise.resolve(null);
@@ -3530,17 +3636,165 @@ async function saveMeasure() {
   if (!lastRes || !isFinite(lastRes.R.pdFar)) { $('saveMsg').innerHTML = `<div class="errbox">${Lg('No hay una medida válida que guardar.', 'There is no valid measurement to save.')}</div>`; return; }
   const { R, u, p } = lastRes, G = M.caps.find(c => c.id === 'G'), padSel = $('padSel').value;
   const pads = G && G.frameAuto ? (padSel === 'auto' ? G.frameAuto.pads.pads : padSel === 'yes') : null;
-  let image = null;
+  let image = null, state = null;
   if ($('saveImg').checked) try { image = await snapshotBlob(); } catch (e) { console.warn(e); }
+  try { state = await captureState($('saveImg').checked); } catch (e) { console.warn('estado', e); }
+  const ed = wiz.editing && wiz.editing.id === wiz.savedId ? wiz.editing : null;
   const rec = buildRecord(R, u, p, {
     id: wiz.savedId || uid(), personId: pid, frameName: $('saveFrameName').value.trim(), notes: $('saveNotes').value.trim(), pads, material: $('matSel').value,
-    camera: { label: S.camLabel || Lg('fotos subidas', 'uploaded photos'), dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value, pers: R.pers || null,
+    date: ed ? ed.date : undefined,
+    camera: ed && ed.camera ? ed.camera : { label: S.camLabel || Lg('fotos subidas', 'uploaded photos'), dfov: r2(S.fov.dfov), src: S.fov.src }, image, text: $('copyArea').value, pers: R.pers || null,
   });
+  rec.state = state;
+  if (ed) { rec.editedAt = new Date().toISOString(); rec.original = ed.original || { date: ed.date, values: ed.values, frame: ed.frame, pers: ed.pers || null }; if (ed.job) rec.job = ed.job; }
   try { await DB.put('measures', rec); } catch (e) { $('saveMsg').innerHTML = `<div class="errbox">${Lg('No se pudo guardar', 'Could not save')}: ${esc(e.message || e)}</div>`; return; }
   const was = wiz.savedId; wiz.savedId = rec.id; wiz.person = pid;
   const name = (peopleCache.find(q => q.id === pid) || {}).name || '';
   toast(was ? Lg('Medida actualizada', 'Measurement updated') : Lg(`Medida guardada en la ficha de ${name}`, `Measurement saved to ${name}’s record`));
   renderPerson(pid);
+}
+
+// ---------- Estado editable de una medida (para volver a abrirla y corregirla) ----------
+// Se guardan los marcadores de cada foto, los parámetros y, si se permite guardar fotos, un recorte de cada imagen
+// (la zona de las gafas o del perfil). No se vuelve a analizar nada al reabrir: se restaura tal cual.
+const STATE_INPUTS = ['rxOdS', 'rxOdC', 'rxOdA', 'rxOdB', 'rxOdT', 'rxOsS', 'rxOsC', 'rxOsA', 'rxOsB', 'rxOsT', 'pIndex', 'hvidOd', 'hvidOs', 'pVertex', 'pCardOff', 'pOuterOff', 'pGroove', 'pPanto', 'pWrap', 'pNear', 'mW', 'mAod', 'mDBL', 'mAos', 'pfH', 'wOd', 'wOs', 'mountSel', 'padSel', 'matSel'];
+const CAP_KEYS = ['id', 'W', 'H', 'f', 'ss', 'uploaded', 'iris', 'irisAuto', 'lmk', 'feat', 'pose', 'bridge', 'card', 'box', 'box0', 'tau', 'contour', 'contourOK', 'boxFlags', 'frameAuto', 'outer', 'outer0', 'outerAuto', 'outerV', 'prof', 'alerts', 'notes'];
+async function captureState(withImages) {
+  const caps = [];
+  for (const c of M.caps) {
+    const o = {};
+    for (const k of CAP_KEYS) if (c[k] !== undefined) o[k] = JSON.parse(JSON.stringify(c[k]));
+    if (o.lmk) o.lmk = o.lmk.map(q => ({ x: Math.round(q.x * 10) / 10, y: Math.round(q.y * 10) / 10 }));
+    if (c.burst) o.burstInfo = { ...c.burst.info };
+    if (withImages) {
+      const v = viewRect({ ...c, full: false }), cx = v.x0 + v.w / 2, cy = v.y0 + v.h / 2, w = Math.min(c.W, v.w * 1.5), h = Math.min(c.H, v.h * 1.6);
+      const x0 = Math.max(0, Math.round(cx - w / 2)), y0 = Math.max(0, Math.round(cy - h / 2)), ww = Math.min(c.W - x0, Math.round(w)), hh = Math.min(c.H - y0, Math.round(h));
+      const cv = document.createElement('canvas'); cv.width = ww; cv.height = hh; cv.getContext('2d').drawImage(c.cv, x0, y0, ww, hh, 0, 0, ww, hh);
+      o.img = { x0, y0, w: ww, h: hh, blob: await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.9)) };
+    }
+    caps.push(o);
+  }
+  const inputs = {}; for (const id of STATE_INPUTS) inputs[id] = $(id).value;
+  return { v: 1, mode: M.mode, caps, inputs, wrap: wiz.wrap || null, tpl: S.tpl || null, fov: { dfov: S.fov.dfov, ref: S.fov.ref, src: S.fov.src, srcEn: S.fov.srcEn, kind: S.fov.kind } };
+}
+async function editRecord(rec) {
+  if (!rec.state) { openValuesEdit(rec); return; }
+  const st = rec.state;
+  if (live.running) stopCamera();
+  const caps = [];
+  for (const o of st.caps) {
+    const cv = document.createElement('canvas'); cv.width = o.W; cv.height = o.H;
+    const x = cv.getContext('2d', { willReadFrequently: true }); x.fillStyle = '#2a2f38'; x.fillRect(0, 0, o.W, o.H);
+    if (o.img && o.img.blob instanceof Blob) { const bmp = await createImageBitmap(o.img.blob); x.drawImage(bmp, o.img.x0, o.img.y0, o.img.w, o.img.h); }
+    else { x.fillStyle = '#9aa4b2'; x.font = `${Math.round(o.H / 28)}px system-ui`; x.fillText(Lg('Sin foto guardada: puedes corregir los marcadores y los parámetros.', 'No photo saved: you can still correct the markers and the parameters.'), o.W * 0.05, o.H * 0.1); }
+    const cap = { ...o, cv, burst: o.burstInfo ? { stack: null, best: null, info: o.burstInfo } : null, alerts: o.alerts || [], notes: o.notes || [] };
+    delete cap.img; delete cap.burstInfo;
+    caps.push(cap);
+  }
+  M = { mode: st.mode, caps }; lastRes = null;
+  resetMeasureInputs();
+  for (const id in st.inputs) if ($(id)) $(id).value = st.inputs[id];
+  if (st.fov) S.fov = { ...S.fov, ...st.fov };
+  S.tpl = st.tpl || null; syncFovUI();
+  Object.assign(wiz, { person: rec.personId, savedId: rec.id, editing: rec, wrap: st.wrap || null, profDone: true });
+  $('saveFrameName').value = rec.frameName || ''; $('saveNotes').value = rec.notes || ''; $('saveImg').checked = !!caps.some((c, i) => st.caps[i].img);
+  await loadPeople();
+  showMeasure(caps.find(c => c.id === 'G') ? 'G' : caps[0].id);
+}
+// Medidas guardadas antes de existir el estado editable: se corrigen los valores a mano
+const VAL_FIELDS = [['pdFar', ['DIP de lejos', 'Distance PD']], ['monoOD', ['Mono OD', 'Mono OD']], ['monoOS', ['Mono OI', 'Mono OS']], ['pdNear', ['DIP de cerca', 'Near PD']], ['hOD', ['Altura OD', 'Height OD']], ['hOS', ['Altura OI', 'Height OS']], ['DBL', ['DBL', 'DBL']], ['vertex', ['Vértice', 'Vertex']]];
+const VAL_FRAME = [['od', 'A'], ['os', 'A'], ['od', 'B'], ['os', 'B'], ['od', 'ED'], ['os', 'ED']];
+let valRec = null;
+function openValuesEdit(rec) {
+  valRec = rec;
+  const num = (id, label, v) => `<label class="f">${label}<input id="${id}" type="number" step="0.1" value="${v == null ? '' : v}"></label>`;
+  let h = VAL_FIELDS.map(([k, lab]) => num('val_' + k, Lg(...lab), rec.values[k])).join('');
+  if (rec.frame) h += VAL_FRAME.map(([e, k]) => num(`val_${e}_${k}`, `${k} ${e === 'od' ? 'OD' : Lg('OI', 'OS')}`, rec.frame[e][k])).join('');
+  $('valGrid').innerHTML = h; $('valFrame').value = rec.frameName || ''; $('valNotes').value = rec.notes || '';
+  $('valModal').classList.remove('hidden');
+}
+async function saveValuesEdit() {
+  const rec = valRec; if (!rec) return;
+  const n = id => { const v = parseFloat($(id).value); return isFinite(v) ? v : null; };
+  const upd = { ...rec, values: { ...rec.values }, frame: rec.frame ? JSON.parse(JSON.stringify(rec.frame)) : null };
+  for (const [k] of VAL_FIELDS) upd.values[k] = n('val_' + k);
+  if (upd.frame) for (const [e, k] of VAL_FRAME) upd.frame[e][k] = n(`val_${e}_${k}`);
+  upd.frameName = $('valFrame').value.trim(); upd.notes = $('valNotes').value.trim();
+  upd.original = rec.original || { date: rec.date, values: rec.values, frame: rec.frame, pers: rec.pers || null };
+  upd.editedAt = new Date().toISOString(); upd.manualValues = true;
+  await DB.put('measures', upd); $('valModal').classList.add('hidden'); valRec = null;
+  toast(Lg('Medida corregida', 'Measurement corrected')); renderRecord(upd.id);
+}
+
+// ---------- Exportación y envío al laboratorio (LMS) ----------
+const LMS_KEY = 'dipapp.lms';
+const lmsCfg = () => ({ fmt: 'oma', mode: '', url: '', hdr: '', key: '', name: '', withName: false, ...(store.get(LMS_KEY) || {}) });
+function lmsSaveCfg() {
+  store.set(LMS_KEY, { fmt: $('lmsFmt').value, mode: $('lmsMode').value, url: $('lmsUrl').value.trim(), hdr: $('lmsHdr').value.trim(), key: $('lmsKey').value, name: $('lmsName').value.trim(), withName: $('lmsWithName').checked });
+  lmsUI();
+}
+async function lmsUI() {
+  const c = lmsCfg();
+  $('lmsFmt').value = c.fmt; $('lmsMode').value = c.mode; $('lmsUrl').value = c.url; $('lmsHdr').value = c.hdr; $('lmsKey').value = c.key; $('lmsName').value = c.name; $('lmsWithName').checked = c.withName;
+  $('lmsFolderRow').classList.toggle('hidden', c.mode !== 'folder'); $('lmsHttpRow').classList.toggle('hidden', c.mode !== 'http');
+  if (c.mode === 'folder') {
+    if (!window.showDirectoryPicker) { $('lmsFolderName').textContent = Lg('Este navegador no permite escribir en carpetas: usa Chrome o Edge en un ordenador.', 'This browser cannot write to folders: use Chrome or Edge on a computer.'); $('lmsPick').disabled = true; }
+    else { let h = null; try { h = await DB.kvGet('lmsDir'); } catch { } $('lmsFolderName').textContent = h ? `${Lg('Carpeta', 'Folder')}: ${h.name}` : Lg('Ninguna carpeta elegida', 'No folder chosen'); }
+  }
+  $('recordSend').textContent = c.mode ? Lg(`Enviar al laboratorio${c.name ? ` (${c.name})` : ''}`, `Send to the lab${c.name ? ` (${c.name})` : ''}`) : Lg('Enviar al laboratorio', 'Send to the lab');
+}
+const jobDefault = rec => rec.job || (((peopleCache.find(q => q.id === rec.personId) || {}).ref || '') + '').replace(/[^\w-]/g, '') || rec.id.slice(0, 8);
+function exportPayload(rec, fmt, job) {
+  const person = peopleCache.find(q => q.id === rec.personId) || {}, c = lmsCfg(), who = c.withName ? person : { ref: person.ref };
+  if (fmt === 'json') return { name: `${job}.json`, type: 'application/json', body: JSON.stringify({ ...recordToJSON(rec, who), job }, null, 2) };
+  return { name: `${job}.oma`, type: 'text/plain', body: recordToOMA(rec, person, { job, withName: c.withName }) };
+}
+let jobCtx = null;
+function openJob(rec, action) {
+  jobCtx = { rec, action }; const c = lmsCfg();
+  $('jobTitle').textContent = action === 'send' ? Lg('Enviar al laboratorio', 'Send to the lab') : action === 'json' ? Lg('Exportar JSON', 'Export JSON') : Lg('Exportar OMA', 'Export OMA');
+  $('jobNote').textContent = action === 'send'
+    ? (c.mode === 'folder' ? Lg('Se escribirá el archivo en la carpeta de importación del LMS.', 'The file will be written to the LMS import folder.') : c.mode === 'http' ? Lg(`Se enviará a ${c.url || '(sin dirección)'}.`, `It will be sent to ${c.url || '(no address)'}.`) : Lg('No hay un envío configurado en Ajustes: se descargará el archivo para que lo importes en el LMS.', 'No sending method is set in Settings: the file will be downloaded so you can import it into the LMS.'))
+    : Lg('El número de trabajo permite al laboratorio asociar las medidas a su pedido.', 'The job number lets the lab match the measurements to its order.');
+  $('jobOk').textContent = action === 'send' ? Lg('Enviar', 'Send') : Lg('Exportar', 'Export');
+  $('jobNum').value = jobDefault(rec); $('jobMsg').innerHTML = '';
+  $('jobModal').classList.remove('hidden'); setTimeout(() => $('jobNum').select(), 30);
+}
+async function lmsWriteFolder(file) {
+  const dir = await DB.kvGet('lmsDir');
+  if (!dir) throw new Error(Lg('elige la carpeta en Ajustes → Envío al laboratorio', 'choose the folder in Settings → Send to the lab'));
+  let perm = await dir.queryPermission({ mode: 'readwrite' });
+  if (perm !== 'granted') perm = await dir.requestPermission({ mode: 'readwrite' });
+  if (perm !== 'granted') throw new Error(Lg('sin permiso para escribir en la carpeta', 'no permission to write to the folder'));
+  const fh = await dir.getFileHandle(file.name, { create: true }), w = await fh.createWritable();
+  await w.write(file.body); await w.close();
+  return Lg(`Archivo ${file.name} escrito en la carpeta ${dir.name}.`, `File ${file.name} written to the folder ${dir.name}.`);
+}
+async function lmsPost(file) {
+  const c = lmsCfg();
+  if (!/^https?:\/\//.test(c.url)) throw new Error(Lg('falta la dirección de la pasarela en Ajustes', 'the gateway address is missing in Settings'));
+  const headers = { 'Content-Type': file.type + '; charset=utf-8' };
+  if (c.hdr && c.key) headers[c.hdr] = c.key;
+  const r = await fetch(c.url, { method: 'POST', headers, body: file.body });
+  if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText || ''}`.trim());
+  return Lg(`Enviado (${r.status}).`, `Sent (${r.status}).`);
+}
+async function doJob() {
+  const { rec, action } = jobCtx || {}; if (!rec) return;
+  const job = $('jobNum').value.trim().replace(/[;=\r\n\/\\]/g, '') || rec.id.slice(0, 8), c = lmsCfg();
+  const file = exportPayload(rec, action === 'send' ? c.fmt : action, job);
+  try {
+    let msg;
+    if (action === 'send' && c.mode === 'folder') msg = await lmsWriteFolder(file);
+    else if (action === 'send' && c.mode === 'http') msg = await lmsPost(file);
+    else { download(file.name, new Blob([file.body], { type: file.type })); msg = Lg(`Descargado ${file.name}.`, `Downloaded ${file.name}.`); }
+    const upd = { ...rec, job }; if (action === 'send') upd.sentAt = new Date().toISOString();
+    await DB.put('measures', upd); S.recView = upd;
+    $('jobModal').classList.add('hidden'); toast(msg); jobCtx = null;
+    if (S.view === 'record') renderRecord(upd.id);
+  } catch (e) {
+    $('jobMsg').innerHTML = `<div class="errbox">${Lg('No se pudo enviar', 'Could not send')}: ${esc(e.message || e)}${c.mode === 'http' ? `<br>${Lg('Comprueba que la pasarela acepta peticiones de esta página (CORS) y que usa https.', 'Check that the gateway accepts requests from this page (CORS) and uses https.')}` : ''}</div>`;
+  }
 }
 
 // ---------- Medida guardada ----------
@@ -3552,6 +3806,8 @@ async function renderRecord(id) {
   if (recUrl) { URL.revokeObjectURL(recUrl); recUrl = null; }
   const V = m.values, U = m.unc || {}, OI = Lg('OI', 'OS'), t = (k, label, cls = '') => V[k] == null ? '' : `<div class="tile ${cls}"><div class="k">${label}</div><div class="v">${fmt(V[k])} <span class="u">${U[k] != null ? `± ${fmt(U[k])} ` : ''}mm</span></div></div>`;
   let h = `<div class="viewHead" style="margin-bottom:6px"><h1>${esc(p.name || Lg('Medida', 'Measurement'))}</h1></div><div class="pinfo"><span>${fdate(m.date)}</span><span>${Lg('Método', 'Method')}: ${Lg(METHOD_LABEL[m.method], METHOD_LABEL_EN[m.method]) || ''}</span>${m.frameName ? `<span>${Lg('Montura', 'Frame')}: <b>${esc(m.frameName)}</b></span>` : ''}</div>`;
+  if (m.editedAt) h += `<div class="note" style="margin-top:6px">${Lg(`Editada el ${fdate(m.editedAt)}${m.manualValues ? ' (valores corregidos a mano)' : ''}.`, `Edited on ${fdate(m.editedAt)}${m.manualValues ? ' (values corrected by hand)' : ''}.`)}${m.original && m.original.values ? ` ${Lg('Original', 'Original')}: ${Lg('DIP', 'PD')} ${fmt(m.original.values.pdFar)} · mono ${fmt(m.original.values.monoOD)} / ${fmt(m.original.values.monoOS)}${m.original.values.hOD != null ? ` · ${Lg('alturas', 'heights')} ${fmt(m.original.values.hOD)} / ${fmt(m.original.values.hOS)}` : ''}.` : ''}</div>`;
+  if (m.sentAt) h += `<div class="note">${Lg(`Enviada al laboratorio el ${fdate(m.sentAt)}`, `Sent to the lab on ${fdate(m.sentAt)}`)}${m.job ? ` · JOB ${esc(m.job)}` : ''}.</div>`;
   h += `<div class="grid2" style="margin-top:14px"><div>`;
   if (m.image instanceof Blob) { recUrl = URL.createObjectURL(m.image); h += `<img class="recImg" src="${recUrl}" alt="${Lg('Foto de la medida', 'Measurement photo')}">`; }
   else h += `<div class="empty" style="border:1px dashed var(--line);border-radius:12px">${Lg('Sin foto guardada', 'No photo saved')}</div>`;
@@ -3655,6 +3911,20 @@ function setupAppEvents() {
   $('savePerson').addEventListener('change', e => { if (e.target.value === '__new') openPersonModal(null, p => { wiz.person = p.id; fillSavePerson(); renderWho(); }); });
   $('saveBtn').addEventListener('click', saveMeasure);
   $('recordBack').addEventListener('click', () => S.recView && S.recView.personId ? renderPerson(S.recView.personId) : go('people'));
+  $('recordEdit').addEventListener('click', () => S.recView && editRecord(S.recView));
+  $('recordJson').addEventListener('click', () => S.recView && openJob(S.recView, 'json'));
+  $('recordOma').addEventListener('click', () => S.recView && openJob(S.recView, 'oma'));
+  $('recordSend').addEventListener('click', () => S.recView && openJob(S.recView, 'send'));
+  $('jobOk').addEventListener('click', doJob);
+  $('jobNum').addEventListener('keydown', e => { if (e.key === 'Enter') doJob(); });
+  $('jobCancel').addEventListener('click', () => { $('jobModal').classList.add('hidden'); jobCtx = null; });
+  $('valOk').addEventListener('click', saveValuesEdit);
+  $('valCancel').addEventListener('click', () => { $('valModal').classList.add('hidden'); valRec = null; });
+  for (const id of ['lmsFmt', 'lmsMode', 'lmsUrl', 'lmsHdr', 'lmsKey', 'lmsName', 'lmsWithName']) $(id).addEventListener('change', lmsSaveCfg);
+  $('lmsPick').addEventListener('click', async () => {
+    try { const h = await window.showDirectoryPicker({ id: 'dipfx-lms', mode: 'readwrite' }); await DB.kvSet('lmsDir', h); lmsUI(); }
+    catch (e) { if (e && e.name !== 'AbortError') $('lmsMsg').innerHTML = `<div class="errbox">${esc(e.message || e)}</div>`; }
+  });
   $('recordCopy').addEventListener('click', async () => { const t = S.recView && S.recView.text || ''; try { await navigator.clipboard.writeText(t); toast(Lg('Resultados copiados', 'Results copied')); } catch { toast(Lg('No se pudo copiar', 'Could not copy')); } });
   $('recordDel').addEventListener('click', async () => {
     const m = S.recView; if (!m || !confirm(Lg('¿Borrar esta medida? No se puede deshacer.', 'Delete this measurement? This cannot be undone.'))) return;
@@ -3926,7 +4196,33 @@ const I18N_EN = {
 "Referencia (nº de cliente, historia…)": "Reference (client no., record…)",
 "Fecha de nacimiento": "Date of birth",
 "Notas": "Notes",
-"Guardar": "Save"
+"Guardar": "Save",
+"Exportar JSON": "Export JSON",
+"Exportar OMA": "Export OMA",
+"Enviar al laboratorio": "Send to the lab",
+"Envío al laboratorio (LMS)": "Send to the lab (LMS)",
+"Las medidas se exportan en formato OMA (DCS de The Vision Council) o JSON. Para enviarlas sin descargar archivos, elige una carpeta de importación que vigile tu LMS (Innovations, DVI, RxUniverse…) o la dirección de una pasarela HTTP.": "Measurements are exported as OMA (The Vision Council’s DCS) or JSON. To send them without downloading files, choose an import folder watched by your LMS (Innovations, DVI, RxUniverse…) or the address of an HTTP gateway.",
+"Formato": "Format",
+"OMA (DCS)": "OMA (DCS)",
+"JSON": "JSON",
+"Envío": "Sending",
+"Solo descargar el archivo": "Download the file only",
+"Carpeta de importación del LMS": "LMS import folder",
+"Pasarela HTTP": "HTTP gateway",
+"Elegir carpeta": "Choose folder",
+"Dirección (URL)": "Address (URL)",
+"https://…": "https://…",
+"Cabecera de autenticación (opcional)": "Authentication header (optional)",
+"Authorization": "Authorization",
+"Valor": "Value",
+"Laboratorio o LMS (para recordarlo)": "Lab or LMS (as a reminder)",
+"Innovations, DVI, RxUniverse…": "Innovations, DVI, RxUniverse…",
+"Incluir el nombre de la persona en el archivo": "Include the person’s name in the file",
+"Nº de trabajo o pedido en el LMS (JOB)": "Job or order number in the LMS (JOB)",
+"Enviar": "Send",
+"Corregir los valores": "Correct the values",
+"Esta medida se guardó con una versión anterior, sin las fotos ni los marcadores editables: puedes corregir los valores a mano. Se conservan los originales.": "This measurement was saved with an earlier version, without editable photos or markers: you can correct the values by hand. The originals are kept.",
+"Guardar cambios": "Save changes"
 };
 const I18N_TXT = new WeakMap(), I18N_ATTR = new WeakMap();
 function translateStatic() {
@@ -3950,7 +4246,7 @@ function applyLang(lang) {
   LANG = lang === 'en' ? 'en' : 'es';
   document.documentElement.lang = LANG; $('langSel').value = LANG;
   translateStatic();
-  setModeUI(); renderScrStatus(); renderCamStatus(); renderDevInfo(); syncFovUI();
+  setModeUI(); renderScrStatus(); renderCamStatus(); renderDevInfo(); syncFovUI(); lmsUI();
   if (S.view === 'people') renderPeople();
   if (S.view === 'person' && S.personView) renderPerson(S.personView);
   if (S.view === 'record' && S.recView) renderRecord(S.recView.id);
@@ -4050,7 +4346,7 @@ async function processFiles() {
   // fotos subidas: una medida nueva, salvo que se esté completando otra de fotos subidas (iris: sin gafas y con gafas)
   if (!M.caps.length || M.caps.some(c => !c.uploaded) || M.mode !== S.mode) {
     M = { mode: S.mode, caps: [] }; lastRes = null; resetMeasureInputs();
-    Object.assign(wiz, { person: null, savedId: null, wrap: null, profDone: true });
+    Object.assign(wiz, { person: null, savedId: null, wrap: null, profDone: true, editing: null });
   }
   M.mode = S.mode;
   if (S.mode === 'iris') {
@@ -4074,6 +4370,7 @@ setupScrEvents();
 setupTplEvents();
 setupAppEvents();
 setupWrapEvents();
+lmsUI();
 setWho('selfie');
 LANG = /^es\b/i.test(navigator.language || '') ? 'es' : 'en';
 loadPrefs();

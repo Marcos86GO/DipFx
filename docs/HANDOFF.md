@@ -78,7 +78,7 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - El usuario pidió guardar las medidas de cada persona, con un histórico de todas sus medidas, y una interfaz limpia, sencilla y que guíe el proceso.
 - Decisión: sin servidor, **todo en el navegador** con IndexedDB (personas y medidas; la foto con las marcas, opcional, como JPEG). Copia de seguridad JSON (con o sin fotos), importación y CSV para hojas de cálculo. Motivo: la app es estática (GitHub Pages) y las fotos de caras son datos personales sensibles.
 - Interfaz rehecha: cabecera con Personas / Ajustes / + Nueva medida; asistente por pasos con indicador de progreso; resultados en tarjetas con las cifras clave y los detalles técnicos plegados; editor que amplía la zona de las gafas; ajustes agrupados; diseño adaptado al móvil.
-- Pendiente: reabrir una medida guardada para reeditar marcadores, informe PDF, sincronización entre dispositivos.
+- Pendiente: informe PDF, sincronización entre dispositivos (la edición de medidas guardadas se hizo después).
 
 ## Sesión del 18 nov 2026: logo y plantilla rediseñada
 
@@ -103,6 +103,14 @@ Contexto del usuario: optometrista formado en España, sin licencia en EE. UU. D
 - Las dos medidas se activan en Ajustes («Medidas de personalización») y añaden dos pasos omitibles al asistente.
 - **Inglés**: selector de idioma en Ajustes (por defecto, el del navegador). Textos fijos por diccionario y textos generados con `Lg()`. CSV en inglés con coma y punto decimal.
 - Corregido de paso: al volver a elegir la misma foto en «Analizar fotos ya hechas» no se analizaba (el selector no avisaba del cambio); al subir fotos se arrastraban parámetros de la medida anterior.
+
+## Sesión del 18 nov 2026: editar, exportar y enviar al laboratorio
+
+- **Editar** una medida guardada: desde ahora cada medida guarda su estado (marcadores, parámetros, plantilla, FOV y un recorte JPEG de la zona de las gafas), así que «Editar» la reabre en la revisión con todo ajustable. Al guardar se sustituye (no se duplica) y se conservan la fecha original, la fecha de edición y los valores originales. Las medidas guardadas antes no tienen estado: se editan sus valores a mano.
+- **Exportar** cada medida en JSON (formato `dipfx-measurement` v1, con ± y origen de cada dato) y en OMA según DCS (`.oma`, CRLF, derecho;izquierdo). BVD, PANTO y ZTILT solo se escriben si se midieron. Pide número de trabajo (JOB).
+- **Enviar al LMS**: Ajustes → Envío al laboratorio. Carpeta vigilada (Chrome/Edge de escritorio; el LMS o su software de importación recoge el archivo) o pasarela HTTP (POST con cabecera de clave opcional). La medida queda marcada como enviada con su número de trabajo.
+- Límite: el navegador no puede hablar DCS por TCP. Para una conexión directa con Innovations, DVI o RxUniverse hace falta un puente local y sus especificaciones. La correspondencia de etiquetas DCS está por verificar con un LMS real.
+- IndexedDB pasa a la versión 2 (almacén `kv`).
 
 ## Preguntas abiertas para el usuario
 

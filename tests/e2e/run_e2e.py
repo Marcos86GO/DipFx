@@ -3,7 +3,7 @@ Requisitos: pip install playwright && playwright install chromium   (o CHROME_PA
             python3 tests/fixtures/gen_e2e.py
 Comprueba: método montura en vivo (calibración de pantalla, plantilla, ráfaga apilada, bordes exteriores),
 fichas de personas e histórico (dos medidas, persistencia, CSV), método tarjeta en vivo y método iris con fotos subidas."""
-import asyncio, http.server, threading, functools, os, re, sys
+import asyncio, http.server, threading, functools, os, re, sys, json
 from playwright.async_api import async_playwright
 ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','..')); OUT=os.path.join(ROOT,'tests','fixtures','out')
 PORT=8790
@@ -126,6 +126,53 @@ async def main():
         if 'Pasta (acetato)' not in rb or 'plaquetas: no' not in rb: fails.append('material guardado'); print('  FALLO la medida guardada no recoge material y plaquetas')
         if not await pg.locator('#recordBody img.recImg').count(): fails.append('foto guardada'); print('  FALLO la medida no guarda la foto')
         await pg.screenshot(path=os.path.join(OUT,'e2e_registro.png'),full_page=True)
+        # editar la medida guardada: con un ancho de plantilla un 1 % mayor la DIP crece un 1 %
+        d0=num1(rb,'DIP de lejos')
+        await pg.click('#recordEdit'); await pg.wait_for_selector('#measurePanel:not(.hidden)'); await pg.wait_for_timeout(500)
+        ok=await pg.is_visible('#editingNote') and await pg.locator('#capTabs button').count()>=1
+        print(f"  {'OK ' if ok else 'FALLO'} la medida guardada se reabre para editarla")
+        if not ok: fails.append('reabrir medida')
+        await pg.click('#tplMeasWrap >> xpath=ancestor::details/summary'); 
+        for k in ('#mW','#mAod','#mDBL','#mAos'):
+            v=await pg.input_value(k)
+            if v: await pg.fill(k,f"{float(v)*1.01:.3f}"); await pg.dispatch_event(k,'input')
+        await pg.wait_for_timeout(300)
+        await pg.click('#saveBtn'); await pg.wait_for_selector('#viewPerson:not(.hidden)'); await pg.wait_for_timeout(300)
+        check('medidas en la ficha tras editar (no se duplica)',await pg.locator('#personMeasures tbody tr').count(),2,0)
+        await pg.click('#personMeasures tbody tr >> nth=0'); await pg.wait_for_selector('#viewRecord:not(.hidden)'); await pg.wait_for_timeout(300)
+        rb2=await pg.inner_text('#recordBody'); check('DIP tras editar (+1 % de escala)',num1(rb2,'DIP de lejos'),d0*1.01,0.15)
+        ok='Editada el' in rb2 and 'Original' in rb2; print(f"  {'OK ' if ok else 'FALLO'} se guardan la fecha de edición y los valores originales")
+        if not ok: fails.append('historial de edición')
+        # exportar OMA y JSON
+        async with pg.expect_download() as dl:
+            await pg.click('#recordOma'); await pg.fill('#jobNum','T123'); await pg.click('#jobOk')
+        oma=open(await (await dl.value).path(),newline='').read()
+        ok=oma.startswith('JOB=T123\r\nDO=B\r\n') and re.search(r'\r\nIPD=\d+\.\d\d;\d+\.\d\d\r\n',oma) and 'SEGHT=' in oma and 'HBOX=' in oma and '_DIPFX_REF=H-0012' in oma
+        print(f"  {'OK ' if ok else 'FALLO'} exportación OMA ({len(oma.splitlines())} líneas)")
+        if not ok: fails.append('OMA'); print(oma)
+        async with pg.expect_download() as dl:
+            await pg.click('#recordJson'); await pg.click('#jobOk')
+        js=json.load(open(await (await dl.value).path()))
+        ok=js['format']=='dipfx-measurement' and js['job']=='T123' and abs(js['centration']['pdFar']['value']-d0*1.01)<0.2
+        print(f"  {'OK ' if ok else 'FALLO'} exportación JSON"); 
+        if not ok: fails.append('JSON')
+        # envío a una pasarela HTTP (simulada)
+        got={}
+        async def lms(r):
+            got['body']=r.request.post_data; got['ct']=r.request.headers.get('content-type'); got['auth']=r.request.headers.get('x-api-key')
+            await r.fulfill(status=200,headers={'Access-Control-Allow-Origin':'*'},body='ok')
+        await pg.route('https://lms.example.test/**',lms)
+        await pg.click('nav [data-view=settings]'); await pg.select_option('#lmsMode','http')
+        await pg.fill('#lmsUrl','https://lms.example.test/import'); await pg.dispatch_event('#lmsUrl','change')
+        await pg.fill('#lmsHdr','X-Api-Key'); await pg.dispatch_event('#lmsHdr','change'); await pg.fill('#lmsKey','secreto'); await pg.dispatch_event('#lmsKey','change')
+        await pg.click('nav [data-view=people]'); await pg.wait_for_timeout(300); await pg.click('#peopleTable tbody tr >> nth=0'); await pg.wait_for_timeout(300)
+        await pg.click('#personMeasures tbody tr >> nth=0'); await pg.wait_for_selector('#viewRecord:not(.hidden)')
+        await pg.click('#recordSend'); await pg.click('#jobOk'); await pg.wait_for_timeout(800)
+        ok=bool(got.get('body')) and 'JOB=T123' in got['body'] and got.get('auth')=='secreto' and 'text/plain' in (got.get('ct') or '')
+        print(f"  {'OK ' if ok else 'FALLO'} envío OMA a la pasarela HTTP con su clave")
+        if not ok: fails.append('envío HTTP'); print(got, await pg.inner_text('#jobMsg'))
+        ok='Enviada al laboratorio' in await pg.inner_text('#recordBody'); print(f"  {'OK ' if ok else 'FALLO'} la medida queda marcada como enviada")
+        if not ok: fails.append('marca de envío')
         # persistencia tras recargar y exportación CSV
         await pg.reload(); await pg.wait_for_timeout(800)
         rows=await pg.locator('#peopleTable tbody tr').all_inner_texts()
